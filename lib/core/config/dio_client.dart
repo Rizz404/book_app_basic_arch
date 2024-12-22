@@ -7,7 +7,9 @@ class DioClient {
   late final Dio dio;
 
   // Konstanta untuk konfigurasi
-  static const String _baseUrl = 'http://192.168.32.16:5000/api';
+  // static const String _baseUrl = 'http://192.168.32.16:5000/api';
+  static const String _baseUrl =
+      'https://straight-dareen-happiness-overload-7d6989f4.koyeb.app/api';
   static const Duration _connectTimeout = Duration(seconds: 10);
   static const Duration _receiveTimeout = Duration(seconds: 10);
   static const Map<String, String> _baseHeaders = {
