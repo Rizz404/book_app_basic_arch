@@ -1,7 +1,9 @@
+import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
 import 'package:book_app_basic_arch/feature/author/author_provider.dart';
 import 'package:book_app_basic_arch/feature/author/enum_author_operation.dart';
 import 'package:book_app_basic_arch/feature/author/screen/author_detail_screen.dart';
 import 'package:book_app_basic_arch/feature/author/widgets/author_card.dart';
+import 'package:book_app_basic_arch/feature/profile/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -59,29 +61,44 @@ class AuthorScreen extends StatelessWidget {
             }
 
             if (authors.isNotEmpty) {
-              return ListView.builder(
-                itemCount: authors.length,
-                itemBuilder: (context, index) {
-                  final author = authors[index];
-                  return AuthorCard(
-                    name: author.name,
-                    biography: author.biography,
-                    birthDate: author.birthDate,
-                    deathDate: author.deathDate,
-                    profilePicture: author.profilePicture,
-                    onTap: () {
-                      // Navigasi ke halaman detail author
+              return Column(
+                children: [
+                  StyledButton(
+                    onPressed: () {
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AuthorDetailScreen(
-                            authorId: author.id,
-                          ),
-                        ),
-                      );
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ProfileScreen()));
                     },
-                  );
-                },
+                    child: Text('To profile'),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: authors.length,
+                      itemBuilder: (context, index) {
+                        final author = authors[index];
+                        return AuthorCard(
+                          name: author.name,
+                          biography: author.biography,
+                          birthDate: author.birthDate,
+                          deathDate: author.deathDate,
+                          profilePicture: author.profilePicture,
+                          onTap: () {
+                            // Navigasi ke halaman detail author
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AuthorDetailScreen(
+                                  authorId: author.id,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
               );
             } else {
               // State kosong
