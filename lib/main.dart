@@ -1,3 +1,5 @@
+import 'package:book_app_basic_arch/feature/auth/auth_provider.dart';
+import 'package:book_app_basic_arch/feature/auth/screen/auth_screen.dart';
 import 'package:book_app_basic_arch/feature/author/author_provider.dart';
 import 'package:book_app_basic_arch/feature/author/screen/author_screen.dart';
 import 'package:book_app_basic_arch/feature/genre/genre_provider.dart';
@@ -8,6 +10,9 @@ import 'package:provider/provider.dart';
 void main() {
   runApp(
     MultiProvider(providers: [
+      ChangeNotifierProvider(
+        create: (_) => AuthProvider(),
+      ),
       ChangeNotifierProvider(
         create: (_) => GenreProvider(),
       ),
@@ -26,7 +31,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Just chilling',
-      home: AuthorScreen(),
+      home: AuthScreen(),
     );
   }
 }
