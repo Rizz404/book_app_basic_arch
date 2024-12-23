@@ -1,4 +1,3 @@
-import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
 import 'package:book_app_basic_arch/feature/auth/auth_provider.dart';
 import 'package:book_app_basic_arch/feature/profile/model/profile_model.dart';
@@ -21,8 +20,7 @@ class ProfileScreen extends StatelessWidget {
       profileProvider.getUserProfile();
     });
 
-    return BaseScaffold(
-      requireAuth: true,
+    return Scaffold(
       appBar: AppBar(
         title: const Text("UserProfile"),
       ),

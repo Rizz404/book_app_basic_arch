@@ -1,4 +1,3 @@
-import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_text_field.dart';
 import 'package:book_app_basic_arch/feature/auth/auth_provider.dart';
@@ -45,24 +44,24 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
+    // final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
 
-    if (isAuthenticated) {
-      Future.microtask(() {
-        // todo: Async gaps titid benerin
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const AuthorScreen(),
-          ),
-        );
-      });
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
+    // if (isAuthenticated) {
+    //   Future.microtask(() {
+    //     // todo: Async gaps titid benerin
+    //     Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(
+    //         builder: (context) => const AuthorScreen(),
+    //       ),
+    //     );
+    //   });
+    //   return const Center(
+    //     child: CircularProgressIndicator(),
+    //   );
+    // }
 
-    return BaseScaffold(
+    return Scaffold(
       body: Consumer<AuthProvider>(
         builder: (BuildContext context, provider, _) {
           final isLoadingRegister =

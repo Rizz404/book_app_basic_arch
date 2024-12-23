@@ -1,3 +1,4 @@
+import 'package:book_app_basic_arch/core/config/go_router.dart';
 import 'package:book_app_basic_arch/feature/auth/auth_provider.dart';
 import 'package:book_app_basic_arch/feature/auth/screen/auth_screen.dart';
 import 'package:book_app_basic_arch/feature/author/author_provider.dart';
@@ -37,10 +38,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Just chilling',
-      home: BookScreen(),
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
+      routerConfig: goRouter,
     );
   }
 }

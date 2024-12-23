@@ -1,4 +1,3 @@
-import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
 import 'package:book_app_basic_arch/feature/author/author_provider.dart';
 import 'package:book_app_basic_arch/feature/author/enum_author_operation.dart';
@@ -20,8 +19,7 @@ class AuthorScreen extends StatelessWidget {
       authorProvider.getAuthors();
     });
 
-    return BaseScaffold(
-      requireAuth: true,
+    return Scaffold(
       appBar: AppBar(
         title: const Text("Authors"),
       ),
