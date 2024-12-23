@@ -1,4 +1,4 @@
-import 'package:book_app_basic_arch/core/config/dio_client.dart';
+import 'package:book_app_basic_arch/core/network/dio_client.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_error_response.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_success_response.dart';
 import 'package:book_app_basic_arch/feature/profile/model/profile_model.dart';

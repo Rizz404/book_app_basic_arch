@@ -1,12 +1,14 @@
-import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
-import 'package:book_app_basic_arch/feature/book/model/book_model.dart';
-import 'package:book_app_basic_arch/feature/book/book_provider.dart';
-import 'package:book_app_basic_arch/feature/book/enum_book_operation.dart';
-import 'package:book_app_basic_arch/feature/book/screen/book_detail_screen.dart';
-import 'package:book_app_basic_arch/feature/book/widgets/book_card.dart';
-import 'package:book_app_basic_arch/feature/profile/screen/profile_screen.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:book_app_basic_arch/feature/book/book_provider.dart';
+import 'package:book_app_basic_arch/feature/book/enum_book_operation.dart';
+import 'package:book_app_basic_arch/feature/book/model/book_model.dart';
+import 'package:book_app_basic_arch/feature/book/screen/book_detail_screen.dart';
+import 'package:book_app_basic_arch/feature/book/widgets/book_card.dart';
 
 class BookScreen extends StatelessWidget {
   const BookScreen({super.key});
@@ -28,13 +30,6 @@ class BookScreen extends StatelessWidget {
         onRefresh: () => bookProvider.getBooks(),
         child: Column(
           children: [
-            StyledButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ProfileScreen()));
-              },
-              child: Text('To profile'),
-            ),
             Expanded(
               child: Consumer<BookProvider>(
                 builder: (context, provider, _) {
@@ -54,41 +49,21 @@ class BookScreen extends StatelessWidget {
     final books = provider.books;
 
     if (isLoadingBooks) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return StyledLoadingState();
     }
 
     if (errorMessageBooks != null) {
-      return _buildErrorState(errorMessageBooks, provider);
-    }
-
-    if (books.isEmpty) {
-      return const Center(
-        child: Text("No books found."),
+      return StyledErrorMessage(
+        errorMessage: errorMessageBooks,
+        onRetry: provider.getBooks,
       );
     }
 
-    return _buildBookList(context, books);
-  }
+    if (books.isEmpty) {
+      return StyledEmptyData(message: 'No books found');
+    }
 
-  Widget _buildErrorState(String errorMessage, BookProvider provider) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "Error: $errorMessage",
-            style: const TextStyle(color: Colors.red),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () => provider.getBooks(),
-            child: const Text("Retry"),
-          ),
-        ],
-      ),
-    );
+    return _buildBookList(context, books);
   }
 
   Widget _buildBookList(BuildContext context, List<BookModel> books) {
