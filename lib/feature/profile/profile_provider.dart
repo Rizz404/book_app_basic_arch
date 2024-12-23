@@ -33,24 +33,28 @@ class ProfileProvider with ChangeNotifier {
   }
 
   Future<void> getUserProfile() async {
-    _updateOperationState(EnumProfileOperation.getById, isLoading: true);
+    _updateOperationState(EnumProfileOperation.getUserProfile, isLoading: true);
     notifyListeners();
     try {
       final response = await _userProfileServices.getUserProfile();
 
       _userProfile = response.data!;
     } catch (e) {
-      _updateOperationState(EnumProfileOperation.getById,
-          errorMessage: 'Error fetching genre: $e');
+      _updateOperationState(
+        EnumProfileOperation.getUserProfile,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error fetching profiles: $e');
     } finally {
-      _updateOperationState(EnumProfileOperation.getById, isLoading: false);
+      _updateOperationState(EnumProfileOperation.getUserProfile,
+          isLoading: false);
       notifyListeners();
     }
   }
 
   Future<void> updateUserProfile(UpdateUserWithProfileModel profile) async {
-    _updateOperationState(EnumProfileOperation.update, isLoading: true);
+    _updateOperationState(EnumProfileOperation.updateUserProfile,
+        isLoading: true);
     notifyListeners();
 
     try {
@@ -58,11 +62,12 @@ class ProfileProvider with ChangeNotifier {
 
       await getUserProfile();
     } catch (e) {
-      _updateOperationState(EnumProfileOperation.update,
-          errorMessage: 'Error updating genre: $e');
+      _updateOperationState(EnumProfileOperation.updateUserProfile,
+          errorMessage: e.toString());
       debugPrint('Error updating profile: $e');
     } finally {
-      _updateOperationState(EnumProfileOperation.update, isLoading: false);
+      _updateOperationState(EnumProfileOperation.updateUserProfile,
+          isLoading: false);
       notifyListeners();
     }
   }

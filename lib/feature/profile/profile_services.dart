@@ -1,4 +1,5 @@
 import 'package:book_app_basic_arch/core/config/dio_client.dart';
+import 'package:book_app_basic_arch/core/shared/models/api_error_response.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_success_response.dart';
 import 'package:book_app_basic_arch/feature/profile/model/profile_model.dart';
 import 'package:dio/dio.dart';
@@ -14,7 +15,8 @@ class ProfileServices {
             UserWithProfileModel.fromJson(json as Map<String, dynamic>),
       );
     } on DioException catch (e) {
-      return e.response?.data['message'] ?? "An unknown error occurred";
+      final errorResponse = ApiErrorResponse.fromJson(e.response?.data);
+      throw errorResponse.message;
     }
   }
 
@@ -28,7 +30,8 @@ class ProfileServices {
             UserWithProfileModel.fromJson(json as Map<String, dynamic>),
       );
     } on DioException catch (e) {
-      return e.response?.data['message'] ?? "An unknown error occurred";
+      final errorResponse = ApiErrorResponse.fromJson(e.response?.data);
+      throw errorResponse.message;
     }
   }
 }

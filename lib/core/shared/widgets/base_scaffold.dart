@@ -1,4 +1,5 @@
 import 'package:book_app_basic_arch/feature/auth/auth_provider.dart';
+import 'package:book_app_basic_arch/feature/auth/screen/auth_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -79,7 +80,9 @@ class BaseScaffold extends StatelessWidget {
   Widget _defaultLoginRedirect(BuildContext context) {
     // * Langsung redirect ke login screen
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.of(context).pushReplacementNamed('/login');
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => AuthScreen(),
+      ));
     });
 
     // * Tampilkan loading selama proses redirect

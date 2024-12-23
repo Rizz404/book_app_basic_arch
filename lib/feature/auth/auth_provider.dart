@@ -115,6 +115,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> signOut() async {
     _updateOperationState(EnumAuthOperation.signOut, isLoading: true);
+    notifyListeners();
 
     try {
       await _tokenManager.clearTokens();
@@ -125,6 +126,7 @@ class AuthProvider with ChangeNotifier {
       debugPrint(e.toString());
     } finally {
       _updateOperationState(EnumAuthOperation.signOut, isLoading: false);
+      notifyListeners();
     }
   }
 

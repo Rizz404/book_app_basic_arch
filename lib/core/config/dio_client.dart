@@ -181,6 +181,7 @@ class DioClient {
       );
       return ApiSuccessResponse<T>.fromJson(response.data, fromJsonT);
     } on DioException catch (e) {
+      // todo: Error handle benerin biar bisa throw
       throw _handleDioException(e);
     }
   }

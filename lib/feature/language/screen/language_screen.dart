@@ -1,60 +1,60 @@
-import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
-import 'package:book_app_basic_arch/feature/author/author_provider.dart';
-import 'package:book_app_basic_arch/feature/author/enum_author_operation.dart';
-import 'package:book_app_basic_arch/feature/author/screen/author_detail_screen.dart';
-import 'package:book_app_basic_arch/feature/author/widgets/author_card.dart';
+import 'package:book_app_basic_arch/feature/language/model/language_model.dart';
+import 'package:book_app_basic_arch/feature/language/language_provider.dart';
+import 'package:book_app_basic_arch/feature/language/enum_language_operation.dart';
+import 'package:book_app_basic_arch/feature/language/screen/language_detail_screen.dart';
+import 'package:book_app_basic_arch/feature/language/widgets/language_card.dart';
 import 'package:book_app_basic_arch/feature/profile/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class AuthorScreen extends StatelessWidget {
-  const AuthorScreen({super.key});
+class LanguageScreen extends StatelessWidget {
+  const LanguageScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final authorProvider = Provider.of<AuthorProvider>(context, listen: false);
+    final languageProvider =
+        Provider.of<LanguageProvider>(context, listen: false);
 
-    // Fetch authors saat screen pertama kali diakses
+    // Fetch languages saat screen pertama kali diakses
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      authorProvider.getAuthors();
+      languageProvider.getLanguages();
     });
 
-    return BaseScaffold(
-      requireAuth: true,
+    return Scaffold(
       appBar: AppBar(
-        title: const Text("Authors"),
+        title: const Text("Languages"),
       ),
       body: RefreshIndicator(
-        onRefresh: () => authorProvider.getAuthors(),
-        child: Consumer<AuthorProvider>(
+        onRefresh: () => languageProvider.getLanguages(),
+        child: Consumer<LanguageProvider>(
           builder: (context, provider, _) {
-            final isLoadingAuthors =
-                provider.isLoading(EnumAuthorOperation.getAll);
-            final errorMessageAuthors =
-                provider.getError(EnumAuthorOperation.getAll);
-            final authors = provider.authors;
+            final isLoadingLanguages =
+                provider.isLoading(EnumLanguageOperation.getAll);
+            final errorMessageLanguages =
+                provider.getError(EnumLanguageOperation.getAll);
+            final languages = provider.languages;
 
-            if (isLoadingAuthors) {
+            if (isLoadingLanguages) {
               // Loading State
               return const Center(
                 child: CircularProgressIndicator(),
               );
             }
 
-            if (errorMessageAuthors != null) {
+            if (errorMessageLanguages != null) {
               // Error State
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Error: $errorMessageAuthors",
+                      "Error: $errorMessageLanguages",
                       style: const TextStyle(color: Colors.red),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => provider.getAuthors(),
+                      onPressed: () => provider.getLanguages(),
                       child: const Text("Retry"),
                     ),
                   ],
@@ -62,7 +62,7 @@ class AuthorScreen extends StatelessWidget {
               );
             }
 
-            if (authors.isNotEmpty) {
+            if (languages.isNotEmpty) {
               return Column(
                 children: [
                   StyledButton(
@@ -76,22 +76,22 @@ class AuthorScreen extends StatelessWidget {
                   ),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: authors.length,
+                      itemCount: languages.length,
                       itemBuilder: (context, index) {
-                        final author = authors[index];
-                        return AuthorCard(
-                          name: author.name,
-                          biography: author.biography,
-                          birthDate: author.birthDate,
-                          deathDate: author.deathDate,
-                          profilePicture: author.profilePicture,
+                        final language = languages[index];
+                        return LanguageCard(
+                          languageModel: LanguageModel(
+                            id: language.id,
+                            name: language.name,
+                            code: language.code,
+                          ),
                           onTap: () {
-                            // Navigasi ke halaman detail author
+                            // Navigasi ke halaman detail language
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => AuthorDetailScreen(
-                                  authorId: author.id,
+                                builder: (context) => LanguageDetailScreen(
+                                  languageId: language.id,
                                 ),
                               ),
                             );
@@ -105,7 +105,7 @@ class AuthorScreen extends StatelessWidget {
             } else {
               // State kosong
               return const Center(
-                child: Text("No authors found."),
+                child: Text("No languages found."),
               );
             }
           },

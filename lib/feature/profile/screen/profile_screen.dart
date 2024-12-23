@@ -1,3 +1,6 @@
+import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
+import 'package:book_app_basic_arch/feature/auth/auth_provider.dart';
 import 'package:book_app_basic_arch/feature/profile/model/profile_model.dart';
 import 'package:book_app_basic_arch/feature/profile/profile_provider.dart';
 import 'package:book_app_basic_arch/feature/profile/enum_profile_operation.dart';
@@ -18,7 +21,8 @@ class ProfileScreen extends StatelessWidget {
       profileProvider.getUserProfile();
     });
 
-    return Scaffold(
+    return BaseScaffold(
+      requireAuth: true,
       appBar: AppBar(
         title: const Text("UserProfile"),
       ),
@@ -27,10 +31,12 @@ class ProfileScreen extends StatelessWidget {
         child: Consumer<ProfileProvider>(
           builder: (context, provider, _) {
             final isLoadingUserProfile =
-                provider.isLoading(EnumProfileOperation.getAll);
+                provider.isLoading(EnumProfileOperation.getUserProfile);
             final errorMessageUserProfile =
-                provider.getError(EnumProfileOperation.getAll);
+                provider.getError(EnumProfileOperation.getUserProfile);
             final userProfile = provider.userProfile;
+
+            print('profile error: $errorMessageUserProfile');
 
             if (isLoadingUserProfile) {
               // Loading State
@@ -60,19 +66,31 @@ class ProfileScreen extends StatelessWidget {
             }
 
             if (userProfile != null) {
-              return ProfileCard(
-                userWithProfileModel: UserWithProfileModel(
-                  id: userProfile.id,
-                  username: userProfile.username,
-                  email: userProfile.email,
-                  role: userProfile.role,
-                  profilePicture: userProfile.profilePicture,
-                  isVerified: userProfile.isVerified,
-                  isEmailVerified: userProfile.isEmailVerified,
-                  createdAt: userProfile.createdAt,
-                  updatedAt: userProfile.updatedAt,
-                  userProfile: userProfile.userProfile,
-                ),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ProfileCard(
+                    userWithProfileModel: UserWithProfileModel(
+                      id: userProfile.id,
+                      username: userProfile.username,
+                      email: userProfile.email,
+                      role: userProfile.role,
+                      profilePicture: userProfile.profilePicture,
+                      isVerified: userProfile.isVerified,
+                      isEmailVerified: userProfile.isEmailVerified,
+                      createdAt: userProfile.createdAt,
+                      updatedAt: userProfile.updatedAt,
+                      userProfile: userProfile.userProfile,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  StyledButton(
+                      onPressed: () {
+                        Provider.of<AuthProvider>(context, listen: false)
+                            .signOut();
+                      },
+                      child: Text('Logout'))
+                ],
               );
             } else {
               // State kosong
