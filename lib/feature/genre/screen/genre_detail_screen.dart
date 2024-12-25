@@ -16,7 +16,7 @@ class GenreDetailScreen extends StatefulWidget {
 
 class _GenreDetailScreenState extends State<GenreDetailScreen> {
   late ScrollController _scrollController;
-  bool _isCollapsed = false;
+  bool _isDescriptionVisible = true;
 
   @override
   void initState() {
@@ -29,10 +29,10 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.offset > 100 && !_isCollapsed) {
-      setState(() => _isCollapsed = true);
-    } else if (_scrollController.offset <= 100 && _isCollapsed) {
-      setState(() => _isCollapsed = false);
+    if (_scrollController.offset > 50 && _isDescriptionVisible) {
+      setState(() => _isDescriptionVisible = false);
+    } else if (_scrollController.offset <= 50 && !_isDescriptionVisible) {
+      setState(() => _isDescriptionVisible = true);
     }
   }
 
@@ -45,51 +45,28 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<GenreProvider>(
-        builder: (context, provider, _) {
-          return NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                SliverAppBar(
-                  expandedHeight: _isCollapsed ? 60 : 200,
-                  floating: false,
-                  pinned: true,
-                  flexibleSpace: FlexibleSpaceBar(
-                    title: _buildGenreHeader(context, provider),
-                    background: _buildGenreDescription(context, provider),
-                  ),
-                ),
-              ];
+      appBar: AppBar(
+        title: const Text('Genre'),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Consumer<GenreProvider>(
+            builder: (context, provider, _) {
+              return _buildGenreContent(context, provider);
             },
-            body: BookGenreList(scrollController: _scrollController),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildGenreHeader(BuildContext context, GenreProvider provider) {
-    final genre = provider.genre;
-    if (genre == null) return const Text('Genre');
-
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 300),
-      opacity: _isCollapsed ? 1.0 : 0.0,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Text(
-          genre.name,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
           ),
-        ),
+          Expanded(
+            child: BookGenreList(
+              scrollController: _scrollController,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildGenreDescription(BuildContext context, GenreProvider provider) {
+  Widget _buildGenreContent(BuildContext context, GenreProvider provider) {
     final isLoadingGenre = provider.isLoading(EnumGenreOperation.getById);
     final errorMessageGenre = provider.getError(EnumGenreOperation.getById);
     final genre = provider.genre;
@@ -106,43 +83,49 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
       return const Center(child: Text('No genres available.'));
     }
 
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 300),
-      opacity: _isCollapsed ? 0.0 : 1.0,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withOpacity(0.8),
-            ],
-          ),
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Theme.of(context).primaryColor.withOpacity(0.3),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // * Genre Name - Selalu terlihat
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
               genre.name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              genre.description,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
+          ),
+          // * Genre Description - Menghilang saat scroll
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            child: _isDescriptionVisible
+                ? Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
+                    ),
+                    child: Text(
+                      genre.description,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.black87,
+                          ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
       ),
     );
   }

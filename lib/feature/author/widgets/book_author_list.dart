@@ -8,10 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class BookGenreList extends StatelessWidget {
+class BookAuthorList extends StatelessWidget {
   final ScrollController scrollController;
 
-  const BookGenreList({
+  const BookAuthorList({
     super.key,
     required this.scrollController,
   });

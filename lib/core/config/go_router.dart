@@ -19,15 +19,11 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // ! ini berdasarkan index ya, jadi urutan itu penting buat bottom navbarnya
-// todo: Nanti ganti pake identifier
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _navigatorHomeKey = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
 final _navigatorProfileKey =
     GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
 final _navigatorBookKey = GlobalKey<NavigatorState>(debugLabel: 'shellBook');
-final _navigatorGenreKey = GlobalKey<NavigatorState>(debugLabel: 'shellGenre');
-final _navigatorAuthorKey =
-    GlobalKey<NavigatorState>(debugLabel: 'shellAuthor');
 
 // * Nanti benerin lagi
 final goRouter = GoRouter(
@@ -35,13 +31,8 @@ final goRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   debugLogDiagnostics: true,
   routes: [
-    // * Auth routes (di luar shell navigation)
-    GoRoute(
-      path: '/auth',
-      builder: (context, state) => AuthScreen(),
-    ),
-
     // * Main app routes dengan bottom navigation
+    // ! bisa diakses dengan bottom nav aja
     StatefulShellRoute.indexedStack(
       builder: (context, state, statefulNavigationShell) {
         return BaseScaffold(
@@ -49,7 +40,6 @@ final goRouter = GoRouter(
         );
       },
       branches: [
-        // * Home branch
         StatefulShellBranch(
           navigatorKey: _navigatorHomeKey,
           routes: [
@@ -61,8 +51,6 @@ final goRouter = GoRouter(
             ),
           ],
         ),
-
-        // * Books branch
         StatefulShellBranch(
           navigatorKey: _navigatorBookKey,
           routes: [
@@ -71,22 +59,9 @@ final goRouter = GoRouter(
               pageBuilder: (context, state) => MaterialPage(
                 child: BookScreen(),
               ),
-              routes: [
-                GoRoute(
-                  path: ':id',
-                  pageBuilder: (context, state) {
-                    final bookId = state.pathParameters['id']!;
-                    return MaterialPage(
-                      child: BookDetailScreen(bookId: bookId),
-                    );
-                  },
-                ),
-              ],
             )
           ],
         ),
-
-        // * Profile branch
         StatefulShellBranch(
           navigatorKey: _navigatorProfileKey,
           routes: [
@@ -104,6 +79,21 @@ final goRouter = GoRouter(
     ),
 
     // * Routes di luar bottom navigation
+    GoRoute(
+      path: '/auth',
+      builder: (context, state) => AuthScreen(),
+    ),
+
+    GoRoute(
+      path: '/books/:id',
+      pageBuilder: (context, state) {
+        final bookId = state.pathParameters['id']!;
+        return MaterialPage(
+          child: BookDetailScreen(bookId: bookId),
+        );
+      },
+    ),
+
     GoRoute(
       path: '/genres',
       pageBuilder: (context, state) => MaterialPage(

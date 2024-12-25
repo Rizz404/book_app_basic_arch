@@ -35,89 +35,136 @@ class AuthorProvider with ChangeNotifier {
   }
 
   Future<void> createAuthor(CreateAuthorModel author) async {
-    _updateOperationState(EnumAuthorOperation.create, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumAuthorOperation.create,
+      isLoading: true,
+      errorMessage: null,
+    );
+
     try {
       await _authorServices.createAuthor(author);
-
       await getAuthors();
+
+      _updateOperationState(
+        EnumAuthorOperation.create,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumAuthorOperation.create,
-          errorMessage: 'Error creating genre: $e');
+      _updateOperationState(
+        EnumAuthorOperation.create,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error fetching authors: $e');
-    } finally {
-      _updateOperationState(EnumAuthorOperation.create, isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> getAuthors() async {
-    _updateOperationState(EnumAuthorOperation.getAll, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumAuthorOperation.getAll,
+      isLoading: true,
+      errorMessage: null,
+    );
+
     try {
       final response = await _authorServices.getAuthors();
 
       _authors = response.data!;
+
+      _updateOperationState(
+        EnumAuthorOperation.getAll,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumAuthorOperation.getAll,
-          errorMessage: 'Error fetching genres: $e');
+      _updateOperationState(
+        EnumAuthorOperation.getAll,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error fetching authors: $e');
-    } finally {
-      _updateOperationState(EnumAuthorOperation.getAll, isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> getAuthorById(String id) async {
-    _updateOperationState(EnumAuthorOperation.getById, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumAuthorOperation.getById,
+      isLoading: true,
+      errorMessage: null,
+    );
+
     try {
       final response = await _authorServices.getAuthorById(id);
 
       _author = response.data!;
+
+      _updateOperationState(
+        EnumAuthorOperation.getById,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumAuthorOperation.getById,
-          errorMessage: 'Error fetching genre: $e');
+      _updateOperationState(
+        EnumAuthorOperation.getById,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error fetching authors: $e');
-    } finally {
-      _updateOperationState(EnumAuthorOperation.getById, isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> updateAuthor(UpdateAuthorModel author) async {
-    _updateOperationState(EnumAuthorOperation.update, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumAuthorOperation.update,
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       await _authorServices.updateAuthorById(author);
 
       await getAuthorById(author.id);
       await getAuthors();
+
+      _updateOperationState(
+        EnumAuthorOperation.update,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumAuthorOperation.update,
-          errorMessage: 'Error updating genre: $e');
+      _updateOperationState(
+        EnumAuthorOperation.update,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error updating author: $e');
-    } finally {
-      _updateOperationState(EnumAuthorOperation.update, isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> deleteAuthor(String id) async {
-    _updateOperationState(EnumAuthorOperation.delete, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumAuthorOperation.delete,
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       await _authorServices.deleteAuthorById(id);
       await getAuthors();
+
+      _updateOperationState(
+        EnumAuthorOperation.delete,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumAuthorOperation.delete,
-          errorMessage: 'Error deleting genre: $e');
+      _updateOperationState(
+        EnumAuthorOperation.delete,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error updating author: $e');
-    } finally {
-      _updateOperationState(EnumAuthorOperation.delete, isLoading: false);
-      notifyListeners();
     }
   }
 }
