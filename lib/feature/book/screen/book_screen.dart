@@ -2,12 +2,12 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_app_basic_arch/feature/book/book_provider.dart';
 import 'package:book_app_basic_arch/feature/book/enum_book_operation.dart';
 import 'package:book_app_basic_arch/feature/book/model/book_model.dart';
-import 'package:book_app_basic_arch/feature/book/screen/book_detail_screen.dart';
 import 'package:book_app_basic_arch/feature/book/widgets/book_card.dart';
 
 class BookScreen extends StatelessWidget {
@@ -78,14 +78,7 @@ class BookScreen extends StatelessWidget {
         return BookCard(
           bookModel: book,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BookDetailScreen(
-                  bookId: book.id,
-                ),
-              ),
-            );
+            context.go('/books/${book.id}');
           },
         );
       },

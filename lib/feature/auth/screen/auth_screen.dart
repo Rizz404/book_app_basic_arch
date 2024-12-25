@@ -6,6 +6,7 @@ import 'package:book_app_basic_arch/feature/auth/model/auth_model.dart';
 import 'package:book_app_basic_arch/feature/author/screen/author_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -44,23 +45,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
-
-    // if (isAuthenticated) {
-    //   Future.microtask(() {
-    //     // todo: Async gaps titid benerin
-    //     Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(
-    //         builder: (context) => const AuthorScreen(),
-    //       ),
-    //     );
-    //   });
-    //   return const Center(
-    //     child: CircularProgressIndicator(),
-    //   );
-    // }
-
     return Scaffold(
       body: Consumer<AuthProvider>(
         builder: (BuildContext context, provider, _) {
@@ -122,16 +106,8 @@ class _AuthScreenState extends State<AuthScreen> {
                       ));
 
                       // * Periksa apakah berhasil login
-                      if (errorMessageSignIn == null) {
-                        if (!mounted) return;
-                        // * Jika tidak ada error, redirect ke AuthorScreen
-                        Navigator.pushReplacement(
-                          // todo: Fix lagi ini async gap titit
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AuthorScreen(),
-                          ),
-                        );
+                      if (errorMessageSignIn == null && mounted) {
+                        context.pushReplacement('/home');
                       }
                     }
                   },

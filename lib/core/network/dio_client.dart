@@ -1,4 +1,6 @@
 import 'package:book_app_basic_arch/core/helpers/token_manager.dart';
+import 'package:book_app_basic_arch/core/shared/models/api_error_response.dart';
+import 'package:book_app_basic_arch/core/shared/models/api_meta.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_success_response.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -260,21 +262,61 @@ class DioClient {
     }
   }
 
-  Exception _handleDioException(DioException e) {
+  ApiErrorResponse _handleDioException(DioException e) {
+    if (e.response?.data != null) {
+      // If we have response data, try to parse it as ApiErrorResponse
+      try {
+        final errorResponse = ApiErrorResponse.fromJson(e.response?.data);
+        return errorResponse;
+      } catch (_) {
+        // If parsing fails, fall through to default error handling
+      }
+    }
+
+    // Default error handling for other types of errors
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return TimeoutException('Connection timeout. Please try again.');
+        return ApiErrorResponse(
+          status: false,
+          statusCode: 408,
+          message: 'Connection timeout. Please try again.',
+          meta: ApiMeta(
+            timestamp: DateTime.now().toIso8601String(),
+            version: '1.0.0',
+          ),
+        );
       case DioExceptionType.badResponse:
-        return ServerException(
-          e.response?.data['message'] ?? 'Server error occurred.',
-          e.response?.statusCode,
+        return ApiErrorResponse(
+          status: false,
+          statusCode: e.response?.statusCode ?? 500,
+          message: 'Server error occurred.',
+          meta: ApiMeta(
+            timestamp: DateTime.now().toIso8601String(),
+            version: '1.0.0',
+          ),
         );
       case DioExceptionType.cancel:
-        return RequestCancelledException('Request was cancelled');
+        return ApiErrorResponse(
+          status: false,
+          statusCode: 499,
+          message: 'Request was cancelled',
+          meta: ApiMeta(
+            timestamp: DateTime.now().toIso8601String(),
+            version: '1.0.0',
+          ),
+        );
       default:
-        return NetworkException(e.message ?? 'Network error occurred');
+        return ApiErrorResponse(
+          status: false,
+          statusCode: 500,
+          message: e.message ?? 'Network error occurred',
+          meta: ApiMeta(
+            timestamp: DateTime.now().toIso8601String(),
+            version: '1.0.0',
+          ),
+        );
     }
   }
 }

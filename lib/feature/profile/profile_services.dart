@@ -2,7 +2,6 @@ import 'package:book_app_basic_arch/core/network/dio_client.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_error_response.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_success_response.dart';
 import 'package:book_app_basic_arch/feature/profile/model/profile_model.dart';
-import 'package:dio/dio.dart';
 
 class ProfileServices {
   final DioClient _dioClient = DioClient();
@@ -14,9 +13,8 @@ class ProfileServices {
         fromJsonT: (json) =>
             UserWithProfileModel.fromJson(json as Map<String, dynamic>),
       );
-    } on DioException catch (e) {
-      final errorResponse = ApiErrorResponse.fromJson(e.response?.data);
-      throw errorResponse.message;
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
     }
   }
 
@@ -29,9 +27,8 @@ class ProfileServices {
         fromJsonT: (json) =>
             UserWithProfileModel.fromJson(json as Map<String, dynamic>),
       );
-    } on DioException catch (e) {
-      final errorResponse = ApiErrorResponse.fromJson(e.response?.data);
-      throw errorResponse.message;
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
     }
   }
 }

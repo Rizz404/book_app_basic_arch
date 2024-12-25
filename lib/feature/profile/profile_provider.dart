@@ -29,46 +29,58 @@ class ProfileProvider with ChangeNotifier {
       isLoading: isLoading ?? _operationStates[operation]!.isLoading,
       errorMessage: errorMessage
     );
-    notifyListeners();
+    notifyListeners(); // ! sekali aja bang
   }
 
   Future<void> getUserProfile() async {
-    _updateOperationState(EnumProfileOperation.getUserProfile, isLoading: true);
-    notifyListeners();
     try {
-      final response = await _userProfileServices.getUserProfile();
+      _updateOperationState(
+        EnumProfileOperation.getUserProfile,
+        isLoading: true,
+        errorMessage: null, // * Reset error message saat mulai loading
+      );
 
+      final response = await _userProfileServices.getUserProfile();
       _userProfile = response.data!;
+
+      _updateOperationState(
+        EnumProfileOperation.getUserProfile,
+        isLoading: false,
+        errorMessage: null, // * Clear error message on success
+      );
     } catch (e) {
       _updateOperationState(
         EnumProfileOperation.getUserProfile,
+        isLoading: false,
         errorMessage: e.toString(),
       );
       debugPrint('Error fetching profiles: $e');
-    } finally {
-      _updateOperationState(EnumProfileOperation.getUserProfile,
-          isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> updateUserProfile(UpdateUserWithProfileModel profile) async {
-    _updateOperationState(EnumProfileOperation.updateUserProfile,
-        isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumProfileOperation.updateUserProfile,
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       await _userProfileServices.updateUserProfile(profile);
-
       await getUserProfile();
+
+      _updateOperationState(
+        EnumProfileOperation.updateUserProfile,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumProfileOperation.updateUserProfile,
-          errorMessage: e.toString());
+      _updateOperationState(
+        EnumProfileOperation.updateUserProfile,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error updating profile: $e');
-    } finally {
-      _updateOperationState(EnumProfileOperation.updateUserProfile,
-          isLoading: false);
-      notifyListeners();
     }
   }
 }
