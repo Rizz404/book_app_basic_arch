@@ -1,10 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-
 import 'package:book_app_basic_arch/feature/book/book_provider.dart';
 import 'package:book_app_basic_arch/feature/book/enum_book_operation.dart';
 import 'package:book_app_basic_arch/feature/book/model/book_model.dart';
@@ -23,21 +22,18 @@ class BookScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Books"),
+        title: const Text(
+          "Books",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        elevation: 0,
       ),
-      // todo: Benerin refresh indicator
       body: RefreshIndicator(
         onRefresh: () => bookProvider.getBooks(),
-        child: Column(
-          children: [
-            Expanded(
-              child: Consumer<BookProvider>(
-                builder: (context, provider, _) {
-                  return _buildBookContent(context, provider);
-                },
-              ),
-            ),
-          ],
+        child: Consumer<BookProvider>(
+          builder: (context, provider, _) {
+            return _buildBookContent(context, provider);
+          },
         ),
       ),
     );
@@ -49,7 +45,7 @@ class BookScreen extends StatelessWidget {
     final books = provider.books;
 
     if (isLoadingBooks) {
-      return StyledLoadingState();
+      return const StyledLoadingState();
     }
 
     if (errorMessageBooks != null) {
@@ -60,29 +56,32 @@ class BookScreen extends StatelessWidget {
     }
 
     if (books.isEmpty) {
-      return StyledEmptyData(message: 'No books found');
+      return const StyledEmptyData(message: 'No books found');
     }
 
     return _buildBookList(context, books);
   }
 
   Widget _buildBookList(BuildContext context, List<BookModel> books) {
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 6,
-        crossAxisSpacing: 6,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GridView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.85, // Rasio aspek kartu diubah agar lebih tinggi
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+        ),
+        itemBuilder: (context, index) {
+          final book = books[index];
+          return BookCard(
+            bookModel: book,
+            onTap: () => context.go('/books/${book.id}'),
+          );
+        },
+        itemCount: books.length,
       ),
-      itemBuilder: (context, index) {
-        final book = books[index];
-        return BookCard(
-          bookModel: book,
-          onTap: () {
-            context.go('/books/${book.id}');
-          },
-        );
-      },
-      itemCount: books.length,
     );
   }
 }

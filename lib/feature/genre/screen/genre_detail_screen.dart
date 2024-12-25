@@ -1,7 +1,7 @@
-import 'package:book_app_basic_arch/feature/genre/genre_model.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/feature/genre/enum_genre_operation.dart';
 import 'package:book_app_basic_arch/feature/genre/genre_provider.dart';
-import 'package:book_app_basic_arch/feature/genre/screen/genre_screen.dart';
-import 'package:book_app_basic_arch/feature/genre/widgets/genre_form.dart';
+import 'package:book_app_basic_arch/feature/genre/widgets/book_genre_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,164 +15,134 @@ class GenreDetailScreen extends StatefulWidget {
 }
 
 class _GenreDetailScreenState extends State<GenreDetailScreen> {
+  late ScrollController _scrollController;
+  bool _isCollapsed = false;
+
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<GenreProvider>().getGenreById(widget.genreId);
     });
   }
 
+  void _onScroll() {
+    if (_scrollController.offset > 100 && !_isCollapsed) {
+      setState(() => _isCollapsed = true);
+    } else if (_scrollController.offset <= 100 && _isCollapsed) {
+      setState(() => _isCollapsed = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          final genreProvider = context.read<GenreProvider>();
-          final genre = genreProvider.genre;
-
-          if (genre != null) {
-            showDialog(
-              context: context,
-              builder: (context) => GenreForm(
-                updateGenreModel: UpdateGenreModel(
-                  id: genre.id,
-                  name: genre.name,
-                  description: genre.description,
-                ),
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Genre not loaded yet.')),
-            );
-          }
-        },
-        child: Icon(Icons.edit),
-      ),
       body: Consumer<GenreProvider>(
-        builder: (context, genreProvider, Widget? child) {
-          Widget content;
-
-          if (genreProvider.isLoadingGetGenreById) {
-            return content = Center(child: CircularProgressIndicator());
-          }
-
-          // * Menampilkan pesan error jika ada kesalahan
-          if (genreProvider.errorMessageGetGenreById != null) {
-            return content = Center(
-              child: Text(
-                genreProvider.errorMessageGetGenreById!,
-                style: const TextStyle(color: Colors.red),
-              ),
-            );
-          }
-
-          final genre = genreProvider.genre;
-          if (genre == null) {
-            content = const Center(child: Text('No genres available.'));
-          } else {
-            content = Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // * Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          genre.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Icon(
-                        Icons.menu_book_outlined,
-                        size: 20,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withOpacity(0.6),
-                      ),
-                    ],
+        builder: (context, provider, _) {
+          return NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  expandedHeight: _isCollapsed ? 60 : 200,
+                  floating: false,
+                  pinned: true,
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: _buildGenreHeader(context, provider),
+                    background: _buildGenreDescription(context, provider),
                   ),
-
-                  const SizedBox(height: 8),
-
-                  // * Description
-                  Text(
-                    genre.description,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('Confirm Delete'),
-                            content: const Text(
-                                'Are you sure you want to delete this genre?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // Tutup dialog
-                                },
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  context
-                                      .read<GenreProvider>()
-                                      .deleteGenre(widget.genreId);
-                                  Navigator.of(context).pop(); // Tutup dialog
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => GenreScreen()),
-                                  );
-                                },
-                                child: const Text('Delete'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: const Text('Delete'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return Stack(
-            children: [
-              RefreshIndicator(
-                onRefresh: () => context.read<GenreProvider>().getGenres(),
-                child: content,
-              ),
-              if (genreProvider.isLoadingGetGenres)
-                const Center(child: CircularProgressIndicator()),
-            ],
+                ),
+              ];
+            },
+            body: BookGenreList(scrollController: _scrollController),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildGenreHeader(BuildContext context, GenreProvider provider) {
+    final genre = provider.genre;
+    if (genre == null) return const Text('Genre');
+
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 300),
+      opacity: _isCollapsed ? 1.0 : 0.0,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Text(
+          genre.name,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenreDescription(BuildContext context, GenreProvider provider) {
+    final isLoadingGenre = provider.isLoading(EnumGenreOperation.getById);
+    final errorMessageGenre = provider.getError(EnumGenreOperation.getById);
+    final genre = provider.genre;
+
+    if (isLoadingGenre) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (errorMessageGenre != null) {
+      return StyledErrorMessage(errorMessage: errorMessageGenre);
+    }
+
+    if (genre == null) {
+      return const Center(child: Text('No genres available.'));
+    }
+
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 300),
+      opacity: _isCollapsed ? 0.0 : 1.0,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).primaryColor,
+              Theme.of(context).primaryColor.withOpacity(0.8),
+            ],
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              genre.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              genre.description,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -35,89 +35,134 @@ class BookProvider with ChangeNotifier {
   }
 
   Future<void> createBook(CreateBookModel book) async {
-    _updateOperationState(EnumBookOperation.create, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumBookOperation.create,
+      isLoading: true,
+      errorMessage: null,
+    );
     try {
       await _bookServices.createBook(book);
-
       await getBooks();
+
+      _updateOperationState(
+        EnumBookOperation.create,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumBookOperation.create,
-          errorMessage: 'Error creating genre: $e');
+      _updateOperationState(
+        EnumBookOperation.create,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error fetching books: $e');
-    } finally {
-      _updateOperationState(EnumBookOperation.create, isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> getBooks() async {
-    _updateOperationState(EnumBookOperation.getAll, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumBookOperation.getAll,
+      isLoading: true,
+      errorMessage: null,
+    );
+
     try {
       final response = await _bookServices.getBooks();
 
       _books = response.data!;
+
+      _updateOperationState(
+        EnumBookOperation.getAll,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumBookOperation.getAll,
-          errorMessage: 'Error fetching genres: $e');
+      _updateOperationState(
+        EnumBookOperation.getAll,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error fetching books: $e');
-    } finally {
-      _updateOperationState(EnumBookOperation.getAll, isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> getBookById(String id) async {
-    _updateOperationState(EnumBookOperation.getById, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumBookOperation.getById,
+      isLoading: true,
+      errorMessage: null,
+    );
+
     try {
       final response = await _bookServices.getBookById(id);
 
       _book = response.data!;
+
+      _updateOperationState(
+        EnumBookOperation.getById,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumBookOperation.getById,
-          errorMessage: 'Error fetching genre: $e');
+      _updateOperationState(
+        EnumBookOperation.getById,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error fetching books: $e');
-    } finally {
-      _updateOperationState(EnumBookOperation.getById, isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> updateBook(UpdateBookModel book) async {
-    _updateOperationState(EnumBookOperation.update, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumBookOperation.update,
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       await _bookServices.updateBookById(book);
-
       await getBookById(book.id);
       await getBooks();
+
+      _updateOperationState(
+        EnumBookOperation.update,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumBookOperation.update,
-          errorMessage: 'Error updating genre: $e');
+      _updateOperationState(
+        EnumBookOperation.update,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error updating book: $e');
-    } finally {
-      _updateOperationState(EnumBookOperation.update, isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> deleteBook(String id) async {
-    _updateOperationState(EnumBookOperation.delete, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumBookOperation.delete,
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       await _bookServices.deleteBookById(id);
       await getBooks();
+
+      _updateOperationState(
+        EnumBookOperation.delete,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumBookOperation.delete,
-          errorMessage: 'Error deleting genre: $e');
+      _updateOperationState(
+        EnumBookOperation.delete,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error updating book: $e');
-    } finally {
-      _updateOperationState(EnumBookOperation.delete, isLoading: false);
-      notifyListeners();
     }
   }
 }

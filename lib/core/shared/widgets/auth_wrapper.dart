@@ -18,7 +18,7 @@ class AuthWrapper extends StatelessWidget {
     if (!isAuthenticated) {
       // * Redirect ke auth screen
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.go('/auth');
+        context.push('/auth');
       });
 
       return const Scaffold(

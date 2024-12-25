@@ -1,5 +1,5 @@
-import 'package:book_app_basic_arch/feature/book/model/book_model.dart';
 import 'package:flutter/material.dart';
+import 'package:book_app_basic_arch/feature/book/model/book_model.dart';
 
 class BookCard extends StatelessWidget {
   final BookModel bookModel;
@@ -13,53 +13,45 @@ class BookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Cari gambar dengan isCover == true
     final String? coverImage = bookModel.bookPictures?[0].url;
+    final bool isPlaceholderImage = coverImage == 'http://placeimg.com/640/480';
 
     return GestureDetector(
       onTap: onTap,
       child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        margin: const EdgeInsets.all(4), // Margin diperkecil
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
         ),
-        elevation: 4,
+        elevation: 2, // Elevation dikurangi agar tidak terlalu menonjol
         child: Stack(
           children: [
             // Background Image
-            if (coverImage != null)
+            if (coverImage != null && !isPlaceholderImage)
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
                 child: Image.network(
                   coverImage,
-                  height: 180,
+                  height: 220, // Tinggi disesuaikan
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    height: 180,
-                    color: Colors.grey.shade300,
-                    child: const Icon(Icons.image_not_supported, size: 50),
-                  ),
+                  errorBuilder: (context, error, stackTrace) =>
+                      _buildPlaceholder(),
                 ),
               )
             else
-              // Placeholder jika tidak ada gambar
-              Container(
-                height: 180,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.grey.shade300,
-                ),
-                child: const Icon(Icons.image_not_supported, size: 50),
-              ),
+              _buildPlaceholder(),
             // Gradient Overlay
             Container(
-              height: 180,
+              height: 220,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
                 gradient: LinearGradient(
-                  colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                  colors: [
+                    Colors.black.withOpacity(0.8),
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.8),
+                  ],
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                 ),
@@ -67,57 +59,90 @@ class BookCard extends StatelessWidget {
             ),
             // Content
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min, // Tambahkan ini
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Book Title
                   Text(
                     bookModel.title,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   // Book Description
                   Text(
                     bookModel.description,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Colors.white70,
                     ),
-                    maxLines: 2,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12), // Ganti Spacer dengan SizedBox
+                  const Spacer(),
                   // Price & Stock Info
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Price: \$${bookModel.price}",
+                        "\$${bookModel.price}",
                         style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                       Text(
                         "Stock: ${bookModel.stock}",
                         style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
                           color: Colors.white70,
                         ),
                       ),
                     ],
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      height: 220,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        gradient: LinearGradient(
+          colors: [
+            Colors.grey.shade300,
+            Colors.grey.shade200,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.book, size: 40, color: Colors.grey.shade400),
+            const SizedBox(height: 8),
+            Text(
+              'No Cover',
+              style: TextStyle(
+                color: Colors.grey.shade500,
+                fontSize: 12,
               ),
             ),
           ],

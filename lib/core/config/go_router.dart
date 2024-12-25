@@ -9,7 +9,11 @@ import 'package:book_app_basic_arch/feature/book/screen/book_screen.dart';
 import 'package:book_app_basic_arch/feature/genre/screen/genre_detail_screen.dart';
 import 'package:book_app_basic_arch/feature/genre/screen/genre_screen.dart';
 import 'package:book_app_basic_arch/feature/home/screen/home_screen.dart';
+import 'package:book_app_basic_arch/feature/language/screen/language_detail_screen.dart';
+import 'package:book_app_basic_arch/feature/language/screen/language_screen.dart';
 import 'package:book_app_basic_arch/feature/profile/screen/profile_screen.dart';
+import 'package:book_app_basic_arch/feature/publisher/screen/publisher_detail_screen.dart';
+import 'package:book_app_basic_arch/feature/publisher/screen/publisher_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +29,7 @@ final _navigatorGenreKey = GlobalKey<NavigatorState>(debugLabel: 'shellGenre');
 final _navigatorAuthorKey =
     GlobalKey<NavigatorState>(debugLabel: 'shellAuthor');
 
+// * Nanti benerin lagi
 final goRouter = GoRouter(
   initialLocation: '/home',
   navigatorKey: _rootNavigatorKey,
@@ -39,7 +44,6 @@ final goRouter = GoRouter(
     // * Main app routes dengan bottom navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, statefulNavigationShell) {
-        // * Semua routes dalam shell membutuhkan auth
         return BaseScaffold(
           statefulNavigationShell: statefulNavigationShell,
         );
@@ -63,21 +67,22 @@ final goRouter = GoRouter(
           navigatorKey: _navigatorBookKey,
           routes: [
             GoRoute(
-                path: '/books',
-                pageBuilder: (context, state) => MaterialPage(
-                      child: BookScreen(),
-                    ),
-                routes: [
-                  GoRoute(
-                    path: ':id',
-                    pageBuilder: (context, state) {
-                      final bookId = state.pathParameters['id']!;
-                      return MaterialPage(
-                        child: BookDetailScreen(bookId: bookId),
-                      );
-                    },
-                  ),
-                ])
+              path: '/books',
+              pageBuilder: (context, state) => MaterialPage(
+                child: BookScreen(),
+              ),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  pageBuilder: (context, state) {
+                    final bookId = state.pathParameters['id']!;
+                    return MaterialPage(
+                      child: BookDetailScreen(bookId: bookId),
+                    );
+                  },
+                ),
+              ],
+            )
           ],
         ),
 
@@ -95,56 +100,81 @@ final goRouter = GoRouter(
             )
           ],
         ),
+      ],
+    ),
 
-        // * Genres branch
-        StatefulShellBranch(
-          navigatorKey: _navigatorGenreKey,
-          routes: [
-            GoRoute(
-              path: '/genres',
-              pageBuilder: (context, state) => MaterialPage(
-                child: GenreScreen(),
-              ),
-              routes: [
-                GoRoute(
-                  path: ':id',
-                  pageBuilder: (context, state) {
-                    final genreId = state.pathParameters['id']!;
-                    return MaterialPage(
-                      child: GenreDetailScreen(genreId: genreId),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-
-        // * Authors branch
-        StatefulShellBranch(
-          navigatorKey: _navigatorAuthorKey,
-          routes: [
-            GoRoute(
-              path: '/authors',
-              pageBuilder: (context, state) => MaterialPage(
-                child: AuthorScreen(),
-              ),
-              routes: [
-                GoRoute(
-                  path: ':id',
-                  pageBuilder: (context, state) {
-                    final authorId = state.pathParameters['id']!;
-                    return MaterialPage(
-                      child: AuthorDetailScreen(authorId: authorId),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
+    // * Routes di luar bottom navigation
+    GoRoute(
+      path: '/genres',
+      pageBuilder: (context, state) => MaterialPage(
+        child: GenreScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: ':id',
+          pageBuilder: (context, state) {
+            final genreId = state.pathParameters['id']!;
+            return MaterialPage(
+              child: GenreDetailScreen(genreId: genreId),
+            );
+          },
         ),
       ],
-    )
+    ),
+
+    GoRoute(
+      path: '/authors',
+      pageBuilder: (context, state) => MaterialPage(
+        child: AuthorScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: ':id',
+          pageBuilder: (context, state) {
+            final authorId = state.pathParameters['id']!;
+            return MaterialPage(
+              child: AuthorDetailScreen(authorId: authorId),
+            );
+          },
+        ),
+      ],
+    ),
+
+    GoRoute(
+      path: '/publishers',
+      pageBuilder: (context, state) => MaterialPage(
+        child: PublisherScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: ':id',
+          pageBuilder: (context, state) {
+            final publisherId = state.pathParameters['id']!;
+            return MaterialPage(
+              child: PublisherDetailScreen(publisherId: publisherId),
+            );
+          },
+        ),
+      ],
+    ),
+
+    GoRoute(
+      path: '/languages',
+      pageBuilder: (context, state) => MaterialPage(
+        child: LanguageScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: ':id',
+          pageBuilder: (context, state) {
+            final languageId = state.pathParameters['id']!;
+            return MaterialPage(
+              child: LanguageDetailScreen(languageId: languageId),
+            );
+          },
+        ),
+      ],
+    ),
   ],
 
   // * Redirect logic
@@ -153,12 +183,6 @@ final goRouter = GoRouter(
     final isAuthenticated = authProvider.isAuthenticated;
     final isAuthRoute = state.fullPath == '/auth';
 
-    // // * Jika belum auth dan bukan di route auth, redirect ke auth
-    // if (!isAuthenticated && !isAuthRoute) {
-    //   return '/auth';
-    // }
-
-    // * Jika sudah auth dan di route auth, redirect ke home
     if (isAuthenticated && isAuthRoute) {
       return '/home';
     }

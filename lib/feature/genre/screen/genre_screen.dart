@@ -1,3 +1,5 @@
+import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/feature/genre/enum_genre_operation.dart';
 import 'package:book_app_basic_arch/feature/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/feature/genre/widgets/genre_card.dart';
 import 'package:book_app_basic_arch/feature/genre/widgets/genre_form.dart';
@@ -35,57 +37,46 @@ class _GenreScreenState extends State<GenreScreen> {
       appBar: AppBar(
         title: const Text('Genres'),
       ),
-      body: Consumer<GenreProvider>(
-        builder: (context, genreProvider, child) {
-          Widget content;
+      body: RefreshIndicator(
+        onRefresh: () => context.read<GenreProvider>().getGenres(),
+        child: Consumer<GenreProvider>(
+          builder: (context, provider, _) {
+            final isLoadingGenres =
+                provider.isLoading(EnumGenreOperation.getAll);
+            final errorMessageGenres =
+                provider.getError(EnumGenreOperation.getAll);
+            final genres = provider.genres;
 
-          if (genreProvider.isLoadingGetGenres) {
-            return content = Center(child: CircularProgressIndicator());
-          }
+            if (isLoadingGenres) {
+              return Center(child: CircularProgressIndicator());
+            }
 
-          // * Menampilkan pesan error jika ada kesalahan
-          if (genreProvider.errorMessageGetGenres != null) {
-            return content = Center(
-              child: Text(
-                genreProvider.errorMessageGetGenres!,
-                style: const TextStyle(color: Colors.red),
-              ),
-            );
-          }
+            // * Menampilkan pesan error jika ada kesalahan
+            if (errorMessageGenres != null) {
+              return StyledErrorMessage(errorMessage: errorMessageGenres);
+            }
 
-          // * Menampilkan data genres jika berhasil di-fetch
+            // * Menampilkan data genres jika berhasil di-fetch
 
-          final genres = genreProvider.genres;
-          if (genres.isEmpty) {
-            content = const Center(child: Text('No genres available.'));
-          } else {
-            return content = GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-              ),
-              itemBuilder: (context, index) {
-                final genre = genres[index];
-                return GenreCard(genre: genre);
-              },
-              itemCount: genres.length,
-            );
-          }
-
-          // * Wrap dengan RefreshIndicator dan Stack untuk loading indicator
-          return Stack(
-            children: [
-              RefreshIndicator(
-                onRefresh: () => context.read<GenreProvider>().getGenres(),
-                child: content,
-              ),
-              if (genreProvider.isLoadingGetGenres)
-                const Center(child: CircularProgressIndicator()),
-            ],
-          );
-        },
+            if (genres.isEmpty) {
+              return Center(child: Text('No genres available.'));
+            } else {
+              return GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                ),
+                itemBuilder: (context, index) {
+                  final genre = genres[index];
+                  return GenreCard(genre: genre);
+                },
+                itemCount: genres.length,
+              );
+            }
+          },
+        ),
       ),
     );
   }
