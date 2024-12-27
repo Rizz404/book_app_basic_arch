@@ -20,10 +20,19 @@ class LanguageServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<LanguageModel>>> getLanguages() async {
+  Future<ApiSuccessResponse<List<LanguageModel>>> getLanguages({
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
+      final queryParameters = {
+        'page': page,
+        'limit': limit,
+      };
+
       return await _dioClient.get(
         '/languages',
+        queryParameters: queryParameters,
         fromJsonT: (json) => (json as List)
             .map((item) => LanguageModel.fromJson(item as Map<String, dynamic>))
             .toList(),

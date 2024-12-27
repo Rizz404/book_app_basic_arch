@@ -51,7 +51,10 @@ class LanguageProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getLanguages() async {
+  Future<void> getLanguages({
+    int page = 1,
+    int limit = 10,
+  }) async {
     _updateOperationState(EnumLanguageOperation.getAll, isLoading: true);
     notifyListeners();
     try {

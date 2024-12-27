@@ -20,10 +20,19 @@ class PublisherServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<PublisherModel>>> getPublishers() async {
+  Future<ApiSuccessResponse<List<PublisherModel>>> getPublishers({
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
+      final queryParameters = {
+        'page': page,
+        'limit': limit,
+      };
+
       return await _dioClient.get(
         '/publishers',
+        queryParameters: queryParameters,
         fromJsonT: (json) => (json as List)
             .map(
                 (item) => PublisherModel.fromJson(item as Map<String, dynamic>))

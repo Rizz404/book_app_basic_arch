@@ -60,7 +60,10 @@ class AuthorProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getAuthors() async {
+  Future<void> getAuthors({
+    int page = 1,
+    int limit = 10,
+  }) async {
     _updateOperationState(
       EnumAuthorOperation.getAll,
       isLoading: true,

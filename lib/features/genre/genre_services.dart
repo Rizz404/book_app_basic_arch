@@ -19,10 +19,19 @@ class GenreServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<GenreModel>>> getGenres() async {
+  Future<ApiSuccessResponse<List<GenreModel>>> getGenres({
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
+      final queryParameters = {
+        'page': page,
+        'limit': limit,
+      };
+
       return await _dioClient.get(
         '/genres',
+        queryParameters: queryParameters,
         fromJsonT: (json) => (json as List)
             .map((item) => GenreModel.fromJson(item as Map<String, dynamic>))
             .toList(),

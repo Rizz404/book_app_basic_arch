@@ -17,10 +17,25 @@ class BookServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<BookModel>>> getBooks() async {
+  Future<ApiSuccessResponse<List<BookModel>>> getBooks({
+    int page = 1,
+    int limit = 10,
+    String? sellerId,
+    String? language,
+    String? genreId,
+  }) async {
     try {
+      final queryParameters = {
+        'page': page,
+        'limit': limit,
+        if (sellerId != null) 'sellerId': sellerId,
+        if (language != null) 'language': language,
+        if (genreId != null) 'genreId': genreId,
+      };
+
       return await _dioClient.get(
         '/books',
+        queryParameters: queryParameters,
         fromJsonT: (json) => (json as List)
             .map((item) => BookModel.fromJson(item as Map<String, dynamic>))
             .toList(),

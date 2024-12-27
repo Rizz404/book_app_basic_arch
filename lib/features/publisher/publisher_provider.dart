@@ -51,7 +51,10 @@ class PublisherProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getPublishers() async {
+  Future<void> getPublishers({
+    int page = 1,
+    int limit = 10,
+  }) async {
     _updateOperationState(EnumPublisherOperation.getAll, isLoading: true);
     notifyListeners();
     try {

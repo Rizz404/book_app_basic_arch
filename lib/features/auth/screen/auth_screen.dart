@@ -106,7 +106,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
                       // * Periksa apakah berhasil login
                       if (errorMessageSignIn == null && mounted) {
-                        context.pushReplacement('/home');
+                        context.go('/home');
                       }
                     }
                   },

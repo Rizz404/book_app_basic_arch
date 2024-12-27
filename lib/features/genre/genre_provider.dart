@@ -58,7 +58,10 @@ class GenreProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getGenres() async {
+  Future<void> getGenres({
+    int page = 1,
+    int limit = 10,
+  }) async {
     _updateOperationState(
       EnumGenreOperation.getAll,
       isLoading: true,

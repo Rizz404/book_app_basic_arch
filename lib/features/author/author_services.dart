@@ -19,10 +19,19 @@ class AuthorServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<AuthorModel>>> getAuthors() async {
+  Future<ApiSuccessResponse<List<AuthorModel>>> getAuthors({
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
+      final queryParameters = {
+        'page': page,
+        'limit': limit,
+      };
+
       return await _dioClient.get(
         '/authors',
+        queryParameters: queryParameters,
         fromJsonT: (json) => (json as List)
             .map((item) => AuthorModel.fromJson(item as Map<String, dynamic>))
             .toList(),

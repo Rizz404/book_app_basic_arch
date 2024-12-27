@@ -1,4 +1,5 @@
-import 'package:book_app_basic_arch/core/shared/provider/operation_state_handler.dart';
+import 'package:book_app_basic_arch/core/shared/models/api_pagination.dart';
+import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/book/book_services.dart';
 import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';
@@ -6,23 +7,38 @@ import 'package:flutter/material.dart';
 
 class BookProvider with ChangeNotifier {
   final BookServices _bookServices = BookServices();
-  final OperationStateHandler<EnumBookOperation> _stateHandler =
-      OperationStateHandler<EnumBookOperation>();
 
   List<BookModel> _books = [];
   List<BookModel> get books => _books;
   BookModel? _book;
   BookModel? get book => _book;
+  ApiPagination? _pagination;
+  ApiPagination? get pagination => _pagination;
 
-  // * Proxy untuk state
+  // * Map untuk store operation state
+  final Map<EnumBookOperation, OperationState> _operationStates = {
+    for (var operation in EnumBookOperation.values)
+      operation: (isLoading: false, errorMessage: null)
+  };
+
+  // * Getter untuk state
   bool isLoading(EnumBookOperation operation) =>
-      _stateHandler.isLoading(operation);
-
+      _operationStates[operation]!.isLoading;
   String? getError(EnumBookOperation operation) =>
-      _stateHandler.getError(operation);
+      _operationStates[operation]!.errorMessage;
+
+  // Helper to update operation state
+  void _updateOperationState(EnumBookOperation operation,
+      {bool? isLoading, String? errorMessage}) {
+    _operationStates[operation] = (
+      isLoading: isLoading ?? _operationStates[operation]!.isLoading,
+      errorMessage: errorMessage
+    );
+    notifyListeners();
+  }
 
   Future<void> createBook(CreateBookModel book) async {
-    _stateHandler.updateState(
+    _updateOperationState(
       EnumBookOperation.create,
       isLoading: true,
       errorMessage: null,
@@ -31,13 +47,13 @@ class BookProvider with ChangeNotifier {
       await _bookServices.createBook(book);
       await getBooks();
 
-      _stateHandler.updateState(
+      _updateOperationState(
         EnumBookOperation.create,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
-      _stateHandler.updateState(
+      _updateOperationState(
         EnumBookOperation.create,
         isLoading: false,
         errorMessage: e.toString(),
@@ -46,8 +62,14 @@ class BookProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getBooks() async {
-    _stateHandler.updateState(
+  Future<void> getBooks({
+    int page = 1,
+    int limit = 10,
+    String? sellerId,
+    String? language,
+    String? genreId,
+  }) async {
+    _updateOperationState(
       EnumBookOperation.getAll,
       isLoading: true,
       errorMessage: null,
@@ -57,14 +79,15 @@ class BookProvider with ChangeNotifier {
       final response = await _bookServices.getBooks();
 
       _books = response.data!;
+      _pagination = response.meta.pagination;
 
-      _stateHandler.updateState(
+      _updateOperationState(
         EnumBookOperation.getAll,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
-      _stateHandler.updateState(
+      _updateOperationState(
         EnumBookOperation.getAll,
         isLoading: false,
         errorMessage: e.toString(),
@@ -74,7 +97,7 @@ class BookProvider with ChangeNotifier {
   }
 
   Future<void> getBookById(String id) async {
-    _stateHandler.updateState(
+    _updateOperationState(
       EnumBookOperation.getById,
       isLoading: true,
       errorMessage: null,
@@ -85,13 +108,13 @@ class BookProvider with ChangeNotifier {
 
       _book = response.data!;
 
-      _stateHandler.updateState(
+      _updateOperationState(
         EnumBookOperation.getById,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
-      _stateHandler.updateState(
+      _updateOperationState(
         EnumBookOperation.getById,
         isLoading: false,
         errorMessage: e.toString(),
@@ -101,7 +124,7 @@ class BookProvider with ChangeNotifier {
   }
 
   Future<void> updateBook(UpdateBookModel book) async {
-    _stateHandler.updateState(
+    _updateOperationState(
       EnumBookOperation.update,
       isLoading: true,
       errorMessage: null,
@@ -112,13 +135,13 @@ class BookProvider with ChangeNotifier {
       await getBookById(book.id);
       await getBooks();
 
-      _stateHandler.updateState(
+      _updateOperationState(
         EnumBookOperation.update,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
-      _stateHandler.updateState(
+      _updateOperationState(
         EnumBookOperation.update,
         isLoading: false,
         errorMessage: e.toString(),
@@ -128,7 +151,7 @@ class BookProvider with ChangeNotifier {
   }
 
   Future<void> deleteBook(String id) async {
-    _stateHandler.updateState(
+    _updateOperationState(
       EnumBookOperation.delete,
       isLoading: true,
       errorMessage: null,
@@ -138,13 +161,13 @@ class BookProvider with ChangeNotifier {
       await _bookServices.deleteBookById(id);
       await getBooks();
 
-      _stateHandler.updateState(
+      _updateOperationState(
         EnumBookOperation.delete,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
-      _stateHandler.updateState(
+      _updateOperationState(
         EnumBookOperation.delete,
         isLoading: false,
         errorMessage: e.toString(),

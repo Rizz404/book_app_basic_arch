@@ -44,6 +44,8 @@ class BookScreen extends StatelessWidget {
     final errorMessageBooks = provider.getError(EnumBookOperation.getAll);
     final books = provider.books;
 
+    print(books);
+
     if (isLoadingBooks) {
       return const StyledLoadingState();
     }
@@ -77,7 +79,7 @@ class BookScreen extends StatelessWidget {
           final book = books[index];
           return BookCard(
             bookModel: book,
-            onTap: () => context.go('/books/${book.id}'),
+            onTap: () => context.push('/books/${book.id}'),
           );
         },
         itemCount: books.length,
