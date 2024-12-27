@@ -1,4 +1,4 @@
-import 'package:book_app_basic_arch/feature/auth/auth_provider.dart';
+import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
