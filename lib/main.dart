@@ -9,6 +9,7 @@ import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/language/language_provider.dart';
 import 'package:book_app_basic_arch/features/profile/profile_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
+import 'package:book_app_basic_arch/features/wishlist/wishlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +24,9 @@ void main() {
       ),
       ChangeNotifierProvider(
         create: (_) => BookProvider(),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => WishlistProvider(),
       ),
       ChangeNotifierProvider(
         create: (_) => ProfileProvider(),

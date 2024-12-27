@@ -1,0 +1,15 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'wishlist_model.freezed.dart';
+part 'wishlist_model.g.dart';
+
+@freezed
+class WishlistModel with _$WishlistModel {
+  const factory WishlistModel({
+    required String userId,
+    required String bokId,
+  }) = _WishlistModel;
+
+  factory WishlistModel.fromJson(Map<String, dynamic> json) =>
+      _$WishlistModelFromJson(json);
+}

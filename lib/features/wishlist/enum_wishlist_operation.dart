@@ -1,8 +1,7 @@
-enum EnumBookOperation {
+enum EnumWishlistOperation {
   create,
   getAll,
   getById,
-  search,
   update,
   delete,
 }

@@ -1,23 +1,23 @@
+import 'package:book_app_basic_arch/features/wishlist/enum_wishlist_operation.dart';
+import 'package:book_app_basic_arch/features/wishlist/wishlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
-import 'package:book_app_basic_arch/features/book/book_provider.dart';
-import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_card.dart';
 
-class BookScreen extends StatelessWidget {
-  const BookScreen({super.key});
+class WishlistScreen extends StatelessWidget {
+  const WishlistScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final bookProvider = Provider.of<BookProvider>(context, listen: false);
+    final bookProvider = Provider.of<WishlistProvider>(context, listen: false);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      bookProvider.getBooks();
+      bookProvider.getBooksWishlished();
     });
 
     return Scaffold(
@@ -29,8 +29,8 @@ class BookScreen extends StatelessWidget {
         elevation: 0,
       ),
       body: RefreshIndicator(
-        onRefresh: () => bookProvider.getBooks(),
-        child: Consumer<BookProvider>(
+        onRefresh: () => bookProvider.getBooksWishlished(),
+        child: Consumer<WishlistProvider>(
           builder: (context, provider, _) {
             return _buildBookContent(context, provider);
           },
@@ -39,10 +39,12 @@ class BookScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBookContent(BuildContext context, BookProvider provider) {
-    final isLoadingBooks = provider.isLoading(EnumBookOperation.getAll);
-    final errorMessageBooks = provider.getError(EnumBookOperation.getAll);
+  Widget _buildBookContent(BuildContext context, WishlistProvider provider) {
+    final isLoadingBooks = provider.isLoading(EnumWishlistOperation.getAll);
+    final errorMessageBooks = provider.getError(EnumWishlistOperation.getAll);
     final books = provider.books;
+
+    print(books);
 
     if (isLoadingBooks) {
       return const StyledLoadingState();
@@ -51,7 +53,7 @@ class BookScreen extends StatelessWidget {
     if (errorMessageBooks != null) {
       return StyledErrorMessage(
         errorMessage: errorMessageBooks,
-        onRetry: provider.getBooks,
+        onRetry: provider.getBooksWishlished,
       );
     }
 

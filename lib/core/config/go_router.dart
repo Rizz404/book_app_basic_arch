@@ -1,7 +1,9 @@
+import 'package:book_app_basic_arch/core/shared/screens/splash_screen.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/auth_wrapper.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
-import 'package:book_app_basic_arch/features/auth/screen/auth_screen.dart';
+import 'package:book_app_basic_arch/features/auth/screen/login_screen.dart';
+import 'package:book_app_basic_arch/features/auth/screen/register_screen.dart';
 import 'package:book_app_basic_arch/features/author/screen/author_detail_screen.dart';
 import 'package:book_app_basic_arch/features/author/screen/author_screen.dart';
 import 'package:book_app_basic_arch/features/book/screen/book_detail_screen.dart';
@@ -14,6 +16,7 @@ import 'package:book_app_basic_arch/features/language/screen/language_screen.dar
 import 'package:book_app_basic_arch/features/profile/screen/profile_screen.dart';
 import 'package:book_app_basic_arch/features/publisher/screen/publisher_detail_screen.dart';
 import 'package:book_app_basic_arch/features/publisher/screen/publisher_screen.dart';
+import 'package:book_app_basic_arch/features/wishlist/screen/wishlist_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -27,10 +30,16 @@ final _navigatorBookKey = GlobalKey<NavigatorState>(debugLabel: 'shellBook');
 
 // * Nanti benerin lagi
 final goRouter = GoRouter(
-  initialLocation: '/home',
+  initialLocation: '/',
   navigatorKey: _rootNavigatorKey,
   debugLogDiagnostics: true,
   routes: [
+    GoRoute(
+      path: '/',
+      pageBuilder: (context, state) => MaterialPage(
+        child: SplashScreen(),
+      ),
+    ),
     // * Main app routes dengan bottom navigation
     // ! bisa diakses dengan bottom nav aja
     StatefulShellRoute.indexedStack(
@@ -55,9 +64,9 @@ final goRouter = GoRouter(
           navigatorKey: _navigatorBookKey,
           routes: [
             GoRoute(
-              path: '/books',
+              path: '/wishlist',
               pageBuilder: (context, state) => MaterialPage(
-                child: BookScreen(),
+                child: WishlistScreen(),
               ),
             )
           ],
@@ -80,18 +89,34 @@ final goRouter = GoRouter(
 
     // * Routes di luar bottom navigation
     GoRoute(
-      path: '/auth',
-      builder: (context, state) => AuthScreen(),
+      path: '/sign-up',
+      pageBuilder: (context, state) => MaterialPage(
+        child: RegisterScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/sign-in',
+      pageBuilder: (context, state) => MaterialPage(
+        child: LoginScreen(),
+      ),
     ),
 
     GoRoute(
-      path: '/books/:id',
-      pageBuilder: (context, state) {
-        final bookId = state.pathParameters['id']!;
-        return MaterialPage(
-          child: BookDetailScreen(bookId: bookId),
-        );
-      },
+      path: '/books',
+      pageBuilder: (context, state) => MaterialPage(
+        child: BookScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: ':id',
+          pageBuilder: (context, state) {
+            final bookId = state.pathParameters['id']!;
+            return MaterialPage(
+              child: BookDetailScreen(bookId: bookId),
+            );
+          },
+        ),
+      ],
     ),
 
     GoRoute(
@@ -171,9 +196,9 @@ final goRouter = GoRouter(
   redirect: (context, state) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final isAuthenticated = authProvider.isAuthenticated;
-    final isAuthRoute = state.fullPath == '/auth';
+    final authRoutes = ['/sign-up', '/sign-up'];
 
-    if (isAuthenticated && isAuthRoute) {
+    if (isAuthenticated && authRoutes.contains(state.fullPath)) {
       return '/home';
     }
 

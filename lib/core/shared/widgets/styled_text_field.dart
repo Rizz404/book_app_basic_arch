@@ -38,7 +38,9 @@ class StyledTextField extends StatelessWidget {
         suffixIcon: suffixIcon,
         contentPadding: contentPadding,
         border: border ??
-            OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
       ),
     );
   }

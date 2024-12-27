@@ -10,10 +10,16 @@ class BookProvider with ChangeNotifier {
 
   List<BookModel> _books = [];
   List<BookModel> get books => _books;
+  ApiPagination? _bookPagination;
+  ApiPagination? get bookPagination => _bookPagination;
+
+  List<BookModel> _searchedBooks = [];
+  List<BookModel> get searchedBooks => _searchedBooks;
+  ApiPagination? _searchedBooksPagination;
+  ApiPagination? get searchedBooksPagination => _searchedBooksPagination;
+
   BookModel? _book;
   BookModel? get book => _book;
-  ApiPagination? _pagination;
-  ApiPagination? get pagination => _pagination;
 
   // * Map untuk store operation state
   final Map<EnumBookOperation, OperationState> _operationStates = {
@@ -76,10 +82,16 @@ class BookProvider with ChangeNotifier {
     );
 
     try {
-      final response = await _bookServices.getBooks();
+      final response = await _bookServices.getBooks(
+        page: page,
+        limit: limit,
+        sellerId: sellerId,
+        language: language,
+        genreId: genreId,
+      );
 
       _books = response.data!;
-      _pagination = response.meta.pagination;
+      _bookPagination = response.meta.pagination;
 
       _updateOperationState(
         EnumBookOperation.getAll,
@@ -89,6 +101,38 @@ class BookProvider with ChangeNotifier {
     } catch (e) {
       _updateOperationState(
         EnumBookOperation.getAll,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error fetching books: $e');
+    }
+  }
+
+  Future<void> searchBookByTitle({
+    int page = 1,
+    int limit = 10,
+    required String title,
+  }) async {
+    _updateOperationState(
+      EnumBookOperation.search,
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response = await _bookServices.searchBookByTitle(title: title);
+
+      _searchedBooks = response.data!;
+      _searchedBooksPagination = response.meta.pagination;
+
+      _updateOperationState(
+        EnumBookOperation.search,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        EnumBookOperation.search,
         isLoading: false,
         errorMessage: e.toString(),
       );

@@ -156,7 +156,7 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                         Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     image: author.profilePicture != null
                         ? DecorationImage(
-                            image: NetworkImage(author.profilePicture!),
+                            image: NetworkImage(author.profilePicture),
                             fit: BoxFit.cover,
                           )
                         : null,
@@ -181,7 +181,7 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                       ),
-                      if (author.birthDate != null) ...[
+                      ...[
                         const SizedBox(height: 4),
                         Text(
                           author.birthDate,
@@ -224,7 +224,7 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                                     height: 1.5,
                                   ),
                         ),
-                        if (author.deathDate != null) ...[
+                        ...[
                           const SizedBox(height: 16),
                           Text(
                             'Passed away: ${author.deathDate}',

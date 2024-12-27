@@ -10,6 +10,7 @@ class BookServices {
     try {
       return await _dioClient.post(
         '/books',
+        data: book,
         fromJsonT: (json) => BookModel.fromJson(json as Map<String, dynamic>),
       );
     } on ApiErrorResponse catch (e) {
@@ -50,6 +51,30 @@ class BookServices {
       return await _dioClient.get(
         '/books/$id',
         fromJsonT: (json) => BookModel.fromJson(json as Map<String, dynamic>),
+      );
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
+    }
+  }
+
+  Future<ApiSuccessResponse<List<BookModel>>> searchBookByTitle({
+    int page = 1,
+    int limit = 10,
+    required String title,
+  }) async {
+    try {
+      final queryParameters = {
+        'page': page,
+        'limit': limit,
+        'title': title,
+      };
+
+      return await _dioClient.get(
+        '/books/search',
+        queryParameters: queryParameters,
+        fromJsonT: (json) => (json as List)
+            .map((item) => BookModel.fromJson(item as Map<String, dynamic>))
+            .toList(),
       );
     } on ApiErrorResponse catch (e) {
       throw e.message;
