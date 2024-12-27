@@ -1,9 +1,10 @@
+import 'package:book_app_basic_arch/core/shared/widgets/styled_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
-import 'package:book_app_basic_arch/features/book/widgets/book_card.dart';
+import 'package:book_app_basic_arch/features/home/widgets/genre_list_horizontal.dart';
+import 'package:book_app_basic_arch/features/home/widgets/home_carousel.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
@@ -37,15 +38,44 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Katalog Buku'),
+      appBar: StyledAppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hello',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+                Text(
+                  'kontolodon',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+              ],
+            ),
+            CircleAvatar(
+              child: Image.asset(
+                'assets/images/splash-screen-logo.png',
+              ),
+            )
+          ],
+        ),
       ),
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            SizedBox(height: 16),
+            HomeCarousel(),
+            SizedBox(height: 24),
+            // Search Bar
+            TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Cari buku...',
@@ -64,13 +94,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       )
                     : null,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(
                     color: Theme.of(context).primaryColor,
                   ),
@@ -91,17 +121,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               },
             ),
-          ),
-
-          // List Buku
-          Expanded(
-            child: Consumer<BookProvider>(
-              builder: (context, bookProvider, _) {
-                return _buildBookContent(context, bookProvider);
-              },
+            SizedBox(height: 24),
+            GenreListHorizontal(),
+            SizedBox(height: 24),
+            // List Buku
+            Expanded(
+              child: Consumer<BookProvider>(
+                builder: (context, bookProvider, _) {
+                  return _buildBookContent(context, bookProvider);
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -133,25 +165,71 @@ class _HomeScreenState extends State<HomeScreen> {
       return const StyledEmptyData(message: 'No books found');
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GridView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.85, // Rasio aspek kartu diubah agar lebih tinggi
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-        ),
-        itemBuilder: (context, index) {
-          final book = books[index];
-          return BookCard(
-            bookModel: book,
-            onTap: () => context.push('/books/${book.id}'),
-          );
-        },
-        itemCount: books.length,
+    return GridView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.7,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
       ),
+      itemBuilder: (context, index) {
+        final book = books[index];
+        return Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 4,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                  child: Image.network(
+                    book.bookPictures![0].url,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        book.title,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        book.author.name,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 12,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      itemCount: books.length,
     );
   }
 }
