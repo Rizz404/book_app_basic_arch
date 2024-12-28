@@ -2,10 +2,10 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_navigation_bar.da
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class BaseScaffold extends StatelessWidget {
+class ScaffoldWithBottomAppBar extends StatelessWidget {
   final StatefulNavigationShell statefulNavigationShell;
 
-  const BaseScaffold({
+  const ScaffoldWithBottomAppBar({
     super.key,
     required this.statefulNavigationShell,
   });

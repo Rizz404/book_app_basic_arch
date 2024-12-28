@@ -1,6 +1,6 @@
 import 'package:book_app_basic_arch/core/shared/screens/splash_screen.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/auth_wrapper.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/scaffold_with_bottom_app_bar.dart';
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
 import 'package:book_app_basic_arch/features/auth/screen/login_screen.dart';
 import 'package:book_app_basic_arch/features/auth/screen/register_screen.dart';
@@ -44,7 +44,7 @@ final goRouter = GoRouter(
     // ! bisa diakses dengan bottom nav aja
     StatefulShellRoute.indexedStack(
       builder: (context, state, statefulNavigationShell) {
-        return BaseScaffold(
+        return ScaffoldWithBottomAppBar(
           statefulNavigationShell: statefulNavigationShell,
         );
       },

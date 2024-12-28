@@ -22,18 +22,31 @@ class BookCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // * Image
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      bookModel.bookPictures![0].url,
-                    ),
+              child: Image.network(
+                bookModel.bookPictures![0].url,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.network(
+                    'https://i.pinimg.com/236x/64/2e/96/642e9610c5c587767430bf6a9deeff7c.jpg',
                     fit: BoxFit.cover,
-                  ),
-                ),
+                  );
+                },
+                cacheWidth:
+                    300, // * Mengaktifkan caching dengan resolusi tertentu
+                cacheHeight: 300, // * Sesuaikan dengan kebutuhan
               ),
             ),
+
+            // * Text
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 12,

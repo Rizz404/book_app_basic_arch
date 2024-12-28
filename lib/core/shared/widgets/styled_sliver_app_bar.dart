@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class StyledSliverAppBar extends StatelessWidget {
-  final String title;
-  final String subtitle;
+  final String? title;
+  final String? subtitle;
   final Widget? avatar;
 
   const StyledSliverAppBar({
     super.key,
-    required this.title,
-    required this.subtitle,
+    this.title,
+    this.subtitle,
     this.avatar,
   });
 
@@ -23,13 +23,13 @@ class StyledSliverAppBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title,
+            title ?? "Hello",
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
           ),
           Text(
-            subtitle,
+            subtitle ?? "Kintil",
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
@@ -38,7 +38,13 @@ class StyledSliverAppBar extends StatelessWidget {
       ),
       centerTitle: false,
       actions: [
-        if (avatar != null) avatar!,
+        avatar ??
+            CircleAvatar(
+              radius: 20,
+              child: Image.asset(
+                'assets/images/splash-screen-logo.png',
+              ),
+            ),
         const SizedBox(width: 16),
       ],
     );
