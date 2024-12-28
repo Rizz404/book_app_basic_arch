@@ -14,8 +14,14 @@ class StyledNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return NavigationBar(
       destinations: [
-        NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-        NavigationDestination(icon: Icon(Icons.book), label: 'Book'),
+        NavigationDestination(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.bookmark_border),
+          label: 'Wishlist',
+        ),
         NavigationDestination(
           icon: Icon(Icons.account_circle),
           label: 'Profile',

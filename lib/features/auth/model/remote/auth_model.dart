@@ -16,7 +16,6 @@ class UserCredentialModel with _$UserCredentialModel {
     required DateTime createdAt,
     required DateTime updatedAt,
     required String password,
-    // required UserProfile userProfile,
     required String accessToken,
     required String refreshToken,
   }) = _UserCredentialModel;

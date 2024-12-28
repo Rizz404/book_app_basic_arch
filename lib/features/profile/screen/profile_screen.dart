@@ -1,14 +1,11 @@
-import 'package:book_app_basic_arch/core/constants/app_pallete.dart';
-import 'package:book_app_basic_arch/core/shared/provider/theme_provider.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
-import 'package:book_app_basic_arch/features/profile/model/profile_model.dart';
 import 'package:book_app_basic_arch/features/profile/profile_provider.dart';
 import 'package:book_app_basic_arch/features/profile/enum_profile_operation.dart';
-import 'package:book_app_basic_arch/features/profile/widgets/profile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,62 +23,46 @@ class ProfileScreen extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("UserProfile"),
+      appBar: StyledAppBar(
+        title: Text("Profile"),
       ),
-      body: RefreshIndicator(
-        onRefresh: () => profileProvider.getUserProfile(),
+      body: Padding(
+        padding: EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 16),
+            // * Profile
             Consumer<ProfileProvider>(
               builder: (context, provider, _) {
                 return _buildProfileContent(context, provider);
               },
             ),
-            SizedBox(height: 16),
-            StyledButton(
-              onPressed: () {
-                Provider.of<AuthProvider>(context, listen: false).signOut();
-              },
-              child: Text('Logout'),
-            ),
-            SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.start,
+            SizedBox(height: 32),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                StyledButton(
-                  onPressed: () => Provider.of<ThemeProvider>(
-                    context,
-                    listen: false,
-                  ).setTheme(AppPallete.ikuyoTheme),
-                  child: Text('Change to ikuyo theme'),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: StyledButton(
+                    onPressed: () {},
+                    child: Text('Update'),
+                  ),
                 ),
-                StyledButton(
-                  onPressed: () => Provider.of<ThemeProvider>(
-                    context,
-                    listen: false,
-                  ).setTheme(AppPallete.bocchiTheme),
-                  child: Text('Change to bocchi theme'),
-                ),
-                StyledButton(
-                  onPressed: () => Provider.of<ThemeProvider>(
-                    context,
-                    listen: false,
-                  ).setTheme(AppPallete.nijikaTheme),
-                  child: Text('Change to nijika theme'),
-                ),
-                StyledButton(
-                  onPressed: () => Provider.of<ThemeProvider>(
-                    context,
-                    listen: false,
-                  ).setTheme(AppPallete.ryoTheme),
-                  child: Text('Change to ryo theme'),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: StyledButton(
+                    onPressed: () {
+                      Provider.of<AuthProvider>(context, listen: false)
+                          .signOut();
+                    },
+                    child: Text('Logout'),
+                  ),
                 ),
               ],
-            )
+            ),
+
+            SizedBox(height: 16),
           ],
         ),
       ),
@@ -104,19 +85,35 @@ class ProfileScreen extends StatelessWidget {
     }
 
     if (userProfile != null) {
-      return ProfileCard(
-        userWithProfileModel: UserWithProfileModel(
-          id: userProfile.id,
-          username: userProfile.username,
-          email: userProfile.email,
-          role: userProfile.role,
-          profilePicture: userProfile.profilePicture,
-          isVerified: userProfile.isVerified,
-          isEmailVerified: userProfile.isEmailVerified,
-          createdAt: userProfile.createdAt,
-          updatedAt: userProfile.updatedAt,
-          userProfile: userProfile.userProfile,
-        ),
+      return Column(
+        children: [
+          // * Pakenya itu background image kalo circle avatar
+          CircleAvatar(
+            radius: 120,
+            backgroundImage: NetworkImage(
+              userProfile.profilePicture,
+            ),
+          ),
+          SizedBox(
+            height: 16,
+          ),
+          Column(
+            children: [
+              Text(
+                userProfile.username,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
+              Text(
+                userProfile.email,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
+            ],
+          )
+        ],
       );
     } else {
       return const StyledEmptyData(message: 'No profile found');

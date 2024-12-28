@@ -3,6 +3,7 @@ import 'package:book_app_basic_arch/core/config/go_router.dart';
 import 'package:book_app_basic_arch/core/constants/app_pallete.dart';
 import 'package:book_app_basic_arch/core/shared/provider/theme_provider.dart';
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
+import 'package:book_app_basic_arch/features/auth/model/local/user_credential_model.dart';
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
@@ -11,9 +12,19 @@ import 'package:book_app_basic_arch/features/profile/profile_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
 import 'package:book_app_basic_arch/features/wishlist/wishlist_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final appDocumentDirectory = await getApplicationDocumentsDirectory();
+
+  await Hive.initFlutter(appDocumentDirectory.path);
+
+  // * Register semua adapter Hive di sini
+  Hive.registerAdapter(UserCredentialModelAdapter());
+
   runApp(
     MultiProvider(providers: [
       ChangeNotifierProvider(

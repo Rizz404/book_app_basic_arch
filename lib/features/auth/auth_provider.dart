@@ -2,7 +2,7 @@ import 'package:book_app_basic_arch/core/helpers/token_manager.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/auth/auth_services.dart';
 import 'package:book_app_basic_arch/features/auth/enum_auth_operation.dart';
-import 'package:book_app_basic_arch/features/auth/model/auth_model.dart';
+import 'package:book_app_basic_arch/features/auth/model/remote/auth_model.dart';
 import 'package:flutter/material.dart';
 
 class AuthProvider with ChangeNotifier {

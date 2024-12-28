@@ -29,8 +29,7 @@ mixin _$UserCredentialModel {
   bool get isEmailVerified => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
-  String get password =>
-      throw _privateConstructorUsedError; // required UserProfile userProfile,
+  String get password => throw _privateConstructorUsedError;
   String get accessToken => throw _privateConstructorUsedError;
   String get refreshToken => throw _privateConstructorUsedError;
 
@@ -288,7 +287,6 @@ class _$UserCredentialModelImpl implements _UserCredentialModel {
   final DateTime updatedAt;
   @override
   final String password;
-// required UserProfile userProfile,
   @override
   final String accessToken;
   @override
@@ -398,7 +396,7 @@ abstract class _UserCredentialModel implements UserCredentialModel {
   @override
   DateTime get updatedAt;
   @override
-  String get password; // required UserProfile userProfile,
+  String get password;
   @override
   String get accessToken;
   @override

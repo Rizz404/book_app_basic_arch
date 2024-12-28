@@ -46,14 +46,11 @@ class GenreList extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: genres.length,
         itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Align(
-              alignment: Alignment.center,
-              child: GestureDetector(
-                onTap: () => onGenreSelected(genres[index].id),
-                child: Text(genres[index].name),
-              ),
+          return Align(
+            alignment: Alignment.center,
+            child: TextButton(
+              child: Text(genres[index].name),
+              onPressed: () => onGenreSelected(genres[index].id),
             ),
           );
         },
