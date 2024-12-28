@@ -1,10 +1,12 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_app_bar.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
-import 'package:book_app_basic_arch/features/home/widgets/genre_list_horizontal.dart';
-import 'package:book_app_basic_arch/features/home/widgets/home_carousel.dart';
+import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
+import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
+import 'package:book_app_basic_arch/features/home/widgets/book_grid.dart';
+import 'package:book_app_basic_arch/features/home/widgets/book_search_bar.dart';
+import 'package:book_app_basic_arch/features/home/widgets/genre_list.dart';
+import 'package:book_app_basic_arch/features/home/widgets/book_offer_carousel.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
@@ -17,15 +19,46 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final images = [
+    "https://i.pinimg.com/236x/30/c2/10/30c210344bbbcde4d5542c02a0cb908b.jpg",
+    "https://i.pinimg.com/236x/55/c3/b9/55c3b96dc1cc14a02f698796ed1dac7e.jpg",
+    "https://i.pinimg.com/236x/9e/7c/46/9e7c469cdd4842b408ce3a09230b9b29.jpg"
+  ];
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
+
+  void handleSearchIconPressed() {
+    _searchController.clear();
+    setState(() {
+      _isSearching = false;
+    });
+    // * Reset ke tampilan semua buku
+    context.read<BookProvider>().getBooks();
+  }
+
+  void handleChange(String value) {
+    setState(() {
+      _isSearching = value.isNotEmpty;
+    });
+    if (value.isNotEmpty) {
+      // * Lakukan pencarian setelah user mengetik
+      context.read<BookProvider>().searchBookByTitle(
+            title: value.trim(),
+          );
+    } else {
+      // * Tampilkan semua buku jika search kosong
+      context.read<BookProvider>().getBooks();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    // Ambil data buku saat screen pertama kali dibuka
+    // * Ambil data buku saat screen pertama kali dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // * Fetch both books and genres
       context.read<BookProvider>().getBooks();
+      context.read<GenreProvider>().getGenres();
     });
   }
 
@@ -39,197 +72,98 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: StyledAppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hello',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
-                Text(
-                  'kontolodon',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
-              ],
+            Text(
+              'Hello',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
-            CircleAvatar(
-              child: Image.asset(
-                'assets/images/splash-screen-logo.png',
-              ),
-            )
+            Text(
+              'kontolodon',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
           ],
         ),
+        centerTitle: false,
+        actions: [
+          CircleAvatar(
+            radius: 20,
+            child: Image.asset(
+              'assets/images/splash-screen-logo.png',
+            ),
+          ),
+          const SizedBox(width: 16),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            SizedBox(height: 16),
-            HomeCarousel(),
-            SizedBox(height: 24),
-            // Search Bar
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Cari buku...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _isSearching = false;
-                          });
-                          // Reset ke tampilan semua buku
-                          context.read<BookProvider>().getBooks();
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(height: 16),
+              BookOfferCarousel(
+                bannerImages: images,
               ),
-              onChanged: (value) {
-                setState(() {
-                  _isSearching = value.isNotEmpty;
-                });
-                if (value.isNotEmpty) {
-                  // Lakukan pencarian setelah user mengetik
-                  context.read<BookProvider>().searchBookByTitle(
-                        title: value.trim(),
-                      );
-                } else {
-                  // Tampilkan semua buku jika search kosong
-                  context.read<BookProvider>().getBooks();
-                }
-              },
-            ),
-            SizedBox(height: 24),
-            GenreListHorizontal(),
-            SizedBox(height: 24),
-            // List Buku
-            Expanded(
-              child: Consumer<BookProvider>(
-                builder: (context, bookProvider, _) {
-                  return _buildBookContent(context, bookProvider);
+              SizedBox(height: 24),
+
+              BookSearchBar(
+                controller: _searchController,
+                onIconPressed: handleSearchIconPressed,
+                onChanged: handleChange,
+              ),
+              SizedBox(height: 24),
+
+              Consumer<GenreProvider>(
+                builder: (context, genreProvider, _) {
+                  return GenreList(
+                    genres: genreProvider.genres,
+                    isLoading:
+                        genreProvider.isLoading(EnumGenreOperation.getAll),
+                    errorMessage:
+                        genreProvider.getError(EnumGenreOperation.getAll),
+                    onRetry: () => genreProvider.getGenres(),
+                    onGenreSelected: (genreId) =>
+                        context.push('/genres/$genreId'),
+                  );
                 },
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+              SizedBox(height: 24),
+              // * List Buku
 
-  Widget _buildBookContent(BuildContext context, BookProvider provider) {
-    final isLoadingGetBooks = provider.isLoading(EnumBookOperation.getAll);
-    final errorMessageGetBooks = provider.getError(EnumBookOperation.getAll);
-    final isLoadingSearchedBooks = provider.isLoading(EnumBookOperation.search);
-    final errorMessageSearchedBooks =
-        provider.getError(EnumBookOperation.search);
-    final books = _isSearching ? provider.searchedBooks : provider.books;
+              Consumer<BookProvider>(
+                builder: (context, bookProvider, _) {
+                  final books = _isSearching
+                      ? bookProvider.searchedBooks
+                      : bookProvider.books;
 
-    if (isLoadingGetBooks || isLoadingSearchedBooks) {
-      return const StyledLoadingState();
-    }
-
-    if (errorMessageGetBooks != null || errorMessageSearchedBooks != null) {
-      return StyledErrorMessage(
-        errorMessage: errorMessageGetBooks ??
-            errorMessageSearchedBooks ??
-            'Terjadi kesalahan saat fetch',
-        onRetry: () => provider.searchBookByTitle(
-          title: _searchController.text,
-        ),
-      );
-    }
-
-    if (books.isEmpty) {
-      return const StyledEmptyData(message: 'No books found');
-    }
-
-    return GridView.builder(
-      physics: const AlwaysScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.7,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
-      itemBuilder: (context, index) {
-        final book = books[index];
-        return Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 4,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                  child: Image.network(
-                    book.bookPictures![0].url,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                child: Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        book.title,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        book.author.name,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: 12,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                  return BookGrid(
+                    books: books,
+                    isLoading: bookProvider.isLoading(_isSearching
+                        ? EnumBookOperation.search
+                        : EnumBookOperation.getAll),
+                    errorMessage: bookProvider.getError(_isSearching
+                        ? EnumBookOperation.search
+                        : EnumBookOperation.getAll),
+                    onRetry: () => _isSearching
+                        ? bookProvider.searchBookByTitle(
+                            title: _searchController.text)
+                        : bookProvider.getBooks(),
+                    onBookSelected: (book) {
+                      // Handle book selection
+                      context.push('/books/${book.id}');
+                    },
+                  );
+                },
               ),
             ],
           ),
-        );
-      },
-      itemCount: books.length,
+        ),
+      ),
     );
   }
 }

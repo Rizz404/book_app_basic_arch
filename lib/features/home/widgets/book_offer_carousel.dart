@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 
-class HomeCarousel extends StatefulWidget {
-  const HomeCarousel({super.key});
+class BookOfferCarousel extends StatefulWidget {
+  final List<String> bannerImages;
+
+  const BookOfferCarousel({
+    super.key,
+    required this.bannerImages,
+  });
 
   @override
-  State<HomeCarousel> createState() => _HomeCarouselState();
+  State<BookOfferCarousel> createState() => _BookOfferCarouselState();
 }
 
-class _HomeCarouselState extends State<HomeCarousel> {
-  final images = [
-    "https://i.pinimg.com/236x/30/c2/10/30c210344bbbcde4d5542c02a0cb908b.jpg",
-    "https://i.pinimg.com/236x/55/c3/b9/55c3b96dc1cc14a02f698796ed1dac7e.jpg",
-    "https://i.pinimg.com/236x/9e/7c/46/9e7c469cdd4842b408ce3a09230b9b29.jpg"
-  ];
-
+class _BookOfferCarouselState extends State<BookOfferCarousel> {
   int _currentPage = 0;
   final PageController _pageController = PageController();
 
@@ -34,7 +33,7 @@ class _HomeCarouselState extends State<HomeCarousel> {
             height: 200,
             child: PageView.builder(
               controller: _pageController,
-              itemCount: images.length,
+              itemCount: widget.bannerImages.length,
               onPageChanged: (index) {
                 setState(() {
                   _currentPage = index;
@@ -42,7 +41,7 @@ class _HomeCarouselState extends State<HomeCarousel> {
               },
               itemBuilder: (context, index) {
                 return Image.network(
-                  images[index],
+                  widget.bannerImages[index],
                   fit: BoxFit.cover,
                 );
               },
@@ -53,7 +52,7 @@ class _HomeCarouselState extends State<HomeCarousel> {
           bottom: 10,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: images.asMap().entries.map((entry) {
+            children: widget.bannerImages.asMap().entries.map((entry) {
               return Container(
                 width: 8,
                 height: 8,

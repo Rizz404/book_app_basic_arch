@@ -1,88 +1,54 @@
+import 'package:book_app_basic_arch/core/shared/widgets/styled_app_bar.dart';
+import 'package:book_app_basic_arch/features/home/widgets/book_grid.dart';
 import 'package:book_app_basic_arch/features/wishlist/enum_wishlist_operation.dart';
 import 'package:book_app_basic_arch/features/wishlist/wishlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
-import 'package:book_app_basic_arch/features/book/model/book_model.dart';
-import 'package:book_app_basic_arch/features/book/widgets/book_card.dart';
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final bookProvider = Provider.of<WishlistProvider>(context, listen: false);
+    final wishlistProvider =
+        Provider.of<WishlistProvider>(context, listen: false);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      bookProvider.getBooksWishlished();
+      wishlistProvider.getBooksWishlished();
     });
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: StyledAppBar(
         title: const Text(
-          "Books",
+          "Wislist",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        elevation: 0,
       ),
       body: RefreshIndicator(
-        onRefresh: () => bookProvider.getBooksWishlished(),
-        child: Consumer<WishlistProvider>(
-          builder: (context, provider, _) {
-            return _buildBookContent(context, provider);
-          },
+        onRefresh: () => wishlistProvider.getBooksWishlished(),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Consumer<WishlistProvider>(
+            builder: (context, provider, _) {
+              final books = provider.books;
+              final isLoading =
+                  provider.isLoading(EnumWishlistOperation.getAll);
+              final errorMessage =
+                  provider.getError(EnumWishlistOperation.getAll);
+
+              return BookGrid(
+                books: books,
+                isLoading: isLoading,
+                onBookSelected: (book) {
+                  context.push('/books/${book.id}');
+                },
+                errorMessage: errorMessage,
+                onRetry: () => wishlistProvider.getBooksWishlished(),
+              );
+            },
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildBookContent(BuildContext context, WishlistProvider provider) {
-    final isLoadingBooks = provider.isLoading(EnumWishlistOperation.getAll);
-    final errorMessageBooks = provider.getError(EnumWishlistOperation.getAll);
-    final books = provider.books;
-
-    print(books);
-
-    if (isLoadingBooks) {
-      return const StyledLoadingState();
-    }
-
-    if (errorMessageBooks != null) {
-      return StyledErrorMessage(
-        errorMessage: errorMessageBooks,
-        onRetry: provider.getBooksWishlished,
-      );
-    }
-
-    if (books.isEmpty) {
-      return const StyledEmptyData(message: 'No books found');
-    }
-
-    return _buildBookList(context, books);
-  }
-
-  Widget _buildBookList(BuildContext context, List<BookModel> books) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GridView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.85, // Rasio aspek kartu diubah agar lebih tinggi
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-        ),
-        itemBuilder: (context, index) {
-          final book = books[index];
-          return BookCard(
-            bookModel: book,
-            onTap: () => context.push('/books/${book.id}'),
-          );
-        },
-        itemCount: books.length,
       ),
     );
   }

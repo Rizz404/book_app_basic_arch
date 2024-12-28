@@ -23,7 +23,7 @@ class BookCard extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        elevation: 2, // Elevation dikurangi agar tidak terlalu menonjol
+        elevation: 1, // Elevation dikurangi agar tidak terlalu menonjol
         child: Stack(
           children: [
             // Background Image
