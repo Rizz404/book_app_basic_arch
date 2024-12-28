@@ -1,24 +1,18 @@
+import 'package:book_app_basic_arch/core/constants/api_constant.dart';
 import 'package:book_app_basic_arch/core/helpers/token_manager.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_error_response.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_meta.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_success_response.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
+import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
   late final Dio dio;
   final TokenManager _tokenManager = TokenManager();
-
-  // static const String _baseUrl = 'http://192.168.32.16:5000/api';
-  static const String _baseUrl =
-      'https://straight-dareen-happiness-overload-7d6989f4.koyeb.app/api';
-  static const Duration _connectTimeout = Duration(seconds: 10);
-  static const Duration _receiveTimeout = Duration(seconds: 10);
-  static const Map<String, String> _baseHeaders = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  };
 
   // * Flag untuk mencegah multiple refresh token requests
   bool _isRefreshing = false;
@@ -29,17 +23,44 @@ class DioClient {
   factory DioClient() => _instance;
 
   DioClient._internal() {
+    _initializeDio();
+  }
+
+  void _initializeDio() async {
+    var cacheDir = await getTemporaryDirectory();
+
+    var cacheStore = HiveCacheStore(
+      cacheDir.path,
+      hiveBoxName: "dio_cache",
+    );
+
+    var customCacheOptions = CacheOptions(
+      store: cacheStore,
+      policy: CachePolicy.forceCache,
+      priority: CachePriority.high,
+      maxStale: const Duration(minutes: 1),
+      hitCacheOnErrorExcept: [401, 404],
+      keyBuilder: (request) {
+        return request.uri.toString();
+      },
+      allowPostMethod: false,
+    );
+
     dio = Dio(
       BaseOptions(
-        baseUrl: _baseUrl,
-        connectTimeout: _connectTimeout,
-        receiveTimeout: _receiveTimeout,
-        headers: _baseHeaders,
+        baseUrl: ApiConstant.baseUrl,
+        connectTimeout: ApiConstant.connectTimeout,
+        receiveTimeout: ApiConstant.receiveTimeout,
+        headers: ApiConstant.baseHeaders,
+        responseType: ApiConstant.responseType,
       ),
-    )..interceptors.addAll([
-        _createAuthInterceptor(),
-        _createLoggerInterceptor(),
-      ]);
+    )..interceptors.addAll(
+        [
+          DioCacheInterceptor(options: customCacheOptions),
+          _createAuthInterceptor(),
+          _createLoggerInterceptor(),
+        ],
+      );
   }
 
   // todo: Pindahin ke file lain
@@ -124,8 +145,9 @@ class DioClient {
       final response = await dio.post(
         '/auth/refresh-token',
         data: {'refreshToken': refreshToken},
-        options:
-            Options(headers: {..._baseHeaders}), // Gunakan base headers saja
+        options: Options(headers: {
+          ...ApiConstant.baseHeaders,
+        }), // Gunakan base headers saja
       );
 
       final newAccessToken = response.data['data']['accessToken'];

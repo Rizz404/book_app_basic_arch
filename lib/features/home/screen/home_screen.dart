@@ -1,4 +1,5 @@
-import 'package:book_app_basic_arch/core/shared/widgets/styled_app_bar.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
 import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/home/widgets/book_grid.dart';
@@ -32,7 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _isSearching = false;
     });
-    // * Reset ke tampilan semua buku
     context.read<BookProvider>().getBooks();
   }
 
@@ -41,12 +41,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _isSearching = value.isNotEmpty;
     });
     if (value.isNotEmpty) {
-      // * Lakukan pencarian setelah user mengetik
       context.read<BookProvider>().searchBookByTitle(
             title: value.trim(),
           );
     } else {
-      // * Tampilkan semua buku jika search kosong
       context.read<BookProvider>().getBooks();
     }
   }
@@ -54,9 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // * Ambil data buku saat screen pertama kali dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // * Fetch both books and genres
       context.read<BookProvider>().getBooks();
       context.read<GenreProvider>().getGenres();
     });
@@ -71,54 +67,52 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: StyledAppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Hello',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-            ),
-            Text(
-              'kontolodon',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-            ),
-          ],
-        ),
-        centerTitle: false,
-        actions: [
-          CircleAvatar(
-            radius: 20,
-            child: Image.asset(
-              'assets/images/splash-screen-logo.png',
-            ),
-          ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: 16),
-              BookOfferCarousel(
-                bannerImages: images,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            // AppBar
+            StyledSliverAppBar(
+              title: "Hello",
+              subtitle: "Kintil",
+              avatar: CircleAvatar(
+                radius: 20,
+                child: Image.asset(
+                  'assets/images/splash-screen-logo.png',
+                ),
               ),
-              SizedBox(height: 24),
+            ),
+            // Carousel
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    BookOfferCarousel(
+                      bannerImages: images,
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
 
-              BookSearchBar(
+            // Sticky SearchBar
+            StyledStickySliverContainer(
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: BookSearchBar(
                 controller: _searchController,
                 onIconPressed: handleSearchIconPressed,
                 onChanged: handleChange,
               ),
-              SizedBox(height: 24),
+            ),
 
-              Consumer<GenreProvider>(
+            // Sticky GenreList
+            StyledStickySliverContainer(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Consumer<GenreProvider>(
                 builder: (context, genreProvider, _) {
                   return GenreList(
                     genres: genreProvider.genres,
@@ -132,36 +126,39 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
               ),
-              SizedBox(height: 24),
-              // * List Buku
+            ),
 
-              Consumer<BookProvider>(
+            // BookGrid
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: Consumer<BookProvider>(
                 builder: (context, bookProvider, _) {
                   final books = _isSearching
                       ? bookProvider.searchedBooks
                       : bookProvider.books;
 
-                  return BookGrid(
-                    books: books,
-                    isLoading: bookProvider.isLoading(_isSearching
-                        ? EnumBookOperation.search
-                        : EnumBookOperation.getAll),
-                    errorMessage: bookProvider.getError(_isSearching
-                        ? EnumBookOperation.search
-                        : EnumBookOperation.getAll),
-                    onRetry: () => _isSearching
-                        ? bookProvider.searchBookByTitle(
-                            title: _searchController.text)
-                        : bookProvider.getBooks(),
-                    onBookSelected: (book) {
-                      // Handle book selection
-                      context.push('/books/${book.id}');
-                    },
+                  return SliverToBoxAdapter(
+                    child: BookGrid(
+                      books: books,
+                      isLoading: bookProvider.isLoading(_isSearching
+                          ? EnumBookOperation.search
+                          : EnumBookOperation.getAll),
+                      errorMessage: bookProvider.getError(_isSearching
+                          ? EnumBookOperation.search
+                          : EnumBookOperation.getAll),
+                      onRetry: () => _isSearching
+                          ? bookProvider.searchBookByTitle(
+                              title: _searchController.text)
+                          : bookProvider.getBooks(),
+                      onBookSelected: (book) {
+                        context.push('/books/${book.id}');
+                      },
+                    ),
                   );
                 },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
