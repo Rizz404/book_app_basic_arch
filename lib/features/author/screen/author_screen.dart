@@ -1,8 +1,15 @@
+import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
 import 'package:book_app_basic_arch/features/author/enum_author_operation.dart';
-import 'package:book_app_basic_arch/features/author/widgets/author_card.dart';
+import 'package:book_app_basic_arch/features/author/widgets/author_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class AuthorScreen extends StatelessWidget {
@@ -10,86 +17,70 @@ class AuthorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authorProvider = Provider.of<AuthorProvider>(context, listen: false);
-
-    // Fetch authors saat screen pertama kali diakses
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      authorProvider.getAuthors();
+      context.read<AuthorProvider>().getAuthors();
     });
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Authors"),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => authorProvider.getAuthors(),
-        child: Consumer<AuthorProvider>(
-          builder: (context, provider, _) {
-            final isLoadingAuthors =
-                provider.isLoading(EnumAuthorOperation.getAll);
-            final errorMessageAuthors =
-                provider.getError(EnumAuthorOperation.getAll);
-            final authors = provider.authors;
-
-            if (isLoadingAuthors) {
-              // Loading State
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
-            if (errorMessageAuthors != null) {
-              // Error State
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Error: $errorMessageAuthors",
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => provider.getAuthors(),
-                      child: const Text("Retry"),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            if (authors.isNotEmpty) {
-              return Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: authors.length,
-                      itemBuilder: (context, index) {
-                        final author = authors[index];
-                        return AuthorCard(
-                          name: author.name,
-                          biography: author.biography,
-                          birthDate: author.birthDate,
-                          deathDate: author.deathDate,
-                          profilePicture: author.profilePicture,
-                          onTap: () {
-                            // Navigasi ke halaman detail author
-                            context.go('/authors/${author.id}');
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              // State kosong
-              return const Center(
-                child: Text("No authors found."),
-              );
-            }
-          },
+    return BaseScaffold(
+      body: StyledScreenLayoutBuilder(
+        sliverAppBar: StyledSliverAppBar(
+          title: StyledSearchBarPlaceholder(),
         ),
+        builder: (builder, controller) {
+          return [
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              sliver: StyledStickySliverContainer(
+                height: 24,
+                child: Text(
+                  "Recommended",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: EdgeInsets.all(16),
+              sliver: Consumer<AuthorProvider>(builder: (context, provider, _) {
+                final authors = provider.authors;
+                final isLoading =
+                    provider.isLoading(EnumAuthorOperation.getAll);
+                final errorMessage =
+                    provider.getError(EnumAuthorOperation.getAll);
+
+                if (isLoading) {
+                  return SliverToBoxAdapter(child: const StyledLoadingState());
+                }
+
+                if (errorMessage != null) {
+                  return SliverToBoxAdapter(
+                    child: StyledErrorMessage(
+                      errorMessage: errorMessage,
+                      onRetry: () =>
+                          context.read<AuthorProvider>().getAuthors(),
+                    ),
+                  );
+                }
+
+                if (authors.isEmpty) {
+                  return SliverToBoxAdapter(
+                      child: const StyledEmptyData(message: 'No books found'));
+                }
+
+                return SliverList.builder(
+                  itemCount: authors.length,
+                  itemBuilder: (context, index) {
+                    final author = authors[index];
+
+                    return AuthorTile(authorModel: author);
+                  },
+                );
+              }),
+            )
+          ];
+        },
       ),
     );
   }

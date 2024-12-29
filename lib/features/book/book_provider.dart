@@ -254,10 +254,9 @@ class BookProvider with ChangeNotifier {
   }
 
   void updateBookWishlistStatus(String bookId, bool isWishlisted) {
-    // * Update di semua screen yang menyimpan buku
+    // Update di semua screen yang menyimpan buku
     _booksByScreen.forEach((screen, books) {
       final bookIndex = books.indexWhere((book) => book.id == bookId);
-
       if (bookIndex != -1) {
         final updatedBooks = List<BookModel>.from(books);
         updatedBooks[bookIndex] = books[bookIndex].copyWith(
@@ -265,15 +264,16 @@ class BookProvider with ChangeNotifier {
           wishlistCount: isWishlisted
               ? books[bookIndex].wishlistCount + 1
               : books[bookIndex].wishlistCount - 1,
+          // Simpan status original yang baru
+          originalWishlistStatus: isWishlisted,
         );
         _booksByScreen[screen] = updatedBooks;
       }
     });
 
-    // * Update untuk searched books
+    // Update untuk searched books
     final searchedBookIndex =
         _searchedBooks.indexWhere((book) => book.id == bookId);
-
     if (searchedBookIndex != -1) {
       final updatedSearchedBooks = List<BookModel>.from(_searchedBooks);
       updatedSearchedBooks[searchedBookIndex] =
@@ -282,28 +282,28 @@ class BookProvider with ChangeNotifier {
         wishlistCount: isWishlisted
             ? _searchedBooks[searchedBookIndex].wishlistCount + 1
             : _searchedBooks[searchedBookIndex].wishlistCount - 1,
+        originalWishlistStatus: isWishlisted,
       );
       _searchedBooks = updatedSearchedBooks;
     }
 
-    // * Update untuk single book detail
+    // Update untuk single book detail
     if (_book?.id == bookId) {
       _book = _book!.copyWith(
         isWishlisted: isWishlisted,
         wishlistCount:
             isWishlisted ? _book!.wishlistCount + 1 : _book!.wishlistCount - 1,
+        originalWishlistStatus: isWishlisted,
       );
     }
 
     notifyListeners();
   }
 
-  // * Method untuk rollback perubahan jika request gagal
   void rollbackBookWishlistStatus(String bookId) {
     // * Rollback di semua screen
     _booksByScreen.forEach((screen, books) {
       final bookIndex = books.indexWhere((book) => book.id == bookId);
-
       if (bookIndex != -1) {
         final updatedBooks = List<BookModel>.from(books);
         updatedBooks[bookIndex] = books[bookIndex].copyWith(
@@ -319,7 +319,6 @@ class BookProvider with ChangeNotifier {
     // * Rollback untuk searched books
     final searchedBookIndex =
         _searchedBooks.indexWhere((book) => book.id == bookId);
-
     if (searchedBookIndex != -1) {
       final updatedSearchedBooks = List<BookModel>.from(_searchedBooks);
       updatedSearchedBooks[searchedBookIndex] =
@@ -332,7 +331,7 @@ class BookProvider with ChangeNotifier {
       _searchedBooks = updatedSearchedBooks;
     }
 
-    // * Rollback untuk single book detail
+    // Rollback untuk single book detail
     if (_book?.id == bookId) {
       _book = _book!.copyWith(
         isWishlisted: _book!.originalWishlistStatus,

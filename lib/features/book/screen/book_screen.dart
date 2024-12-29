@@ -1,4 +1,5 @@
 import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
@@ -18,41 +19,43 @@ class BookScreen extends StatelessWidget {
       context.read<BookProvider>().getBooks(screen: ScreenType.books);
     });
 
-    return StyledScreenLayoutBuilder(
-      sliverAppBar: StyledSliverAppBar(
-        title: StyledSearchBarPlaceholder(),
-      ),
-      builder: (builder, controller) {
-        return [
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: Consumer<BookProvider>(
-              builder: (context, bookProvider, _) {
-                final books =
-                    bookProvider.getBooksForSpecificScreen(ScreenType.books);
-                final isLoading =
-                    bookProvider.isLoading(EnumBookOperation.getAll);
-                final errorMessage =
-                    bookProvider.getError(EnumBookOperation.getAll);
+    return BaseScaffold(
+      body: StyledScreenLayoutBuilder(
+        sliverAppBar: StyledSliverAppBar(
+          title: StyledSearchBarPlaceholder(),
+        ),
+        builder: (builder, controller) {
+          return [
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: Consumer<BookProvider>(
+                builder: (context, bookProvider, _) {
+                  final books =
+                      bookProvider.getBooksForSpecificScreen(ScreenType.books);
+                  final isLoading =
+                      bookProvider.isLoading(EnumBookOperation.getAll);
+                  final errorMessage =
+                      bookProvider.getError(EnumBookOperation.getAll);
 
-                return SliverToBoxAdapter(
-                  child: BookGrid(
-                    books: books,
-                    isLoading: isLoading,
-                    errorMessage: errorMessage,
-                    onRetry: () => bookProvider.getBooks(
-                      screen: ScreenType.books,
+                  return SliverToBoxAdapter(
+                    child: BookGrid(
+                      books: books,
+                      isLoading: isLoading,
+                      errorMessage: errorMessage,
+                      onRetry: () => bookProvider.getBooks(
+                        screen: ScreenType.books,
+                      ),
+                      onBookSelected: (book) {
+                        context.push('/books/${book.id}');
+                      },
                     ),
-                    onBookSelected: (book) {
-                      context.push('/books/${book.id}');
-                    },
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ];
-      },
+          ];
+        },
+      ),
     );
   }
 }

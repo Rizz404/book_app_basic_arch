@@ -1,3 +1,4 @@
+import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
@@ -19,37 +20,40 @@ class WishlistScreen extends StatelessWidget {
       wishlistProvider.getBooksWishlished();
     });
 
-    return StyledScreenLayoutBuilder(
-        sliverAppBar: StyledSliverAppBar(
-          title: Text('Wishlist'),
-        ),
-        builder: (builder, controller) {
-          return [
-            SliverPadding(
-              padding: EdgeInsets.all(16),
-              sliver: Consumer<WishlistProvider>(
-                builder: (context, provider, _) {
-                  final books = provider.getBooksForScreen('wishlist');
-                  final isLoading =
-                      provider.isLoading(EnumWishlistOperation.getAll);
-                  final errorMessage =
-                      provider.getError(EnumWishlistOperation.getAll);
+    return BaseScaffold(
+      body: StyledScreenLayoutBuilder(
+          sliverAppBar: StyledSliverAppBar(
+            title: Text('Wishlist'),
+            centerTitle: true,
+          ),
+          builder: (builder, controller) {
+            return [
+              SliverPadding(
+                padding: EdgeInsets.all(16),
+                sliver: Consumer<WishlistProvider>(
+                  builder: (context, provider, _) {
+                    final books = provider.getBooksForScreen('wishlist');
+                    final isLoading =
+                        provider.isLoading(EnumWishlistOperation.getAll);
+                    final errorMessage =
+                        provider.getError(EnumWishlistOperation.getAll);
 
-                  return SliverToBoxAdapter(
-                    child: BookGrid(
-                      books: books,
-                      isLoading: isLoading,
-                      onBookSelected: (book) {
-                        context.push('/books/${book.id}');
-                      },
-                      errorMessage: errorMessage,
-                      onRetry: () => wishlistProvider.getBooksWishlished(),
-                    ),
-                  );
-                },
-              ),
-            )
-          ];
-        });
+                    return SliverToBoxAdapter(
+                      child: BookGrid(
+                        books: books,
+                        isLoading: isLoading,
+                        onBookSelected: (book) {
+                          context.push('/books/${book.id}');
+                        },
+                        errorMessage: errorMessage,
+                        onRetry: () => wishlistProvider.getBooksWishlished(),
+                      ),
+                    );
+                  },
+                ),
+              )
+            ];
+          }),
+    );
   }
 }

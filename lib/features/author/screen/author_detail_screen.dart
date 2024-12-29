@@ -4,6 +4,7 @@ import 'package:book_app_basic_arch/features/author/model/author_model.dart';
 import 'package:book_app_basic_arch/features/author/widgets/author_form.dart';
 import 'package:book_app_basic_arch/features/author/widgets/book_author_list.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class AuthorDetailScreen extends StatefulWidget {
@@ -77,6 +78,10 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
       ),
       body: Column(
         children: [
+          ElevatedButton(
+            onPressed: () => context.push('/authors'),
+            child: Text('See all author'),
+          ),
           Consumer<AuthorProvider>(
             builder: (context, provider, _) {
               return _buildAuthorContent(context, provider);
@@ -154,20 +159,11 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                     shape: BoxShape.circle,
                     color:
                         Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                    image: author.profilePicture != null
-                        ? DecorationImage(
-                            image: NetworkImage(author.profilePicture),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
+                    image: DecorationImage(
+                      image: NetworkImage(author.profilePicture),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  child: author.profilePicture == null
-                      ? Icon(
-                          Icons.person,
-                          size: 30,
-                          color: Theme.of(context).colorScheme.primary,
-                        )
-                      : null,
                 ),
                 const SizedBox(width: 16),
                 Expanded(

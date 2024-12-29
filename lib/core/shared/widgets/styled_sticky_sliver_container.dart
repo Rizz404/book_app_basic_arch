@@ -6,6 +6,7 @@ class StyledStickySliverContainer extends StatelessWidget {
   final double? height;
   final EdgeInsetsGeometry? padding;
   final Color? backgroundColor;
+  final Alignment? alignment;
 
   const StyledStickySliverContainer({
     super.key,
@@ -13,6 +14,7 @@ class StyledStickySliverContainer extends StatelessWidget {
     this.height,
     this.padding,
     this.backgroundColor,
+    this.alignment,
   });
 
   @override
@@ -24,7 +26,7 @@ class StyledStickySliverContainer extends StatelessWidget {
         backgroundColor: backgroundColor,
         child: Container(
           padding: padding,
-          alignment: Alignment.center,
+          alignment: alignment,
           child: child,
         ),
       ),

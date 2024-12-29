@@ -57,32 +57,23 @@ class BookCard extends StatelessWidget {
                     right: 8,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
                         icon: Icon(
                           bookModel.isWishlisted
-                              ? Icons.favorite
-                              : Icons.favorite_border,
+                              ? Icons.bookmark
+                              : Icons.bookmark_outline,
                           color: bookModel.isWishlisted
-                              ? Colors.red
+                              ? Colors.lightGreenAccent
                               : Colors.white,
                         ),
                         onPressed: () {
-                          if (bookModel.isWishlisted) {
-                            context
-                                .read<WishlistProvider>()
-                                .deleteWishlist(bookModel.id);
-                          } else {
-                            context
-                                .read<WishlistProvider>()
-                                .createWishlist(bookModel.id);
-                          }
+                          context
+                              .read<WishlistProvider>()
+                              .toggleWishlist(bookModel);
                         },
-                        constraints: BoxConstraints.tight(
-                          Size(36, 36),
-                        ),
                         padding: EdgeInsets.zero,
                       ),
                     ),

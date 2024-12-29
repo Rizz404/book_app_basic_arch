@@ -14,66 +14,28 @@ import 'package:provider/provider.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final images = [
-    "https://i.pinimg.com/236x/30/c2/10/30c210344bbbcde4d5542c02a0cb908b.jpg",
-    "https://i.pinimg.com/236x/55/c3/b9/55c3b96dc1cc14a02f698796ed1dac7e.jpg",
-    "https://i.pinimg.com/236x/9e/7c/46/9e7c469cdd4842b408ce3a09230b9b29.jpg"
-  ];
-  final TextEditingController _searchController = TextEditingController();
-  bool _isSearching = false;
-
-  void handleSearchIconPressed() {
-    _searchController.clear();
-    setState(() {
-      _isSearching = false;
-    });
-    context.read<BookProvider>().getBooks();
-  }
-
-  void handleChange(String value) {
-    setState(() {
-      _isSearching = value.isNotEmpty;
-    });
-    if (value.isNotEmpty) {
-      context.read<BookProvider>().searchBookByTitle(
-            title: value.trim(),
-          );
-    } else {
-      context.read<BookProvider>().getBooks();
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<BookProvider>().getBooks();
       context.read<GenreProvider>().getGenres();
     });
-  }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
+    final images = [
+      "https://i.pinimg.com/236x/30/c2/10/30c210344bbbcde4d5542c02a0cb908b.jpg",
+      "https://i.pinimg.com/236x/55/c3/b9/55c3b96dc1cc14a02f698796ed1dac7e.jpg",
+      "https://i.pinimg.com/236x/9e/7c/46/9e7c469cdd4842b408ce3a09230b9b29.jpg"
+    ];
 
-  @override
-  Widget build(BuildContext context) {
     return StyledScreenLayoutBuilder(
         sliverAppBar: StyledSliverAppBar(
-            title: StyledSearchBarPlaceholder(
-          hintText: "Hinted search text",
-          onTap: () => context.push('/search'),
-        )),
+          title: StyledSearchBarPlaceholder(
+            hintText: "Hinted search text",
+          ),
+        ),
         builder: (context, controller) {
           return [
             // Carousel
@@ -118,25 +80,20 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: Consumer<BookProvider>(
-                builder: (context, bookProvider, _) {
-                  final books = _isSearching
-                      ? bookProvider.searchedBooks
-                      : bookProvider.getBooksForSpecificScreen(ScreenType.home);
-                  debugPrint('responsenya bang $books');
+                builder: (context, provider, _) {
+                  final books =
+                      provider.getBooksForSpecificScreen(ScreenType.home);
+                  final isLoading =
+                      provider.isLoading(EnumBookOperation.getAll);
+                  final errorMessage =
+                      provider.getError(EnumBookOperation.getAll);
 
                   return SliverToBoxAdapter(
                     child: BookGrid(
                       books: books,
-                      isLoading: bookProvider.isLoading(_isSearching
-                          ? EnumBookOperation.search
-                          : EnumBookOperation.getAll),
-                      errorMessage: bookProvider.getError(_isSearching
-                          ? EnumBookOperation.search
-                          : EnumBookOperation.getAll),
-                      onRetry: () => _isSearching
-                          ? bookProvider.searchBookByTitle(
-                              title: _searchController.text)
-                          : bookProvider.getBooks(),
+                      isLoading: isLoading,
+                      errorMessage: errorMessage,
+                      onRetry: () => provider.getBooks(screen: ScreenType.home),
                       onBookSelected: (book) {
                         context.push('/books/${book.id}');
                       },

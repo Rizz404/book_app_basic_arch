@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class StyledSearchBarPlaceholder extends StatelessWidget {
-  final void Function()? onTap;
   final String? hintText;
 
   const StyledSearchBarPlaceholder({
     super.key,
-    this.onTap,
     this.hintText,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => context.push('/search'),
       child: AbsorbPointer(
-        absorbing: onTap != null,
+        absorbing: true,
         child: SearchBar(
           elevation: WidgetStateProperty.all(0),
           shape: WidgetStateProperty.all(
@@ -23,7 +22,7 @@ class StyledSearchBarPlaceholder extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          hintText: hintText,
+          hintText: hintText ?? "Cari buku, genre, author, atau publisher",
           leading: const Icon(Icons.search),
         ),
       ),
