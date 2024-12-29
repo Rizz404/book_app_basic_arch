@@ -1,3 +1,4 @@
+import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_pagination.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/book/book_services.dart';
@@ -10,9 +11,9 @@ class BookProvider with ChangeNotifier {
   final BookServices _bookServices = BookServices();
 
   // * State untuk menyimpan books per screen
-  final Map<String, List<BookModel>> _screenBooks = {};
+  final Map<ScreenType, List<BookModel>> _booksByScreen = {};
   // * State untuk menyimpan pagination per screen
-  final Map<String, ApiPagination?> _screenPaginations = {};
+  final Map<ScreenType, ApiPagination?> _paginationByScreen = {};
 
   // * Beda buat search
   List<BookModel> _searchedBooks = [];
@@ -25,32 +26,34 @@ class BookProvider with ChangeNotifier {
   BookModel? get book => _book;
 
   // * State untuk menyimpan filter tiap screen
-  final Map<String, BookFilterModel> _screenFilters = {
-    'home': BookFilterModel(),
-    'search': BookFilterModel(),
-    'genre-detail': BookFilterModel(),
-    'author-detail': BookFilterModel(),
-    'publisher-detail': BookFilterModel(),
+  final Map<ScreenType, BookFilterModel> _filterByScreen = {
+    ScreenType.home: BookFilterModel(),
+    ScreenType.books: BookFilterModel(),
+    ScreenType.search: BookFilterModel(),
+    ScreenType.genreDetail: BookFilterModel(),
+    ScreenType.authorDetail: BookFilterModel(),
+    ScreenType.publisherDetail: BookFilterModel(),
   };
 
   // * Getter untuk books berdasarkan screen
-  List<BookModel> getBooksForScreen(String screenName) {
-    return _screenBooks[screenName] ?? [];
+  List<BookModel> getBooksForSpecificScreen(ScreenType screen) {
+    return _booksByScreen[screen] ?? [];
   }
 
   // * Getter untuk pagination berdasarkan screen
-  ApiPagination? getPaginationForScreen(String screenName) {
-    return _screenPaginations[screenName];
+  ApiPagination? getPaginationForSpecificScreen(ScreenType screen) {
+    return _paginationByScreen[screen];
   }
 
   // * Getter untuk filter berdasarkan screen
-  BookFilterModel getScreenFilter(String screenName) {
-    return _screenFilters[screenName] ?? BookFilterModel();
+  BookFilterModel getFilterForSpecificScreen(ScreenType screen) {
+    return _filterByScreen[screen] ?? BookFilterModel();
   }
 
   // * Method untuk update filter
-  void updateScreenFilter(String screenName, BookFilterModel newFilter) {
-    _screenFilters[screenName] = newFilter;
+  void updateFilterForSpecificScreen(
+      ScreenType screen, BookFilterModel newFilter) {
+    _filterByScreen[screen] = newFilter;
     notifyListeners();
   }
 
@@ -66,7 +69,6 @@ class BookProvider with ChangeNotifier {
   String? getError(EnumBookOperation operation) =>
       _operationStates[operation]!.errorMessage;
 
-  // Helper to update operation state
   void _updateOperationState(EnumBookOperation operation,
       {bool? isLoading, String? errorMessage}) {
     _operationStates[operation] = (
@@ -101,8 +103,8 @@ class BookProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getBooks({String screenName = 'home'}) async {
-    final filter = _screenFilters[screenName]!;
+  Future<void> getBooks({ScreenType screen = ScreenType.home}) async {
+    final filter = _filterByScreen[screen]!;
 
     _updateOperationState(
       EnumBookOperation.getAll,
@@ -119,8 +121,8 @@ class BookProvider with ChangeNotifier {
         genreId: filter.genreId,
       );
 
-      _screenBooks[screenName] = response.data!;
-      _screenPaginations[screenName] = response.meta.pagination;
+      _booksByScreen[screen] = response.data!;
+      _paginationByScreen[screen] = response.meta.pagination;
 
       _updateOperationState(
         EnumBookOperation.getAll,
@@ -249,5 +251,97 @@ class BookProvider with ChangeNotifier {
       );
       debugPrint('Error updating book: $e');
     }
+  }
+
+  void updateBookWishlistStatus(String bookId, bool isWishlisted) {
+    // * Update di semua screen yang menyimpan buku
+    _booksByScreen.forEach((screen, books) {
+      final bookIndex = books.indexWhere((book) => book.id == bookId);
+
+      if (bookIndex != -1) {
+        final updatedBooks = List<BookModel>.from(books);
+        updatedBooks[bookIndex] = books[bookIndex].copyWith(
+          isWishlisted: isWishlisted,
+          wishlistCount: isWishlisted
+              ? books[bookIndex].wishlistCount + 1
+              : books[bookIndex].wishlistCount - 1,
+        );
+        _booksByScreen[screen] = updatedBooks;
+      }
+    });
+
+    // * Update untuk searched books
+    final searchedBookIndex =
+        _searchedBooks.indexWhere((book) => book.id == bookId);
+
+    if (searchedBookIndex != -1) {
+      final updatedSearchedBooks = List<BookModel>.from(_searchedBooks);
+      updatedSearchedBooks[searchedBookIndex] =
+          _searchedBooks[searchedBookIndex].copyWith(
+        isWishlisted: isWishlisted,
+        wishlistCount: isWishlisted
+            ? _searchedBooks[searchedBookIndex].wishlistCount + 1
+            : _searchedBooks[searchedBookIndex].wishlistCount - 1,
+      );
+      _searchedBooks = updatedSearchedBooks;
+    }
+
+    // * Update untuk single book detail
+    if (_book?.id == bookId) {
+      _book = _book!.copyWith(
+        isWishlisted: isWishlisted,
+        wishlistCount:
+            isWishlisted ? _book!.wishlistCount + 1 : _book!.wishlistCount - 1,
+      );
+    }
+
+    notifyListeners();
+  }
+
+  // * Method untuk rollback perubahan jika request gagal
+  void rollbackBookWishlistStatus(String bookId) {
+    // * Rollback di semua screen
+    _booksByScreen.forEach((screen, books) {
+      final bookIndex = books.indexWhere((book) => book.id == bookId);
+
+      if (bookIndex != -1) {
+        final updatedBooks = List<BookModel>.from(books);
+        updatedBooks[bookIndex] = books[bookIndex].copyWith(
+          isWishlisted: books[bookIndex].originalWishlistStatus,
+          wishlistCount: books[bookIndex].originalWishlistStatus
+              ? books[bookIndex].wishlistCount + 1
+              : books[bookIndex].wishlistCount - 1,
+        );
+        _booksByScreen[screen] = updatedBooks;
+      }
+    });
+
+    // * Rollback untuk searched books
+    final searchedBookIndex =
+        _searchedBooks.indexWhere((book) => book.id == bookId);
+
+    if (searchedBookIndex != -1) {
+      final updatedSearchedBooks = List<BookModel>.from(_searchedBooks);
+      updatedSearchedBooks[searchedBookIndex] =
+          _searchedBooks[searchedBookIndex].copyWith(
+        isWishlisted: _searchedBooks[searchedBookIndex].originalWishlistStatus,
+        wishlistCount: _searchedBooks[searchedBookIndex].originalWishlistStatus
+            ? _searchedBooks[searchedBookIndex].wishlistCount + 1
+            : _searchedBooks[searchedBookIndex].wishlistCount - 1,
+      );
+      _searchedBooks = updatedSearchedBooks;
+    }
+
+    // * Rollback untuk single book detail
+    if (_book?.id == bookId) {
+      _book = _book!.copyWith(
+        isWishlisted: _book!.originalWishlistStatus,
+        wishlistCount: _book!.originalWishlistStatus
+            ? _book!.wishlistCount + 1
+            : _book!.wishlistCount - 1,
+      );
+    }
+
+    notifyListeners();
   }
 }

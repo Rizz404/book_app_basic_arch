@@ -2,7 +2,7 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';
-import 'package:book_app_basic_arch/features/home/widgets/book_card.dart';
+import 'package:book_app_basic_arch/features/book/widgets/book_card.dart';
 import 'package:flutter/material.dart';
 
 // todo: Nanti pindahin di folder widget books
@@ -12,12 +12,14 @@ class BookGrid extends StatelessWidget {
   final String? errorMessage;
   final Function()? onRetry;
   final Function(BookModel) onBookSelected;
+  final void Function()? onWishlistTap;
 
   const BookGrid({
     super.key,
     required this.books,
     required this.isLoading,
     required this.onBookSelected,
+    this.onWishlistTap,
     this.errorMessage,
     this.onRetry,
   });
@@ -53,6 +55,7 @@ class BookGrid extends StatelessWidget {
         return BookCard(
           bookModel: book,
           onTap: () => onBookSelected(book),
+          onWishlistTap: onWishlistTap,
         );
       },
       itemCount: books.length,

@@ -1,52 +1,198 @@
+import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/features/book/widgets/book_detail_content.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
+import 'package:book_app_basic_arch/features/book/widgets/book_card.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-class BookDetailScreen extends StatefulWidget {
+class BookDetailScreen extends StatelessWidget {
   final String bookId;
 
-  const BookDetailScreen({super.key, required this.bookId});
-
-  @override
-  State<BookDetailScreen> createState() => _BookDetailScreenState();
-}
-
-class _BookDetailScreenState extends State<BookDetailScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BookProvider>().getBookById(widget.bookId);
-    });
-  }
+  const BookDetailScreen({
+    super.key,
+    required this.bookId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Consumer<BookProvider>(
-        builder: (context, provider, _) {
-          final isLoadingBook = provider.isLoading(EnumBookOperation.getById);
-          final errorMessageBook = provider.getError(EnumBookOperation.getById);
-          final book = provider.book;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final bookProvider = context.read<BookProvider>();
 
-          if (isLoadingBook) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      bookProvider.getBookById(bookId);
 
-          if (errorMessageBook != null) {
-            return StyledErrorMessage(errorMessage: errorMessageBook);
-          }
+      bookProvider.updateFilterForSpecificScreen(
+        ScreenType.books,
+        bookProvider
+            .getFilterForSpecificScreen(ScreenType.books)
+            .copyWith(limit: 20),
+      );
 
-          if (book != null) {
-            return BookDetailContent(bookModel: book);
-          }
+      bookProvider.getBooks(screen: ScreenType.books);
+    });
 
-          return const Center(child: Text("No book found."));
-        },
+    return StyledScreenLayoutBuilder(
+      sliverAppBar: StyledSliverAppBar(
+        title: StyledSearchBarPlaceholder(),
       ),
+      builder: (builder, controller) {
+        return [
+          SliverToBoxAdapter(
+            child: Consumer<BookProvider>(
+              builder: (context, provider, _) {
+                final book = provider.book;
+                final isLoading = provider.isLoading(EnumBookOperation.getById);
+                final errorMessage =
+                    provider.getError(EnumBookOperation.getById);
+
+                if (isLoading) {
+                  return const StyledLoadingState();
+                }
+
+                if (errorMessage != null) {
+                  return StyledErrorMessage(
+                    errorMessage: errorMessage,
+                    onRetry: () =>
+                        context.read<BookProvider>().getBookById(bookId),
+                  );
+                }
+
+                if (book == null) {
+                  return const StyledEmptyData(message: 'No books found');
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // * Picture
+                    ClipRRect(
+                      child: Image.network(
+                        book.bookPictures![0].url,
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                        height: 250,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.network(
+                            'https://i.pinimg.com/236x/64/2e/96/642e9610c5c587767430bf6a9deeff7c.jpg',
+                            fit: BoxFit.contain,
+                          );
+                        },
+                        cacheWidth: 300,
+                        cacheHeight: 300,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // * Title
+                          Text(
+                            book.title,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 4),
+
+                          // * Author
+                          Text(
+                            'By: ${book.author.name}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 24),
+
+                          // * Description title
+                          Text(
+                            'About this book',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 8),
+
+                          // * Description content
+                          Text(
+                            book.description,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 24),
+
+                          // * Suggestion title
+                          Text(
+                            'Suggestion',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          // * Suggestions Grid dalam Sliver terpisah
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: Consumer<BookProvider>(
+              builder: (context, bookProvider, _) {
+                final books =
+                    bookProvider.getBooksForSpecificScreen(ScreenType.books);
+                final isLoading =
+                    bookProvider.isLoading(EnumBookOperation.getAll);
+                final errorMessage =
+                    bookProvider.getError(EnumBookOperation.getAll);
+
+                return SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 0.7,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      if (isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (errorMessage != null) {
+                        return Center(
+                          child: TextButton(
+                            onPressed: () => bookProvider.getBooks(
+                              screen: ScreenType.books,
+                            ),
+                            child: const Text('Retry'),
+                          ),
+                        );
+                      }
+                      if (books.isEmpty) {
+                        return const Center(
+                            child: Text('No suggestions available'));
+                      }
+                      return BookCard(
+                        bookModel: books[index],
+                        onTap: () => context.push('/books/${books[index].id}'),
+                      );
+                    },
+                    childCount: books.isEmpty ? 1 : books.length,
+                  ),
+                );
+              },
+            ),
+          ),
+        ];
+      },
     );
   }
 }

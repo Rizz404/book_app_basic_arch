@@ -1,3 +1,4 @@
+import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
@@ -28,7 +29,7 @@ class BookAuthorList extends StatelessWidget {
   Widget _buildBookListContent(BuildContext context, BookProvider provider) {
     final isLoadingBooks = provider.isLoading(EnumBookOperation.getAll);
     final errorMessageBooks = provider.getError(EnumBookOperation.getAll);
-    final books = provider.getBooksForScreen('author-detail');
+    final books = provider.getBooksForSpecificScreen(ScreenType.authorDetail);
 
     if (isLoadingBooks) {
       return const StyledLoadingState();

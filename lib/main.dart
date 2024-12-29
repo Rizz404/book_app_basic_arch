@@ -36,8 +36,12 @@ void main() async {
       ChangeNotifierProvider(
         create: (_) => BookProvider(),
       ),
-      ChangeNotifierProvider(
-        create: (_) => WishlistProvider(),
+      ChangeNotifierProxyProvider<BookProvider, WishlistProvider>(
+        create: (context) => WishlistProvider(
+          bookProvider: context.read<BookProvider>(),
+        ),
+        update: (context, bookProvider, previous) =>
+            previous ?? WishlistProvider(bookProvider: bookProvider),
       ),
       ChangeNotifierProvider(
         create: (_) => ProfileProvider(),

@@ -16,6 +16,7 @@ import 'package:book_app_basic_arch/features/language/screen/language_screen.dar
 import 'package:book_app_basic_arch/features/profile/screen/profile_screen.dart';
 import 'package:book_app_basic_arch/features/publisher/screen/publisher_detail_screen.dart';
 import 'package:book_app_basic_arch/features/publisher/screen/publisher_screen.dart';
+import 'package:book_app_basic_arch/features/search/screen/search_screen.dart';
 import 'package:book_app_basic_arch/features/wishlist/screen/wishlist_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -98,6 +99,13 @@ final goRouter = GoRouter(
       path: '/sign-in',
       pageBuilder: (context, state) => MaterialPage(
         child: LoginScreen(),
+      ),
+    ),
+
+    GoRoute(
+      path: '/search',
+      pageBuilder: (context, state) => MaterialPage(
+        child: SearchScreen(),
       ),
     ),
 

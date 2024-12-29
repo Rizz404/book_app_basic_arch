@@ -30,6 +30,11 @@ _$BookModelImpl _$$BookModelImplFromJson(Map<String, dynamic> json) =>
       publisher: BookPublisherModel.fromJson(
           json['publisher'] as Map<String, dynamic>),
       language: json['language'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      wishlistCount: (json['wishlistCount'] as num).toInt(),
+      isWishlisted: json['isWishlisted'] as bool,
+      originalWishlistStatus: json['originalWishlistStatus'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$BookModelImplToJson(_$BookModelImpl instance) =>
@@ -51,6 +56,11 @@ Map<String, dynamic> _$$BookModelImplToJson(_$BookModelImpl instance) =>
       'seller': instance.seller,
       'publisher': instance.publisher,
       'language': instance.language,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
+      'wishlistCount': instance.wishlistCount,
+      'isWishlisted': instance.isWishlisted,
+      'originalWishlistStatus': instance.originalWishlistStatus,
     };
 
 _$GenreModelImpl _$$GenreModelImplFromJson(Map<String, dynamic> json) =>

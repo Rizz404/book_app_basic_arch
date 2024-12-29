@@ -1,9 +1,11 @@
+import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
 import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
-import 'package:book_app_basic_arch/features/home/widgets/book_grid.dart';
-import 'package:book_app_basic_arch/features/home/widgets/book_search_bar.dart';
+import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
 import 'package:book_app_basic_arch/features/home/widgets/genre_list.dart';
 import 'package:book_app_basic_arch/features/home/widgets/book_offer_carousel.dart';
 import 'package:flutter/material.dart';
@@ -66,86 +68,84 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StyledScreenLayoutBuilder(builder: (context, controller) {
-      return [
-        // Carousel
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.only(
-              top: 32,
-              bottom: 24,
-              left: 16,
-              right: 16,
-            ),
-            child: Column(
-              children: [
-                BookOfferCarousel(
-                  bannerImages: images,
+    return StyledScreenLayoutBuilder(
+        sliverAppBar: StyledSliverAppBar(
+            title: StyledSearchBarPlaceholder(
+          hintText: "Hinted search text",
+          onTap: () => context.push('/search'),
+        )),
+        builder: (context, controller) {
+          return [
+            // Carousel
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 24,
+                  left: 16,
+                  right: 16,
                 ),
-              ],
-            ),
-          ),
-        ),
-
-        // Sticky SearchBar
-        StyledStickySliverContainer(
-          height: 80,
-          padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
-          child: BookSearchBar(
-            controller: _searchController,
-            onIconPressed: handleSearchIconPressed,
-            onChanged: handleChange,
-          ),
-        ),
-
-        // Sticky GenreList
-        StyledStickySliverContainer(
-          height: 64,
-          padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
-          child: Consumer<GenreProvider>(
-            builder: (context, genreProvider, _) {
-              return GenreList(
-                genres: genreProvider.genres,
-                isLoading: genreProvider.isLoading(EnumGenreOperation.getAll),
-                errorMessage: genreProvider.getError(EnumGenreOperation.getAll),
-                onRetry: () => genreProvider.getGenres(),
-                onGenreSelected: (genreId) => context.push('/genres/$genreId'),
-              );
-            },
-          ),
-        ),
-
-        // BookGrid
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: Consumer<BookProvider>(
-            builder: (context, bookProvider, _) {
-              final books = _isSearching
-                  ? bookProvider.searchedBooks
-                  : bookProvider.getBooksForScreen('home');
-
-              return SliverToBoxAdapter(
-                child: BookGrid(
-                  books: books,
-                  isLoading: bookProvider.isLoading(_isSearching
-                      ? EnumBookOperation.search
-                      : EnumBookOperation.getAll),
-                  errorMessage: bookProvider.getError(_isSearching
-                      ? EnumBookOperation.search
-                      : EnumBookOperation.getAll),
-                  onRetry: () => _isSearching
-                      ? bookProvider.searchBookByTitle(
-                          title: _searchController.text)
-                      : bookProvider.getBooks(),
-                  onBookSelected: (book) {
-                    context.push('/books/${book.id}');
-                  },
+                child: Column(
+                  children: [
+                    BookOfferCarousel(
+                      bannerImages: images,
+                    ),
+                  ],
                 ),
-              );
-            },
-          ),
-        ),
-      ];
-    });
+              ),
+            ),
+
+            // Sticky GenreList
+            StyledStickySliverContainer(
+              height: 64,
+              padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
+              child: Consumer<GenreProvider>(
+                builder: (context, genreProvider, _) {
+                  return GenreList(
+                    genres: genreProvider.genres,
+                    isLoading:
+                        genreProvider.isLoading(EnumGenreOperation.getAll),
+                    errorMessage:
+                        genreProvider.getError(EnumGenreOperation.getAll),
+                    onRetry: () => genreProvider.getGenres(),
+                    onGenreSelected: (genreId) =>
+                        context.push('/genres/$genreId'),
+                  );
+                },
+              ),
+            ),
+
+            // BookGrid
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: Consumer<BookProvider>(
+                builder: (context, bookProvider, _) {
+                  final books = _isSearching
+                      ? bookProvider.searchedBooks
+                      : bookProvider.getBooksForSpecificScreen(ScreenType.home);
+                  debugPrint('responsenya bang $books');
+
+                  return SliverToBoxAdapter(
+                    child: BookGrid(
+                      books: books,
+                      isLoading: bookProvider.isLoading(_isSearching
+                          ? EnumBookOperation.search
+                          : EnumBookOperation.getAll),
+                      errorMessage: bookProvider.getError(_isSearching
+                          ? EnumBookOperation.search
+                          : EnumBookOperation.getAll),
+                      onRetry: () => _isSearching
+                          ? bookProvider.searchBookByTitle(
+                              title: _searchController.text)
+                          : bookProvider.getBooks(),
+                      onBookSelected: (book) {
+                        context.push('/books/${book.id}');
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ];
+        });
   }
 }

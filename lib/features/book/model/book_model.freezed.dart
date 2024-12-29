@@ -38,6 +38,11 @@ mixin _$BookModel {
   BookSellerModel get seller => throw _privateConstructorUsedError;
   BookPublisherModel get publisher => throw _privateConstructorUsedError;
   String get language => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt => throw _privateConstructorUsedError;
+  int get wishlistCount => throw _privateConstructorUsedError;
+  bool get isWishlisted => throw _privateConstructorUsedError;
+  bool get originalWishlistStatus => throw _privateConstructorUsedError;
 
   /// Serializes this BookModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -71,7 +76,12 @@ abstract class $BookModelCopyWith<$Res> {
       BookAuthorModel author,
       BookSellerModel seller,
       BookPublisherModel publisher,
-      String language});
+      String language,
+      DateTime createdAt,
+      DateTime updatedAt,
+      int wishlistCount,
+      bool isWishlisted,
+      bool originalWishlistStatus});
 
   $BookAuthorModelCopyWith<$Res> get author;
   $BookSellerModelCopyWith<$Res> get seller;
@@ -110,6 +120,11 @@ class _$BookModelCopyWithImpl<$Res, $Val extends BookModel>
     Object? seller = null,
     Object? publisher = null,
     Object? language = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? wishlistCount = null,
+    Object? isWishlisted = null,
+    Object? originalWishlistStatus = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -180,6 +195,26 @@ class _$BookModelCopyWithImpl<$Res, $Val extends BookModel>
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as String,
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      updatedAt: null == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      wishlistCount: null == wishlistCount
+          ? _value.wishlistCount
+          : wishlistCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      isWishlisted: null == isWishlisted
+          ? _value.isWishlisted
+          : isWishlisted // ignore: cast_nullable_to_non_nullable
+              as bool,
+      originalWishlistStatus: null == originalWishlistStatus
+          ? _value.originalWishlistStatus
+          : originalWishlistStatus // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 
@@ -239,7 +274,12 @@ abstract class _$$BookModelImplCopyWith<$Res>
       BookAuthorModel author,
       BookSellerModel seller,
       BookPublisherModel publisher,
-      String language});
+      String language,
+      DateTime createdAt,
+      DateTime updatedAt,
+      int wishlistCount,
+      bool isWishlisted,
+      bool originalWishlistStatus});
 
   @override
   $BookAuthorModelCopyWith<$Res> get author;
@@ -279,6 +319,11 @@ class __$$BookModelImplCopyWithImpl<$Res>
     Object? seller = null,
     Object? publisher = null,
     Object? language = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? wishlistCount = null,
+    Object? isWishlisted = null,
+    Object? originalWishlistStatus = null,
   }) {
     return _then(_$BookModelImpl(
       id: null == id
@@ -349,6 +394,26 @@ class __$$BookModelImplCopyWithImpl<$Res>
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as String,
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      updatedAt: null == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      wishlistCount: null == wishlistCount
+          ? _value.wishlistCount
+          : wishlistCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      isWishlisted: null == isWishlisted
+          ? _value.isWishlisted
+          : isWishlisted // ignore: cast_nullable_to_non_nullable
+              as bool,
+      originalWishlistStatus: null == originalWishlistStatus
+          ? _value.originalWishlistStatus
+          : originalWishlistStatus // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -373,7 +438,12 @@ class _$BookModelImpl implements _BookModel {
       required this.author,
       required this.seller,
       required this.publisher,
-      required this.language})
+      required this.language,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.wishlistCount,
+      required this.isWishlisted,
+      this.originalWishlistStatus = false})
       : _genres = genres,
         _bookPictures = bookPictures;
 
@@ -428,10 +498,21 @@ class _$BookModelImpl implements _BookModel {
   final BookPublisherModel publisher;
   @override
   final String language;
+  @override
+  final DateTime createdAt;
+  @override
+  final DateTime updatedAt;
+  @override
+  final int wishlistCount;
+  @override
+  final bool isWishlisted;
+  @override
+  @JsonKey()
+  final bool originalWishlistStatus;
 
   @override
   String toString() {
-    return 'BookModel(id: $id, sellerId: $sellerId, title: $title, genres: $genres, bookPictures: $bookPictures, description: $description, status: $status, slug: $slug, isbn: $isbn, stock: $stock, price: $price, fileUrl: $fileUrl, publicationDate: $publicationDate, author: $author, seller: $seller, publisher: $publisher, language: $language)';
+    return 'BookModel(id: $id, sellerId: $sellerId, title: $title, genres: $genres, bookPictures: $bookPictures, description: $description, status: $status, slug: $slug, isbn: $isbn, stock: $stock, price: $price, fileUrl: $fileUrl, publicationDate: $publicationDate, author: $author, seller: $seller, publisher: $publisher, language: $language, createdAt: $createdAt, updatedAt: $updatedAt, wishlistCount: $wishlistCount, isWishlisted: $isWishlisted, originalWishlistStatus: $originalWishlistStatus)';
   }
 
   @override
@@ -461,30 +542,46 @@ class _$BookModelImpl implements _BookModel {
             (identical(other.publisher, publisher) ||
                 other.publisher == publisher) &&
             (identical(other.language, language) ||
-                other.language == language));
+                other.language == language) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.wishlistCount, wishlistCount) ||
+                other.wishlistCount == wishlistCount) &&
+            (identical(other.isWishlisted, isWishlisted) ||
+                other.isWishlisted == isWishlisted) &&
+            (identical(other.originalWishlistStatus, originalWishlistStatus) ||
+                other.originalWishlistStatus == originalWishlistStatus));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      sellerId,
-      title,
-      const DeepCollectionEquality().hash(_genres),
-      const DeepCollectionEquality().hash(_bookPictures),
-      description,
-      status,
-      slug,
-      isbn,
-      stock,
-      price,
-      fileUrl,
-      publicationDate,
-      author,
-      seller,
-      publisher,
-      language);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        sellerId,
+        title,
+        const DeepCollectionEquality().hash(_genres),
+        const DeepCollectionEquality().hash(_bookPictures),
+        description,
+        status,
+        slug,
+        isbn,
+        stock,
+        price,
+        fileUrl,
+        publicationDate,
+        author,
+        seller,
+        publisher,
+        language,
+        createdAt,
+        updatedAt,
+        wishlistCount,
+        isWishlisted,
+        originalWishlistStatus
+      ]);
 
   /// Create a copy of BookModel
   /// with the given fields replaced by the non-null parameter values.
@@ -520,7 +617,12 @@ abstract class _BookModel implements BookModel {
       required final BookAuthorModel author,
       required final BookSellerModel seller,
       required final BookPublisherModel publisher,
-      required final String language}) = _$BookModelImpl;
+      required final String language,
+      required final DateTime createdAt,
+      required final DateTime updatedAt,
+      required final int wishlistCount,
+      required final bool isWishlisted,
+      final bool originalWishlistStatus}) = _$BookModelImpl;
 
   factory _BookModel.fromJson(Map<String, dynamic> json) =
       _$BookModelImpl.fromJson;
@@ -559,6 +661,16 @@ abstract class _BookModel implements BookModel {
   BookPublisherModel get publisher;
   @override
   String get language;
+  @override
+  DateTime get createdAt;
+  @override
+  DateTime get updatedAt;
+  @override
+  int get wishlistCount;
+  @override
+  bool get isWishlisted;
+  @override
+  bool get originalWishlistStatus;
 
   /// Create a copy of BookModel
   /// with the given fields replaced by the non-null parameter values.

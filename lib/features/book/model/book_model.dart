@@ -23,9 +23,11 @@ class BookModel with _$BookModel {
     required BookSellerModel seller,
     required BookPublisherModel publisher,
     required String language,
-    // todo: Nanti tambahin
-    // required DateTime createdAt,
-    // required DateTime updatedAt,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    required int wishlistCount,
+    required bool isWishlisted,
+    @Default(false) bool originalWishlistStatus,
   }) = _BookModel;
 
   factory BookModel.fromJson(Map<String, dynamic> json) =>

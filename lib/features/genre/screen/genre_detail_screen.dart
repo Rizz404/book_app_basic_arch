@@ -1,3 +1,4 @@
+import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
@@ -8,7 +9,7 @@ import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
 import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
-import 'package:book_app_basic_arch/features/home/widgets/book_grid.dart';
+import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -30,14 +31,14 @@ class GenreDetailScreen extends StatelessWidget {
 
       genreProvider.getGenreById(genreId);
 
-      bookProvider.updateScreenFilter(
-        'genre-detail',
-        bookProvider.getScreenFilter("genre-detail").copyWith(
-              genreId: genreId,
-            ),
+      bookProvider.updateFilterForSpecificScreen(
+        ScreenType.genreDetail,
+        bookProvider
+            .getFilterForSpecificScreen(ScreenType.genreDetail)
+            .copyWith(genreId: genreId),
       );
 
-      bookProvider.getBooks(screenName: 'genre-detail');
+      bookProvider.getBooks(screen: ScreenType.genreDetail);
     });
 
     return BaseScaffold(
@@ -82,7 +83,9 @@ class GenreDetailScreen extends StatelessWidget {
             padding: EdgeInsets.all(16),
             sliver: Consumer<BookProvider>(
               builder: (context, bookProvider, _) {
-                final books = bookProvider.getBooksForScreen('genre-detail');
+                final books = bookProvider.getBooksForSpecificScreen(
+                  ScreenType.genreDetail,
+                );
 
                 return SliverToBoxAdapter(
                   child: BookGrid(
