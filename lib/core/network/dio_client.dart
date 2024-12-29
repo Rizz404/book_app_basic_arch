@@ -1,5 +1,5 @@
 import 'package:book_app_basic_arch/core/constants/api_constant.dart';
-import 'package:book_app_basic_arch/core/helpers/token_manager.dart';
+import 'package:book_app_basic_arch/core/helpers/current_user_credential_manager.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_error_response.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_meta.dart';
 import 'package:book_app_basic_arch/core/shared/models/api_success_response.dart';
@@ -12,7 +12,8 @@ import 'package:path_provider/path_provider.dart';
 class DioClient {
   static final DioClient _instance = DioClient._internal();
   late final Dio dio;
-  final TokenManager _tokenManager = TokenManager();
+  final CurrentUserCredentialManager _credentialManager =
+      CurrentUserCredentialManager();
 
   // * Flag untuk mencegah multiple refresh token requests
   bool _isRefreshing = false;
@@ -68,7 +69,8 @@ class DioClient {
     return InterceptorsWrapper(
       onRequest: (options, handler) {
         if (kDebugMode) {
-          print('Access token stored in cache ${_tokenManager.accessToken}');
+          print(
+              'Access token stored in cache ${_credentialManager.accessToken}');
           print('┌── Request ──────────────────────────────────────────────');
           print('│ Method: ${options.method}');
           print('│ URL: ${options.uri}');
@@ -103,7 +105,7 @@ class DioClient {
   Interceptor _createAuthInterceptor() {
     return InterceptorsWrapper(
       onRequest: (options, handler) {
-        final accessToken = _tokenManager.accessToken;
+        final accessToken = _credentialManager.accessToken;
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';
         }
@@ -139,7 +141,7 @@ class DioClient {
   Future<String> _refreshToken() async {
     _isRefreshing = true;
     try {
-      final refreshToken = _tokenManager.refreshToken;
+      final refreshToken = _credentialManager.refreshToken;
       if (refreshToken == null) throw Exception('No refresh token available');
 
       final response = await dio.post(

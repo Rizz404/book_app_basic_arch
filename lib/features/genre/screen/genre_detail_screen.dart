@@ -1,132 +1,106 @@
+import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
+import 'package:book_app_basic_arch/features/book/book_provider.dart';
+import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
 import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
-import 'package:book_app_basic_arch/features/genre/widgets/book_genre_list.dart';
+import 'package:book_app_basic_arch/features/home/widgets/book_grid.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class GenreDetailScreen extends StatefulWidget {
+class GenreDetailScreen extends StatelessWidget {
   final String genreId;
 
-  const GenreDetailScreen({super.key, required this.genreId});
-
-  @override
-  State<GenreDetailScreen> createState() => _GenreDetailScreenState();
-}
-
-class _GenreDetailScreenState extends State<GenreDetailScreen> {
-  late ScrollController _scrollController;
-  bool _isDescriptionVisible = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-    _scrollController.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<GenreProvider>().getGenreById(widget.genreId);
-    });
-  }
-
-  void _onScroll() {
-    if (_scrollController.offset > 50 && _isDescriptionVisible) {
-      setState(() => _isDescriptionVisible = false);
-    } else if (_scrollController.offset <= 50 && !_isDescriptionVisible) {
-      setState(() => _isDescriptionVisible = true);
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  const GenreDetailScreen({
+    super.key,
+    required this.genreId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Genre'),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Consumer<GenreProvider>(
-            builder: (context, provider, _) {
-              return _buildGenreContent(context, provider);
-            },
-          ),
-          Expanded(
-            child: BookGenreList(
-              scrollController: _scrollController,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // * Kalo stateles itu pakenya read aja
+      final genreProvider = context.read<GenreProvider>();
+      final bookProvider = context.read<BookProvider>();
+
+      genreProvider.getGenreById(genreId);
+
+      bookProvider.updateScreenFilter(
+        'genre-detail',
+        bookProvider.getScreenFilter("genre-detail").copyWith(
+              genreId: genreId,
             ),
-          ),
-        ],
-      ),
-    );
-  }
+      );
 
-  Widget _buildGenreContent(BuildContext context, GenreProvider provider) {
-    final isLoadingGenre = provider.isLoading(EnumGenreOperation.getById);
-    final errorMessageGenre = provider.getError(EnumGenreOperation.getById);
-    final genre = provider.genre;
+      bookProvider.getBooks(screenName: 'genre-detail');
+    });
 
-    if (isLoadingGenre) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return BaseScaffold(
+      body: StyledScreenLayoutBuilder(builder: (context, controller) {
+        return [
+          StyledStickySliverContainer(
+            backgroundColor: Colors.grey.shade500,
+            height: 72,
+            child: Consumer<GenreProvider>(
+              builder: (builder, provider, _) {
+                final isLoadingGenre =
+                    provider.isLoading(EnumGenreOperation.getById);
+                final errorMessageGenre =
+                    provider.getError(EnumGenreOperation.getById);
+                final genre = provider.genre;
 
-    if (errorMessageGenre != null) {
-      return StyledErrorMessage(errorMessage: errorMessageGenre);
-    }
+                if (isLoadingGenre) {
+                  return StyledLoadingState();
+                }
 
-    if (genre == null) {
-      return const Center(child: Text('No genres available.'));
-    }
+                if (errorMessageGenre != null) {
+                  return StyledErrorMessage(errorMessage: errorMessageGenre);
+                }
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Theme.of(context).primaryColor.withOpacity(0.3),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // * Genre Name - Selalu terlihat
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              genre.name,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
+                if (genre == null) {
+                  return StyledEmptyData(message: 'Genre not found');
+                }
+
+                return ListTile(
+                  title: Text(genre.name),
+                  subtitle: Text(
+                    genre.description,
+                    style: TextStyle(
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                );
+              },
             ),
           ),
-          // * Genre Description - Menghilang saat scroll
-          AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            child: _isDescriptionVisible
-                ? Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      bottom: 16,
-                    ),
-                    child: Text(
-                      genre.description,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.black87,
-                          ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+          SliverPadding(
+            padding: EdgeInsets.all(16),
+            sliver: Consumer<BookProvider>(
+              builder: (context, bookProvider, _) {
+                final books = bookProvider.getBooksForScreen('genre-detail');
+
+                return SliverToBoxAdapter(
+                  child: BookGrid(
+                    books: books,
+                    isLoading: bookProvider.isLoading(EnumBookOperation.getAll),
+                    errorMessage:
+                        bookProvider.getError(EnumBookOperation.getAll),
+                    onRetry: () => bookProvider.getBooks(),
+                    onBookSelected: (book) {
+                      context.push('/books/${book.id}');
+                    },
+                  ),
+                );
+              },
+            ),
           ),
-        ],
-      ),
+        ];
+      }),
     );
   }
 }

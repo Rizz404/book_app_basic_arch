@@ -71,14 +71,17 @@ class _HomeScreenState extends State<HomeScreen> {
         // Carousel
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.only(
+              top: 32,
+              bottom: 24,
+              left: 16,
+              right: 16,
+            ),
             child: Column(
               children: [
-                const SizedBox(height: 16),
                 BookOfferCarousel(
                   bannerImages: images,
                 ),
-                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -86,8 +89,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Sticky SearchBar
         StyledStickySliverContainer(
-          height: 56,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          height: 80,
+          padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
           child: BookSearchBar(
             controller: _searchController,
             onIconPressed: handleSearchIconPressed,
@@ -97,8 +100,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Sticky GenreList
         StyledStickySliverContainer(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          height: 64,
+          padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
           child: Consumer<GenreProvider>(
             builder: (context, genreProvider, _) {
               return GenreList(
@@ -114,12 +117,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // BookGrid
         SliverPadding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           sliver: Consumer<BookProvider>(
             builder: (context, bookProvider, _) {
               final books = _isSearching
                   ? bookProvider.searchedBooks
-                  : bookProvider.books;
+                  : bookProvider.getBooksForScreen('home');
 
               return SliverToBoxAdapter(
                 child: BookGrid(

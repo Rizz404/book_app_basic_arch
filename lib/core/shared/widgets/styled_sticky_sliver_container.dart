@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 
 class StyledStickySliverContainer extends StatelessWidget {
   final Widget child;
-  final double height;
+  final double? height;
   final EdgeInsetsGeometry? padding;
   final Color? backgroundColor;
 
   const StyledStickySliverContainer({
     super.key,
     required this.child,
-    required this.height,
+    this.height,
     this.padding,
     this.backgroundColor,
   });
@@ -21,8 +21,8 @@ class StyledStickySliverContainer extends StatelessWidget {
       pinned: true,
       delegate: StyledStickyHeaderDelegate(
         height: height,
+        backgroundColor: backgroundColor,
         child: Container(
-          color: backgroundColor,
           padding: padding,
           alignment: Alignment.center,
           child: child,

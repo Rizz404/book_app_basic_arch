@@ -2,26 +2,32 @@ import 'package:flutter/material.dart';
 
 class StyledStickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
-  final double height;
+  final double? height;
   final Color? backgroundColor;
 
   StyledStickyHeaderDelegate({
     required this.child,
-    required this.height,
+    this.height,
     this.backgroundColor,
   });
 
   @override
-  double get minExtent => height;
+  double get minExtent => height ?? 0.0;
+
   @override
-  double get maxExtent => height;
+  double get maxExtent => height ?? kToolbarHeight;
 
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(
+    return Material(
+      color: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
       child: Container(
-        color: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+        width: double.infinity,
+        constraints: BoxConstraints(
+          minHeight: minExtent,
+          maxHeight: maxExtent,
+        ),
         child: child,
       ),
     );

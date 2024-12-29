@@ -42,7 +42,7 @@ class BookScreen extends StatelessWidget {
   Widget _buildBookContent(BuildContext context, BookProvider provider) {
     final isLoadingBooks = provider.isLoading(EnumBookOperation.getAll);
     final errorMessageBooks = provider.getError(EnumBookOperation.getAll);
-    final books = provider.books;
+    final books = provider.getBooksForScreen('home');
 
     if (isLoadingBooks) {
       return const StyledLoadingState();

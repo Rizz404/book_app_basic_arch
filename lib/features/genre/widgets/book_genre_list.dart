@@ -28,7 +28,7 @@ class BookGenreList extends StatelessWidget {
   Widget _buildBookListContent(BuildContext context, BookProvider provider) {
     final isLoadingBooks = provider.isLoading(EnumBookOperation.getAll);
     final errorMessageBooks = provider.getError(EnumBookOperation.getAll);
-    final books = provider.books;
+    final books = provider.getBooksForScreen("genre-detail");
 
     if (isLoadingBooks) {
       return const StyledLoadingState();

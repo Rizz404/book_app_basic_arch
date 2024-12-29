@@ -2,24 +2,57 @@ import 'package:book_app_basic_arch/core/shared/models/api_pagination.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/book/book_services.dart';
 import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
+import 'package:book_app_basic_arch/features/book/model/book_filter_model.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 import 'package:flutter/material.dart';
 
 class BookProvider with ChangeNotifier {
   final BookServices _bookServices = BookServices();
 
-  List<BookModel> _books = [];
-  List<BookModel> get books => _books;
-  ApiPagination? _bookPagination;
-  ApiPagination? get bookPagination => _bookPagination;
+  // * State untuk menyimpan books per screen
+  final Map<String, List<BookModel>> _screenBooks = {};
+  // * State untuk menyimpan pagination per screen
+  final Map<String, ApiPagination?> _screenPaginations = {};
 
+  // * Beda buat search
   List<BookModel> _searchedBooks = [];
   List<BookModel> get searchedBooks => _searchedBooks;
   ApiPagination? _searchedBooksPagination;
   ApiPagination? get searchedBooksPagination => _searchedBooksPagination;
 
+  // * State untuk single book detail
   BookModel? _book;
   BookModel? get book => _book;
+
+  // * State untuk menyimpan filter tiap screen
+  final Map<String, BookFilterModel> _screenFilters = {
+    'home': BookFilterModel(),
+    'search': BookFilterModel(),
+    'genre-detail': BookFilterModel(),
+    'author-detail': BookFilterModel(),
+    'publisher-detail': BookFilterModel(),
+  };
+
+  // * Getter untuk books berdasarkan screen
+  List<BookModel> getBooksForScreen(String screenName) {
+    return _screenBooks[screenName] ?? [];
+  }
+
+  // * Getter untuk pagination berdasarkan screen
+  ApiPagination? getPaginationForScreen(String screenName) {
+    return _screenPaginations[screenName];
+  }
+
+  // * Getter untuk filter berdasarkan screen
+  BookFilterModel getScreenFilter(String screenName) {
+    return _screenFilters[screenName] ?? BookFilterModel();
+  }
+
+  // * Method untuk update filter
+  void updateScreenFilter(String screenName, BookFilterModel newFilter) {
+    _screenFilters[screenName] = newFilter;
+    notifyListeners();
+  }
 
   // * Map untuk store operation state
   final Map<EnumBookOperation, OperationState> _operationStates = {
@@ -68,13 +101,9 @@ class BookProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getBooks({
-    int page = 1,
-    int limit = 10,
-    String? sellerId,
-    String? language,
-    String? genreId,
-  }) async {
+  Future<void> getBooks({String screenName = 'home'}) async {
+    final filter = _screenFilters[screenName]!;
+
     _updateOperationState(
       EnumBookOperation.getAll,
       isLoading: true,
@@ -83,15 +112,15 @@ class BookProvider with ChangeNotifier {
 
     try {
       final response = await _bookServices.getBooks(
-        page: page,
-        limit: limit,
-        sellerId: sellerId,
-        language: language,
-        genreId: genreId,
+        page: filter.page,
+        limit: filter.limit,
+        sellerId: filter.sellerId,
+        language: filter.language,
+        genreId: filter.genreId,
       );
 
-      _books = response.data!;
-      _bookPagination = response.meta.pagination;
+      _screenBooks[screenName] = response.data!;
+      _screenPaginations[screenName] = response.meta.pagination;
 
       _updateOperationState(
         EnumBookOperation.getAll,
@@ -120,7 +149,9 @@ class BookProvider with ChangeNotifier {
     );
 
     try {
-      final response = await _bookServices.searchBookByTitle(title: title);
+      final response = await _bookServices.searchBookByTitle(
+        title: title,
+      );
 
       _searchedBooks = response.data!;
       _searchedBooksPagination = response.meta.pagination;
