@@ -2,7 +2,7 @@ import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
-import 'package:book_app_basic_arch/features/wishlist/enum_wishlist_operation.dart';
+import 'package:book_app_basic_arch/features/wishlist/enums/wishlist_operation_type.dart';
 import 'package:book_app_basic_arch/features/wishlist/wishlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,10 +33,10 @@ class WishlistScreen extends StatelessWidget {
                 sliver: Consumer<WishlistProvider>(
                   builder: (context, provider, _) {
                     final books = provider.getBooksForScreen('wishlist');
-                    final isLoading =
-                        provider.isLoading(EnumWishlistOperation.getAll);
-                    final errorMessage =
-                        provider.getError(EnumWishlistOperation.getAll);
+                    final isLoading = provider
+                        .isLoading(WishlistOperationType.getBooksFromWishlish);
+                    final errorMessage = provider
+                        .getError(WishlistOperationType.getBooksFromWishlish);
 
                     return SliverToBoxAdapter(
                       child: BookGrid(

@@ -1,31 +1,70 @@
+import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/author/author_services.dart';
-import 'package:book_app_basic_arch/features/author/enum_author_operation.dart';
+import 'package:book_app_basic_arch/features/author/enums/author_operation_type.dart';
+import 'package:book_app_basic_arch/features/author/enums/author_screen_type.dart';
+import 'package:book_app_basic_arch/features/author/model/author_filter_model.dart';
 import 'package:book_app_basic_arch/features/author/model/author_model.dart';
 import 'package:flutter/material.dart';
 
 class AuthorProvider with ChangeNotifier {
   final AuthorServices _authorServices = AuthorServices();
 
-  List<AuthorModel> _authors = [];
-  List<AuthorModel> get authors => _authors;
+  // * State untuk menyimpan authors per screen
+  final Map<AuthorScreenType, List<AuthorModel>> _authorsByScreen = {};
+  // * State untuk menyimpan pagination per screen
+  final Map<AuthorScreenType, ApiPagination?> _paginationByScreen = {};
+
+  // * Beda buat search
+  List<AuthorModel> _searchedAuthors = [];
+  List<AuthorModel> get searchedAuthors => _searchedAuthors;
+  ApiPagination? _searchedAuthorsPagination;
+  ApiPagination? get searchedAuthorsPagination => _searchedAuthorsPagination;
+
+  // * State untuk single author detail
   AuthorModel? _author;
   AuthorModel? get author => _author;
 
+  // * State untuk menyimpan filter tiap screen
+  final Map<AuthorScreenType, AuthorFilterModel> _filterByScreen = {
+    AuthorScreenType.authors: AuthorFilterModel(),
+  };
+
+  // * Getter untuk authors berdasarkan screen
+  List<AuthorModel> getAuthorsForSpecificScreen(AuthorScreenType screen) {
+    return _authorsByScreen[screen] ?? [];
+  }
+
+  // * Getter untuk pagination berdasarkan screen
+  ApiPagination? getPaginationForSpecificScreen(AuthorScreenType screen) {
+    return _paginationByScreen[screen];
+  }
+
+  // * Getter untuk filter berdasarkan screen
+  AuthorFilterModel getFilterForSpecificScreen(AuthorScreenType screen) {
+    return _filterByScreen[screen] ?? AuthorFilterModel();
+  }
+
+  // * Method untuk update filter
+  void updateFilterForSpecificScreen(
+      AuthorScreenType screen, AuthorFilterModel newFilter) {
+    _filterByScreen[screen] = newFilter;
+    notifyListeners();
+  }
+
   // * Map untuk store operation state
-  final Map<EnumAuthorOperation, OperationState> _operationStates = {
-    for (var operation in EnumAuthorOperation.values)
+  final Map<AuthorOperationType, OperationState> _operationStates = {
+    for (var operation in AuthorOperationType.values)
       operation: (isLoading: false, errorMessage: null)
   };
 
   // * Getter untuk state
-  bool isLoading(EnumAuthorOperation operation) =>
+  bool isLoading(AuthorOperationType operation) =>
       _operationStates[operation]!.isLoading;
-  String? getError(EnumAuthorOperation operation) =>
+  String? getError(AuthorOperationType operation) =>
       _operationStates[operation]!.errorMessage;
 
-  // Helper to update operation state
-  void _updateOperationState(EnumAuthorOperation operation,
+  void _updateOperationState(AuthorOperationType operation,
       {bool? isLoading, String? errorMessage}) {
     _operationStates[operation] = (
       isLoading: isLoading ?? _operationStates[operation]!.isLoading,
@@ -36,7 +75,7 @@ class AuthorProvider with ChangeNotifier {
 
   Future<void> createAuthor(CreateAuthorModel author) async {
     _updateOperationState(
-      EnumAuthorOperation.create,
+      AuthorOperationType.createAuthor,
       isLoading: true,
       errorMessage: null,
     );
@@ -46,13 +85,13 @@ class AuthorProvider with ChangeNotifier {
       await getAuthors();
 
       _updateOperationState(
-        EnumAuthorOperation.create,
+        AuthorOperationType.createAuthor,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumAuthorOperation.create,
+        AuthorOperationType.createAuthor,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -61,28 +100,30 @@ class AuthorProvider with ChangeNotifier {
   }
 
   Future<void> getAuthors({
-    int page = 1,
-    int limit = 10,
+    AuthorScreenType screen = AuthorScreenType.authors,
   }) async {
+    final filter = _filterByScreen[screen]!;
+
     _updateOperationState(
-      EnumAuthorOperation.getAll,
+      AuthorOperationType.getAuthors,
       isLoading: true,
       errorMessage: null,
     );
 
     try {
-      final response = await _authorServices.getAuthors();
+      final response = await _authorServices.getAuthors(filter);
 
-      _authors = response.data!;
+      _authorsByScreen[screen] = response.data!;
+      _paginationByScreen[screen] = response.meta.pagination;
 
       _updateOperationState(
-        EnumAuthorOperation.getAll,
+        AuthorOperationType.getAuthors,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumAuthorOperation.getAll,
+        AuthorOperationType.getAuthors,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -92,7 +133,7 @@ class AuthorProvider with ChangeNotifier {
 
   Future<void> getAuthorById(String id) async {
     _updateOperationState(
-      EnumAuthorOperation.getById,
+      AuthorOperationType.getAuthorById,
       isLoading: true,
       errorMessage: null,
     );
@@ -103,13 +144,13 @@ class AuthorProvider with ChangeNotifier {
       _author = response.data!;
 
       _updateOperationState(
-        EnumAuthorOperation.getById,
+        AuthorOperationType.getAuthorById,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumAuthorOperation.getById,
+        AuthorOperationType.getAuthorById,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -119,7 +160,7 @@ class AuthorProvider with ChangeNotifier {
 
   Future<void> updateAuthor(UpdateAuthorModel author) async {
     _updateOperationState(
-      EnumAuthorOperation.update,
+      AuthorOperationType.updateAuthorById,
       isLoading: true,
       errorMessage: null,
     );
@@ -131,13 +172,13 @@ class AuthorProvider with ChangeNotifier {
       await getAuthors();
 
       _updateOperationState(
-        EnumAuthorOperation.update,
+        AuthorOperationType.updateAuthorById,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumAuthorOperation.update,
+        AuthorOperationType.updateAuthorById,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -147,7 +188,7 @@ class AuthorProvider with ChangeNotifier {
 
   Future<void> deleteAuthor(String id) async {
     _updateOperationState(
-      EnumAuthorOperation.delete,
+      AuthorOperationType.deleteAuthorById,
       isLoading: true,
       errorMessage: null,
     );
@@ -157,13 +198,13 @@ class AuthorProvider with ChangeNotifier {
       await getAuthors();
 
       _updateOperationState(
-        EnumAuthorOperation.delete,
+        AuthorOperationType.deleteAuthorById,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumAuthorOperation.delete,
+        AuthorOperationType.deleteAuthorById,
         isLoading: false,
         errorMessage: e.toString(),
       );

@@ -1,7 +1,8 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
+import 'package:book_app_basic_arch/features/publisher/enums/publisher_screen_type.dart';
 import 'package:book_app_basic_arch/features/publisher/model/publisher_model.dart';
 import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
-import 'package:book_app_basic_arch/features/publisher/enum_publisher_operation.dart';
+import 'package:book_app_basic_arch/features/publisher/enums/publisher_operation_type.dart';
 import 'package:book_app_basic_arch/features/publisher/screen/publisher_detail_screen.dart';
 import 'package:book_app_basic_arch/features/publisher/widgets/publisher_card.dart';
 import 'package:book_app_basic_arch/features/profile/screen/profile_screen.dart';
@@ -30,10 +31,12 @@ class PublisherScreen extends StatelessWidget {
         child: Consumer<PublisherProvider>(
           builder: (context, provider, _) {
             final isLoadingPublishers =
-                provider.isLoading(EnumPublisherOperation.getAll);
+                provider.isLoading(PublisherOperationType.getPublishers);
             final errorMessagePublishers =
-                provider.getError(EnumPublisherOperation.getAll);
-            final publishers = provider.publishers;
+                provider.getError(PublisherOperationType.getPublishers);
+            final publishers = provider.getPublishersForSpecificScreen(
+              PublisherScreenType.publishers,
+            );
 
             if (isLoadingPublishers) {
               // Loading State

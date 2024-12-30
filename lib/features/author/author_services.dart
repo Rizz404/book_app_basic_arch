@@ -1,6 +1,7 @@
 import 'package:book_app_basic_arch/core/network/dio_client.dart';
 import 'package:book_app_basic_arch/core/network/models/api_error_response.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
+import 'package:book_app_basic_arch/features/author/model/author_filter_model.dart';
 import 'package:book_app_basic_arch/features/author/model/author_model.dart';
 
 class AuthorServices {
@@ -19,14 +20,17 @@ class AuthorServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<AuthorModel>>> getAuthors({
-    int page = 1,
-    int limit = 10,
-  }) async {
+  Future<ApiSuccessResponse<List<AuthorModel>>> getAuthors(
+    AuthorFilterModel authorFilterModel,
+  ) async {
     try {
       final queryParameters = {
-        'page': page,
-        'limit': limit,
+        'page': authorFilterModel.page,
+        'limit': authorFilterModel.limit,
+        if (authorFilterModel.birthDateRange != null)
+          'birthDateRange': authorFilterModel.birthDateRange,
+        if (authorFilterModel.deathDateRange != null)
+          'deathDateRange': authorFilterModel.deathDateRange,
       };
 
       return await _dioClient.get(

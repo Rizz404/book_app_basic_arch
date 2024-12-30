@@ -1,5 +1,5 @@
 import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
-import 'package:book_app_basic_arch/features/publisher/enum_publisher_operation.dart';
+import 'package:book_app_basic_arch/features/publisher/enums/publisher_operation_type.dart';
 import 'package:book_app_basic_arch/features/publisher/model/publisher_model.dart';
 import 'package:book_app_basic_arch/features/publisher/widgets/publisher_card.dart';
 import 'package:book_app_basic_arch/features/publisher/widgets/publisher_form.dart';
@@ -57,9 +57,9 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
       body: Consumer<PublisherProvider>(
         builder: (context, provider, _) {
           final isLoadingPublisher =
-              provider.isLoading(EnumPublisherOperation.getById);
+              provider.isLoading(PublisherOperationType.getPublisherById);
           final errorMessagePublisher =
-              provider.getError(EnumPublisherOperation.getById);
+              provider.getError(PublisherOperationType.getPublisherById);
           final publisher = provider.publisher;
 
           if (isLoadingPublisher) {

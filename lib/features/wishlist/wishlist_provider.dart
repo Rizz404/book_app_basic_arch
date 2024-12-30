@@ -6,18 +6,18 @@ import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 import 'package:book_app_basic_arch/features/wishlist/model/wishlist_filter_model.dart';
 import 'package:book_app_basic_arch/features/wishlist/wishlist_services.dart';
-import 'package:book_app_basic_arch/features/wishlist/enum_wishlist_operation.dart';
+import 'package:book_app_basic_arch/features/wishlist/enums/wishlist_operation_type.dart';
 import 'package:flutter/material.dart';
 
 class WishlistProvider with ChangeNotifier {
   final WishlistServices _wishlistServices;
   final BookProvider bookProvider;
 
-  // Antrian operasi wishlist yang pending
+  // * Antrian operasi wishlist yang pending
   final Map<String, bool> _pendingOperations = {};
-  // Map untuk menyimpan timer per bookId
+  // * Map untuk menyimpan timer per bookId
   final Map<String, Timer> _debouncers = {};
-  // Durasi debounce
+  // * Durasi debounce
   static const debounceDuration = Duration(milliseconds: 500);
 
   WishlistProvider({
@@ -61,17 +61,17 @@ class WishlistProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  final Map<EnumWishlistOperation, OperationState> _operationStates = {
-    for (var operation in EnumWishlistOperation.values)
+  final Map<WishlistOperationType, OperationState> _operationStates = {
+    for (var operation in WishlistOperationType.values)
       operation: (isLoading: false, errorMessage: null)
   };
 
-  bool isLoading(EnumWishlistOperation operation) =>
+  bool isLoading(WishlistOperationType operation) =>
       _operationStates[operation]!.isLoading;
-  String? getError(EnumWishlistOperation operation) =>
+  String? getError(WishlistOperationType operation) =>
       _operationStates[operation]!.errorMessage;
 
-  void _updateOperationState(EnumWishlistOperation operation,
+  void _updateOperationState(WishlistOperationType operation,
       {bool? isLoading, String? errorMessage}) {
     _operationStates[operation] = (
       isLoading: isLoading ?? _operationStates[operation]!.isLoading,
@@ -85,7 +85,7 @@ class WishlistProvider with ChangeNotifier {
     bookProvider.updateBookWishlistStatus(bookId, true);
 
     _updateOperationState(
-      EnumWishlistOperation.create,
+      WishlistOperationType.addBookToWishlist,
       isLoading: true,
       errorMessage: null,
     );
@@ -97,7 +97,7 @@ class WishlistProvider with ChangeNotifier {
       await getBooksWishlished();
 
       _updateOperationState(
-        EnumWishlistOperation.create,
+        WishlistOperationType.addBookToWishlist,
         isLoading: false,
         errorMessage: null,
       );
@@ -106,7 +106,7 @@ class WishlistProvider with ChangeNotifier {
       bookProvider.rollbackBookWishlistStatus(bookId);
 
       _updateOperationState(
-        EnumWishlistOperation.create,
+        WishlistOperationType.addBookToWishlist,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -118,7 +118,7 @@ class WishlistProvider with ChangeNotifier {
     final filter = _screenFilters[screenName]!;
 
     _updateOperationState(
-      EnumWishlistOperation.getAll,
+      WishlistOperationType.getBooksFromWishlish,
       isLoading: true,
       errorMessage: null,
     );
@@ -133,13 +133,13 @@ class WishlistProvider with ChangeNotifier {
       _screenPaginations[screenName] = response.meta.pagination;
 
       _updateOperationState(
-        EnumWishlistOperation.getAll,
+        WishlistOperationType.getBooksFromWishlish,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumWishlistOperation.getAll,
+        WishlistOperationType.getBooksFromWishlish,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -152,7 +152,7 @@ class WishlistProvider with ChangeNotifier {
     bookProvider.updateBookWishlistStatus(id, false);
 
     _updateOperationState(
-      EnumWishlistOperation.delete,
+      WishlistOperationType.deleteBookFromWishlist,
       isLoading: true,
       errorMessage: null,
     );
@@ -164,7 +164,7 @@ class WishlistProvider with ChangeNotifier {
       await getBooksWishlished();
 
       _updateOperationState(
-        EnumWishlistOperation.delete,
+        WishlistOperationType.deleteBookFromWishlist,
         isLoading: false,
         errorMessage: null,
       );
@@ -173,7 +173,7 @@ class WishlistProvider with ChangeNotifier {
       bookProvider.rollbackBookWishlistStatus(id);
 
       _updateOperationState(
-        EnumWishlistOperation.delete,
+        WishlistOperationType.deleteBookFromWishlist,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -181,7 +181,7 @@ class WishlistProvider with ChangeNotifier {
     }
   }
 
-  // Method untuk memproses operasi wishlist
+  // * Method untuk memproses operasi wishlist
   Future<void> _processWishlistOperation(
       String bookId, bool targetStatus) async {
     try {
@@ -191,29 +191,29 @@ class WishlistProvider with ChangeNotifier {
         await _wishlistServices.deleteWishlistById(bookId);
       }
 
-      // Update originalWishlistStatus jika berhasil
+      // * Update originalWishlistStatus jika berhasil
       bookProvider.updateBookWishlistStatus(bookId, targetStatus);
 
       _updateOperationState(
         targetStatus
-            ? EnumWishlistOperation.create
-            : EnumWishlistOperation.delete,
+            ? WishlistOperationType.addBookToWishlist
+            : WishlistOperationType.deleteBookFromWishlist,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
-      // Rollback jika gagal
+      // * Rollback jika gagal
       bookProvider.rollbackBookWishlistStatus(bookId);
 
-      // Rollback WishlistProvider state
+      // * Rollback WishlistProvider state
       if (targetStatus) {
-        // Jika gagal menambah wishlist, hapus dari _screenBooks
+        // * Jika gagal menambah wishlist, hapus dari _screenBooks
         for (var screenName in _screenBooks.keys) {
           _screenBooks[screenName] =
               _screenBooks[screenName]!.where((b) => b.id != bookId).toList();
         }
       } else {
-        // Jika gagal menghapus wishlist, tambahkan kembali ke _screenBooks
+        // * Jika gagal menghapus wishlist, tambahkan kembali ke _screenBooks
         final book = _findBookInAnyScreen(bookId);
         if (book != null) {
           for (var screenName in _screenBooks.keys) {
@@ -234,8 +234,8 @@ class WishlistProvider with ChangeNotifier {
 
       _updateOperationState(
         targetStatus
-            ? EnumWishlistOperation.create
-            : EnumWishlistOperation.delete,
+            ? WishlistOperationType.addBookToWishlist
+            : WishlistOperationType.deleteBookFromWishlist,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -243,7 +243,7 @@ class WishlistProvider with ChangeNotifier {
     }
   }
 
-  // Helper method untuk mencari buku di semua screen
+  // * Helper method untuk mencari buku di semua screen
   BookModel? _findBookInAnyScreen(String bookId) {
     for (var books in _screenBooks.values) {
       final book = books.firstWhere(
@@ -257,15 +257,15 @@ class WishlistProvider with ChangeNotifier {
   Future<void> toggleWishlist(BookModel book) async {
     final targetStatus = !book.isWishlisted;
 
-    // Batalkan timer sebelumnya jika ada
+    // * Batalkan timer sebelumnya jika ada
     _cancelDebouncer(book.id);
 
-    // Update UI secara optimistic untuk BookProvider
+    // * Update UI secara optimistic untuk BookProvider
     bookProvider.updateBookWishlistStatus(book.id, targetStatus);
 
-    // Optimistic update untuk WishlistProvider
+    // * Optimistic update untuk WishlistProvider
     if (targetStatus) {
-      // Jika menambah ke wishlist
+      // * Jika menambah ke wishlist
       for (var screenName in _screenBooks.keys) {
         if (!_screenBooks[screenName]!.any((b) => b.id == book.id)) {
           _screenBooks[screenName] = [
@@ -279,7 +279,7 @@ class WishlistProvider with ChangeNotifier {
         }
       }
     } else {
-      // Jika menghapus dari wishlist
+      // * Jika menghapus dari wishlist
       for (var screenName in _screenBooks.keys) {
         _screenBooks[screenName] =
             _screenBooks[screenName]!.where((b) => b.id != book.id).toList();
@@ -287,25 +287,25 @@ class WishlistProvider with ChangeNotifier {
     }
     notifyListeners();
 
-    // Tambahkan ke antrian operasi
+    // * Tambahkan ke antrian operasi
     _pendingOperations[book.id] = targetStatus;
 
-    // Set timer baru untuk debounce
+    // * Set timer baru untuk debounce
     _debouncers[book.id] = Timer(debounceDuration, () async {
-      // Pastikan operasi masih valid
+      // * Pastikan operasi masih valid
       if (_pendingOperations.containsKey(book.id) &&
           _pendingOperations[book.id] == targetStatus) {
         _updateOperationState(
           targetStatus
-              ? EnumWishlistOperation.create
-              : EnumWishlistOperation.delete,
+              ? WishlistOperationType.addBookToWishlist
+              : WishlistOperationType.deleteBookFromWishlist,
           isLoading: true,
           errorMessage: null,
         );
 
         await _processWishlistOperation(book.id, targetStatus);
 
-        // Hapus dari antrian setelah selesai
+        // * Hapus dari antrian setelah selesai
         _pendingOperations.remove(book.id);
       }
     });
@@ -313,7 +313,7 @@ class WishlistProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    // Batalkan semua timer saat dispose
+    // * Batalkan semua timer saat dispose
     for (var timer in _debouncers.values) {
       timer.cancel();
     }

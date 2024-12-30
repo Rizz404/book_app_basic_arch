@@ -8,7 +8,7 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_con
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
-import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
 import 'package:flutter/material.dart';
@@ -55,9 +55,9 @@ class GenreDetailScreen extends StatelessWidget {
                 child: Consumer<GenreProvider>(
                   builder: (builder, provider, _) {
                     final isLoadingGenre =
-                        provider.isLoading(EnumGenreOperation.getById);
+                        provider.isLoading(GenreOperationType.getGenreById);
                     final errorMessageGenre =
-                        provider.getError(EnumGenreOperation.getById);
+                        provider.getError(GenreOperationType.getGenreById);
                     final genre = provider.genre;
 
                     if (isLoadingGenre) {

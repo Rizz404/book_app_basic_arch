@@ -1,5 +1,5 @@
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
-import 'package:book_app_basic_arch/features/author/enum_author_operation.dart';
+import 'package:book_app_basic_arch/features/author/enums/author_operation_type.dart';
 import 'package:book_app_basic_arch/features/author/model/author_model.dart';
 import 'package:book_app_basic_arch/features/author/widgets/author_form.dart';
 import 'package:book_app_basic_arch/features/author/widgets/book_author_list.dart';
@@ -98,8 +98,10 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
   }
 
   Widget _buildAuthorContent(BuildContext context, AuthorProvider provider) {
-    final isLoadingAuthor = provider.isLoading(EnumAuthorOperation.getById);
-    final errorMessageAuthor = provider.getError(EnumAuthorOperation.getById);
+    final isLoadingAuthor =
+        provider.isLoading(AuthorOperationType.getAuthorById);
+    final errorMessageAuthor =
+        provider.getError(AuthorOperationType.getAuthorById);
     final author = provider.author;
 
     if (isLoadingAuthor) {

@@ -1,5 +1,6 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/genre/widgets/genre_card.dart';
 import 'package:book_app_basic_arch/features/genre/widgets/genre_form.dart';
@@ -18,7 +19,7 @@ class _GenreScreenState extends State<GenreScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<GenreProvider>().getGenres();
+      context.read<GenreProvider>().getGenres(screen: GenreScreenType.genres);
     });
   }
 
@@ -42,10 +43,12 @@ class _GenreScreenState extends State<GenreScreen> {
         child: Consumer<GenreProvider>(
           builder: (context, provider, _) {
             final isLoadingGenres =
-                provider.isLoading(EnumGenreOperation.getAll);
+                provider.isLoading(GenreOperationType.getGenres);
             final errorMessageGenres =
-                provider.getError(EnumGenreOperation.getAll);
-            final genres = provider.genres;
+                provider.getError(GenreOperationType.getGenres);
+            final genres = provider.getGenresForSpecificScreen(
+              GenreScreenType.genres,
+            );
 
             if (isLoadingGenres) {
               return Center(child: CircularProgressIndicator());

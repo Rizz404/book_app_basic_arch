@@ -1,6 +1,7 @@
 import 'package:book_app_basic_arch/core/network/dio_client.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
-import 'package:book_app_basic_arch/features/genre/genre_model.dart';
+import 'package:book_app_basic_arch/features/genre/model/genre_filter_model.dart';
+import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
 import 'package:book_app_basic_arch/core/network/models/api_error_response.dart';
 
 class GenreServices {
@@ -19,14 +20,13 @@ class GenreServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<GenreModel>>> getGenres({
-    int page = 1,
-    int limit = 10,
-  }) async {
+  Future<ApiSuccessResponse<List<GenreModel>>> getGenres(
+    GenreFilterModel genreFilterModel,
+  ) async {
     try {
       final queryParameters = {
-        'page': page,
-        'limit': limit,
+        'page': genreFilterModel.page,
+        'limit': genreFilterModel.limit,
       };
 
       return await _dioClient.get(

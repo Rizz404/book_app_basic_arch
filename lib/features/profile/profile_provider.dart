@@ -1,6 +1,6 @@
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/profile/profile_services.dart';
-import 'package:book_app_basic_arch/features/profile/enum_profile_operation.dart';
+import 'package:book_app_basic_arch/features/profile/enums/profile_operation_type.dart';
 import 'package:book_app_basic_arch/features/profile/model/profile_model.dart';
 import 'package:flutter/material.dart';
 
@@ -11,19 +11,19 @@ class ProfileProvider with ChangeNotifier {
   UserWithProfileModel? get userProfile => _userProfile;
 
   // * Map untuk store operation state
-  final Map<EnumProfileOperation, OperationState> _operationStates = {
-    for (var operation in EnumProfileOperation.values)
+  final Map<ProfileOperationType, OperationState> _operationStates = {
+    for (var operation in ProfileOperationType.values)
       operation: (isLoading: false, errorMessage: null)
   };
 
   // * Getter untuk state
-  bool isLoading(EnumProfileOperation operation) =>
+  bool isLoading(ProfileOperationType operation) =>
       _operationStates[operation]!.isLoading;
-  String? getError(EnumProfileOperation operation) =>
+  String? getError(ProfileOperationType operation) =>
       _operationStates[operation]!.errorMessage;
 
   // Helper to update operation state
-  void _updateOperationState(EnumProfileOperation operation,
+  void _updateOperationState(ProfileOperationType operation,
       {bool? isLoading, String? errorMessage}) {
     _operationStates[operation] = (
       isLoading: isLoading ?? _operationStates[operation]!.isLoading,
@@ -35,7 +35,7 @@ class ProfileProvider with ChangeNotifier {
   Future<void> getUserProfile() async {
     try {
       _updateOperationState(
-        EnumProfileOperation.getUserProfile,
+        ProfileOperationType.getUserProfile,
         isLoading: true,
         errorMessage: null, // * Reset error message saat mulai loading
       );
@@ -44,13 +44,13 @@ class ProfileProvider with ChangeNotifier {
       _userProfile = response.data!;
 
       _updateOperationState(
-        EnumProfileOperation.getUserProfile,
+        ProfileOperationType.getUserProfile,
         isLoading: false,
         errorMessage: null, // * Clear error message on success
       );
     } catch (e) {
       _updateOperationState(
-        EnumProfileOperation.getUserProfile,
+        ProfileOperationType.getUserProfile,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -60,7 +60,7 @@ class ProfileProvider with ChangeNotifier {
 
   Future<void> updateUserProfile(UpdateUserWithProfileModel profile) async {
     _updateOperationState(
-      EnumProfileOperation.updateUserProfile,
+      ProfileOperationType.updateUserProfile,
       isLoading: true,
       errorMessage: null,
     );
@@ -70,13 +70,13 @@ class ProfileProvider with ChangeNotifier {
       await getUserProfile();
 
       _updateOperationState(
-        EnumProfileOperation.updateUserProfile,
+        ProfileOperationType.updateUserProfile,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumProfileOperation.updateUserProfile,
+        ProfileOperationType.updateUserProfile,
         isLoading: false,
         errorMessage: e.toString(),
       );

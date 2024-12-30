@@ -1,5 +1,6 @@
 import 'package:book_app_basic_arch/core/network/dio_client.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
+import 'package:book_app_basic_arch/features/publisher/model/publisher_filter_model.dart';
 import 'package:book_app_basic_arch/features/publisher/model/publisher_model.dart';
 import 'package:book_app_basic_arch/core/network/models/api_error_response.dart';
 
@@ -20,14 +21,12 @@ class PublisherServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<PublisherModel>>> getPublishers({
-    int page = 1,
-    int limit = 10,
-  }) async {
+  Future<ApiSuccessResponse<List<PublisherModel>>> getPublishers(
+      PublisherFilterModel publisherFilterModel) async {
     try {
       final queryParameters = {
-        'page': page,
-        'limit': limit,
+        'page': publisherFilterModel.page,
+        'limit': publisherFilterModel.limit,
       };
 
       return await _dioClient.get(

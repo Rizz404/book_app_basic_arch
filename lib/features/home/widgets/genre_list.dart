@@ -1,5 +1,5 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/features/genre/genre_model.dart';
+import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
 import 'package:flutter/material.dart';
 
 class GenreList extends StatelessWidget {

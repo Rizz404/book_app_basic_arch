@@ -1,0 +1,1 @@
+enum ProfileOperationType { getUserProfile, updateUserProfile }

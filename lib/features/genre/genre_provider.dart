@@ -1,31 +1,71 @@
+import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
-import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
-import 'package:book_app_basic_arch/features/genre/genre_model.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
+import 'package:book_app_basic_arch/features/genre/model/genre_filter_model.dart';
+import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
 import 'package:book_app_basic_arch/features/genre/genre_services.dart';
 import 'package:flutter/material.dart';
 
 class GenreProvider with ChangeNotifier {
   final GenreServices _genreServices = GenreServices();
 
-  List<GenreModel> _genres = [];
-  List<GenreModel> get genres => _genres;
+  // * State untuk menyimpan genres per screen
+  final Map<GenreScreenType, List<GenreModel>> _genresByScreen = {};
+  // * State untuk menyimpan pagination per screen
+  final Map<GenreScreenType, ApiPagination?> _paginationByScreen = {};
+
+  // * Beda buat search
+  List<GenreModel> _searchedGenres = [];
+  List<GenreModel> get searchedGenres => _searchedGenres;
+  ApiPagination? _searchedGenresPagination;
+  ApiPagination? get searchedGenresPagination => _searchedGenresPagination;
+
+  // * State untuk single genre detail
   GenreModel? _genre;
   GenreModel? get genre => _genre;
 
+  // * State untuk menyimpan filter tiap screen
+  final Map<GenreScreenType, GenreFilterModel> _filterByScreen = {
+    GenreScreenType.home: GenreFilterModel(),
+    GenreScreenType.genres: GenreFilterModel(),
+  };
+
+  // * Getter untuk genres berdasarkan screen
+  List<GenreModel> getGenresForSpecificScreen(GenreScreenType screen) {
+    return _genresByScreen[screen] ?? [];
+  }
+
+  // * Getter untuk pagination berdasarkan screen
+  ApiPagination? getPaginationForSpecificScreen(GenreScreenType screen) {
+    return _paginationByScreen[screen];
+  }
+
+  // * Getter untuk filter berdasarkan screen
+  GenreFilterModel getFilterForSpecificScreen(GenreScreenType screen) {
+    return _filterByScreen[screen] ?? GenreFilterModel();
+  }
+
+  // * Method untuk update filter
+  void updateFilterForSpecificScreen(
+      GenreScreenType screen, GenreFilterModel newFilter) {
+    _filterByScreen[screen] = newFilter;
+    notifyListeners();
+  }
+
   // * Map untuk store operation state
-  final Map<EnumGenreOperation, OperationState> _operationStates = {
-    for (var operation in EnumGenreOperation.values)
+  final Map<GenreOperationType, OperationState> _operationStates = {
+    for (var operation in GenreOperationType.values)
       operation: (isLoading: false, errorMessage: null)
   };
 
   // * Getter untuk state
-  bool isLoading(EnumGenreOperation operation) =>
+  bool isLoading(GenreOperationType operation) =>
       _operationStates[operation]!.isLoading;
-  String? getError(EnumGenreOperation operation) =>
+  String? getError(GenreOperationType operation) =>
       _operationStates[operation]!.errorMessage;
 
-  // Helper to update operation state
-  void _updateOperationState(EnumGenreOperation operation,
+  void _updateOperationState(GenreOperationType operation,
       {bool? isLoading, String? errorMessage}) {
     _operationStates[operation] = (
       isLoading: isLoading ?? _operationStates[operation]!.isLoading,
@@ -36,7 +76,7 @@ class GenreProvider with ChangeNotifier {
 
   Future<void> createGenre(CreateGenreModel genre) async {
     _updateOperationState(
-      EnumGenreOperation.create,
+      GenreOperationType.createGenre,
       isLoading: true,
       errorMessage: null,
     );
@@ -45,13 +85,13 @@ class GenreProvider with ChangeNotifier {
       await getGenres();
 
       _updateOperationState(
-        EnumGenreOperation.create,
+        GenreOperationType.createGenre,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumGenreOperation.create,
+        GenreOperationType.createGenre,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -59,27 +99,29 @@ class GenreProvider with ChangeNotifier {
   }
 
   Future<void> getGenres({
-    int page = 1,
-    int limit = 10,
+    GenreScreenType screen = GenreScreenType.genres,
   }) async {
+    final filter = _filterByScreen[screen]!;
+
     _updateOperationState(
-      EnumGenreOperation.getAll,
+      GenreOperationType.getGenres,
       isLoading: true,
       errorMessage: null,
     );
     try {
-      final response = await _genreServices.getGenres();
+      final response = await _genreServices.getGenres(filter);
 
-      _genres = response.data!;
+      _genresByScreen[screen] = response.data!;
+      _paginationByScreen[screen] = response.meta.pagination;
 
       _updateOperationState(
-        EnumGenreOperation.getAll,
+        GenreOperationType.getGenres,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumGenreOperation.getAll,
+        GenreOperationType.getGenres,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -89,7 +131,7 @@ class GenreProvider with ChangeNotifier {
 
   Future<void> getGenreById(String id) async {
     _updateOperationState(
-      EnumGenreOperation.getById,
+      GenreOperationType.getGenreById,
       isLoading: true,
       errorMessage: null,
     );
@@ -99,13 +141,13 @@ class GenreProvider with ChangeNotifier {
       _genre = response.data!;
 
       _updateOperationState(
-        EnumGenreOperation.getById,
+        GenreOperationType.getGenreById,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumGenreOperation.getById,
+        GenreOperationType.getGenreById,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -115,7 +157,7 @@ class GenreProvider with ChangeNotifier {
 
   Future<void> updateGenre(UpdateGenreModel genre) async {
     _updateOperationState(
-      EnumGenreOperation.update,
+      GenreOperationType.updateGenreById,
       isLoading: true,
       errorMessage: null,
     );
@@ -126,13 +168,13 @@ class GenreProvider with ChangeNotifier {
       await getGenres();
 
       _updateOperationState(
-        EnumGenreOperation.update,
+        GenreOperationType.updateGenreById,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumGenreOperation.update,
+        GenreOperationType.updateGenreById,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -142,7 +184,7 @@ class GenreProvider with ChangeNotifier {
 
   Future<void> deleteGenre(String id) async {
     _updateOperationState(
-      EnumGenreOperation.delete,
+      GenreOperationType.deleteGenreById,
       isLoading: true,
       errorMessage: null,
     );
@@ -151,13 +193,13 @@ class GenreProvider with ChangeNotifier {
       await getGenres();
 
       _updateOperationState(
-        EnumGenreOperation.delete,
+        GenreOperationType.deleteGenreById,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumGenreOperation.delete,
+        GenreOperationType.deleteGenreById,
         isLoading: false,
         errorMessage: e.toString(),
       );

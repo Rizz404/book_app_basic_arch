@@ -3,7 +3,8 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeh
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
-import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
 import 'package:book_app_basic_arch/features/home/widgets/genre_list.dart';
@@ -20,8 +21,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BookProvider>().getBooks();
-      context.read<GenreProvider>().getGenres();
+      context.read<BookProvider>().getBooks(screen: BookScreenType.home);
+      context.read<GenreProvider>().getGenres(screen: GenreScreenType.home);
     });
 
     final images = [
@@ -63,11 +64,13 @@ class HomeScreen extends StatelessWidget {
               child: Consumer<GenreProvider>(
                 builder: (context, genreProvider, _) {
                   return GenreList(
-                    genres: genreProvider.genres,
+                    genres: genreProvider.getGenresForSpecificScreen(
+                      GenreScreenType.home,
+                    ),
                     isLoading:
-                        genreProvider.isLoading(EnumGenreOperation.getAll),
+                        genreProvider.isLoading(GenreOperationType.getGenres),
                     errorMessage:
-                        genreProvider.getError(EnumGenreOperation.getAll),
+                        genreProvider.getError(GenreOperationType.getGenres),
                     onRetry: () => genreProvider.getGenres(),
                     onGenreSelected: (genreId) =>
                         context.push('/genres/$genreId'),

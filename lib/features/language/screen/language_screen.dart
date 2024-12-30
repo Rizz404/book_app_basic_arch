@@ -1,7 +1,8 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
+import 'package:book_app_basic_arch/features/language/enums/language_operation_type.dart';
+import 'package:book_app_basic_arch/features/language/enums/language_screen_type.dart';
 import 'package:book_app_basic_arch/features/language/model/language_model.dart';
 import 'package:book_app_basic_arch/features/language/language_provider.dart';
-import 'package:book_app_basic_arch/features/language/enum_language_operation.dart';
 import 'package:book_app_basic_arch/features/language/screen/language_detail_screen.dart';
 import 'package:book_app_basic_arch/features/language/widgets/language_card.dart';
 import 'package:book_app_basic_arch/features/profile/screen/profile_screen.dart';
@@ -30,10 +31,12 @@ class LanguageScreen extends StatelessWidget {
         child: Consumer<LanguageProvider>(
           builder: (context, provider, _) {
             final isLoadingLanguages =
-                provider.isLoading(EnumLanguageOperation.getAll);
+                provider.isLoading(LanguageOperationType.getLanguages);
             final errorMessageLanguages =
-                provider.getError(EnumLanguageOperation.getAll);
-            final languages = provider.languages;
+                provider.getError(LanguageOperationType.getLanguages);
+            final languages = provider.getLanguagesForSpecificScreen(
+              LanguageScreenType.languages,
+            );
 
             if (isLoadingLanguages) {
               // Loading State

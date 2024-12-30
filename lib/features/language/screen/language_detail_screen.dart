@@ -1,5 +1,5 @@
+import 'package:book_app_basic_arch/features/language/enums/language_operation_type.dart';
 import 'package:book_app_basic_arch/features/language/language_provider.dart';
-import 'package:book_app_basic_arch/features/language/enum_language_operation.dart';
 import 'package:book_app_basic_arch/features/language/model/language_model.dart';
 import 'package:book_app_basic_arch/features/language/widgets/language_card.dart';
 import 'package:book_app_basic_arch/features/language/widgets/language_form.dart';
@@ -55,9 +55,9 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
       body: Consumer<LanguageProvider>(
         builder: (context, provider, _) {
           final isLoadingLanguage =
-              provider.isLoading(EnumLanguageOperation.getById);
+              provider.isLoading(LanguageOperationType.getLanguageById);
           final errorMessageLanguage =
-              provider.getError(EnumLanguageOperation.getById);
+              provider.getError(LanguageOperationType.getLanguageById);
           final language = provider.language;
 
           if (isLoadingLanguage) {

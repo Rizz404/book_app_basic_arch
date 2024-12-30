@@ -7,7 +7,8 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeh
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
-import 'package:book_app_basic_arch/features/author/enum_author_operation.dart';
+import 'package:book_app_basic_arch/features/author/enums/author_operation_type.dart';
+import 'package:book_app_basic_arch/features/author/enums/author_screen_type.dart';
 import 'package:book_app_basic_arch/features/author/widgets/author_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,9 @@ class AuthorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthorProvider>().getAuthors();
+      context
+          .read<AuthorProvider>()
+          .getAuthors(screen: AuthorScreenType.authors);
     });
 
     return BaseScaffold(
@@ -44,11 +47,13 @@ class AuthorScreen extends StatelessWidget {
             SliverPadding(
               padding: EdgeInsets.all(16),
               sliver: Consumer<AuthorProvider>(builder: (context, provider, _) {
-                final authors = provider.authors;
+                final authors = provider.getAuthorsForSpecificScreen(
+                  AuthorScreenType.authors,
+                );
                 final isLoading =
-                    provider.isLoading(EnumAuthorOperation.getAll);
+                    provider.isLoading(AuthorOperationType.getAuthors);
                 final errorMessage =
-                    provider.getError(EnumAuthorOperation.getAll);
+                    provider.getError(AuthorOperationType.getAuthors);
 
                 if (isLoading) {
                   return SliverToBoxAdapter(child: const StyledLoadingState());
