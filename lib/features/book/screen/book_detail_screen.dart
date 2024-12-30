@@ -1,4 +1,3 @@
-import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
@@ -6,7 +5,8 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dar
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
-import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -28,13 +28,13 @@ class BookDetailScreen extends StatelessWidget {
       bookProvider.getBookById(bookId);
 
       bookProvider.updateFilterForSpecificScreen(
-        ScreenType.books,
+        BookScreenType.books,
         bookProvider
-            .getFilterForSpecificScreen(ScreenType.books)
+            .getFilterForSpecificScreen(BookScreenType.books)
             .copyWith(limit: 20),
       );
 
-      bookProvider.getBooks(screen: ScreenType.books);
+      bookProvider.getBooks(screen: BookScreenType.books);
     });
 
     return BaseScaffold(
@@ -49,9 +49,9 @@ class BookDetailScreen extends StatelessWidget {
                 builder: (context, provider, _) {
                   final book = provider.book;
                   final isLoading =
-                      provider.isLoading(EnumBookOperation.getById);
+                      provider.isLoading(BookOperationType.getBookById);
                   final errorMessage =
-                      provider.getError(EnumBookOperation.getById);
+                      provider.getError(BookOperationType.getBookById);
 
                   if (isLoading) {
                     return const StyledLoadingState();
@@ -154,12 +154,12 @@ class BookDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: Consumer<BookProvider>(
                 builder: (context, bookProvider, _) {
-                  final books =
-                      bookProvider.getBooksForSpecificScreen(ScreenType.books);
+                  final books = bookProvider
+                      .getBooksForSpecificScreen(BookScreenType.books);
                   final isLoading =
-                      bookProvider.isLoading(EnumBookOperation.getAll);
+                      bookProvider.isLoading(BookOperationType.getBooks);
                   final errorMessage =
-                      bookProvider.getError(EnumBookOperation.getAll);
+                      bookProvider.getError(BookOperationType.getBooks);
 
                   return SliverGrid(
                     gridDelegate:
@@ -179,7 +179,7 @@ class BookDetailScreen extends StatelessWidget {
                           return Center(
                             child: TextButton(
                               onPressed: () => bookProvider.getBooks(
-                                screen: ScreenType.books,
+                                screen: BookScreenType.books,
                               ),
                               child: const Text('Retry'),
                             ),

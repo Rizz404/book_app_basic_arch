@@ -1,10 +1,10 @@
-import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
-import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -16,7 +16,7 @@ class BookScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BookProvider>().getBooks(screen: ScreenType.books);
+      context.read<BookProvider>().getBooks(screen: BookScreenType.books);
     });
 
     return BaseScaffold(
@@ -30,12 +30,12 @@ class BookScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: Consumer<BookProvider>(
                 builder: (context, bookProvider, _) {
-                  final books =
-                      bookProvider.getBooksForSpecificScreen(ScreenType.books);
+                  final books = bookProvider
+                      .getBooksForSpecificScreen(BookScreenType.books);
                   final isLoading =
-                      bookProvider.isLoading(EnumBookOperation.getAll);
+                      bookProvider.isLoading(BookOperationType.getBooks);
                   final errorMessage =
-                      bookProvider.getError(EnumBookOperation.getAll);
+                      bookProvider.getError(BookOperationType.getBooks);
 
                   return SliverToBoxAdapter(
                     child: BookGrid(
@@ -43,7 +43,7 @@ class BookScreen extends StatelessWidget {
                       isLoading: isLoading,
                       errorMessage: errorMessage,
                       onRetry: () => bookProvider.getBooks(
-                        screen: ScreenType.books,
+                        screen: BookScreenType.books,
                       ),
                       onBookSelected: (book) {
                         context.push('/books/${book.id}');

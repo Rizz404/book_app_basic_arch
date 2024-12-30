@@ -1,8 +1,0 @@
-enum EnumBookOperation {
-  create,
-  getAll,
-  getById,
-  search,
-  update,
-  delete,
-}

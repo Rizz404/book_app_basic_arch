@@ -1,8 +1,8 @@
-import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
-import 'package:book_app_basic_arch/core/shared/models/api_pagination.dart';
+import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/book_services.dart';
-import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
 import 'package:book_app_basic_arch/features/book/model/book_filter_model.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +11,9 @@ class BookProvider with ChangeNotifier {
   final BookServices _bookServices = BookServices();
 
   // * State untuk menyimpan books per screen
-  final Map<ScreenType, List<BookModel>> _booksByScreen = {};
+  final Map<BookScreenType, List<BookModel>> _booksByScreen = {};
   // * State untuk menyimpan pagination per screen
-  final Map<ScreenType, ApiPagination?> _paginationByScreen = {};
+  final Map<BookScreenType, ApiPagination?> _paginationByScreen = {};
 
   // * Beda buat search
   List<BookModel> _searchedBooks = [];
@@ -26,50 +26,50 @@ class BookProvider with ChangeNotifier {
   BookModel? get book => _book;
 
   // * State untuk menyimpan filter tiap screen
-  final Map<ScreenType, BookFilterModel> _filterByScreen = {
-    ScreenType.home: BookFilterModel(),
-    ScreenType.books: BookFilterModel(),
-    ScreenType.search: BookFilterModel(),
-    ScreenType.genreDetail: BookFilterModel(),
-    ScreenType.authorDetail: BookFilterModel(),
-    ScreenType.publisherDetail: BookFilterModel(),
+  final Map<BookScreenType, BookFilterModel> _filterByScreen = {
+    BookScreenType.home: BookFilterModel(),
+    BookScreenType.books: BookFilterModel(),
+    BookScreenType.search: BookFilterModel(),
+    BookScreenType.genreDetail: BookFilterModel(),
+    BookScreenType.authorDetail: BookFilterModel(),
+    BookScreenType.publisherDetail: BookFilterModel(),
   };
 
   // * Getter untuk books berdasarkan screen
-  List<BookModel> getBooksForSpecificScreen(ScreenType screen) {
+  List<BookModel> getBooksForSpecificScreen(BookScreenType screen) {
     return _booksByScreen[screen] ?? [];
   }
 
   // * Getter untuk pagination berdasarkan screen
-  ApiPagination? getPaginationForSpecificScreen(ScreenType screen) {
+  ApiPagination? getPaginationForSpecificScreen(BookScreenType screen) {
     return _paginationByScreen[screen];
   }
 
   // * Getter untuk filter berdasarkan screen
-  BookFilterModel getFilterForSpecificScreen(ScreenType screen) {
+  BookFilterModel getFilterForSpecificScreen(BookScreenType screen) {
     return _filterByScreen[screen] ?? BookFilterModel();
   }
 
   // * Method untuk update filter
   void updateFilterForSpecificScreen(
-      ScreenType screen, BookFilterModel newFilter) {
+      BookScreenType screen, BookFilterModel newFilter) {
     _filterByScreen[screen] = newFilter;
     notifyListeners();
   }
 
   // * Map untuk store operation state
-  final Map<EnumBookOperation, OperationState> _operationStates = {
-    for (var operation in EnumBookOperation.values)
+  final Map<BookOperationType, OperationState> _operationStates = {
+    for (var operation in BookOperationType.values)
       operation: (isLoading: false, errorMessage: null)
   };
 
   // * Getter untuk state
-  bool isLoading(EnumBookOperation operation) =>
+  bool isLoading(BookOperationType operation) =>
       _operationStates[operation]!.isLoading;
-  String? getError(EnumBookOperation operation) =>
+  String? getError(BookOperationType operation) =>
       _operationStates[operation]!.errorMessage;
 
-  void _updateOperationState(EnumBookOperation operation,
+  void _updateOperationState(BookOperationType operation,
       {bool? isLoading, String? errorMessage}) {
     _operationStates[operation] = (
       isLoading: isLoading ?? _operationStates[operation]!.isLoading,
@@ -80,7 +80,7 @@ class BookProvider with ChangeNotifier {
 
   Future<void> createBook(CreateBookModel book) async {
     _updateOperationState(
-      EnumBookOperation.create,
+      BookOperationType.createBook,
       isLoading: true,
       errorMessage: null,
     );
@@ -89,13 +89,13 @@ class BookProvider with ChangeNotifier {
       await getBooks();
 
       _updateOperationState(
-        EnumBookOperation.create,
+        BookOperationType.createBook,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumBookOperation.create,
+        BookOperationType.createBook,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -103,11 +103,11 @@ class BookProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getBooks({ScreenType screen = ScreenType.home}) async {
+  Future<void> getBooks({BookScreenType screen = BookScreenType.home}) async {
     final filter = _filterByScreen[screen]!;
 
     _updateOperationState(
-      EnumBookOperation.getAll,
+      BookOperationType.getBooks,
       isLoading: true,
       errorMessage: null,
     );
@@ -125,13 +125,13 @@ class BookProvider with ChangeNotifier {
       _paginationByScreen[screen] = response.meta.pagination;
 
       _updateOperationState(
-        EnumBookOperation.getAll,
+        BookOperationType.getBooks,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumBookOperation.getAll,
+        BookOperationType.getBooks,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -145,7 +145,7 @@ class BookProvider with ChangeNotifier {
     required String title,
   }) async {
     _updateOperationState(
-      EnumBookOperation.search,
+      BookOperationType.searchBooks,
       isLoading: true,
       errorMessage: null,
     );
@@ -159,13 +159,13 @@ class BookProvider with ChangeNotifier {
       _searchedBooksPagination = response.meta.pagination;
 
       _updateOperationState(
-        EnumBookOperation.search,
+        BookOperationType.searchBooks,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumBookOperation.search,
+        BookOperationType.searchBooks,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -175,7 +175,7 @@ class BookProvider with ChangeNotifier {
 
   Future<void> getBookById(String id) async {
     _updateOperationState(
-      EnumBookOperation.getById,
+      BookOperationType.getBookById,
       isLoading: true,
       errorMessage: null,
     );
@@ -186,13 +186,13 @@ class BookProvider with ChangeNotifier {
       _book = response.data!;
 
       _updateOperationState(
-        EnumBookOperation.getById,
+        BookOperationType.getBookById,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumBookOperation.getById,
+        BookOperationType.getBookById,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -202,7 +202,7 @@ class BookProvider with ChangeNotifier {
 
   Future<void> updateBook(UpdateBookModel book) async {
     _updateOperationState(
-      EnumBookOperation.update,
+      BookOperationType.updateBookById,
       isLoading: true,
       errorMessage: null,
     );
@@ -213,13 +213,13 @@ class BookProvider with ChangeNotifier {
       await getBooks();
 
       _updateOperationState(
-        EnumBookOperation.update,
+        BookOperationType.updateBookById,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumBookOperation.update,
+        BookOperationType.updateBookById,
         isLoading: false,
         errorMessage: e.toString(),
       );
@@ -229,7 +229,7 @@ class BookProvider with ChangeNotifier {
 
   Future<void> deleteBook(String id) async {
     _updateOperationState(
-      EnumBookOperation.delete,
+      BookOperationType.deleteBookById,
       isLoading: true,
       errorMessage: null,
     );
@@ -239,13 +239,13 @@ class BookProvider with ChangeNotifier {
       await getBooks();
 
       _updateOperationState(
-        EnumBookOperation.delete,
+        BookOperationType.deleteBookById,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        EnumBookOperation.delete,
+        BookOperationType.deleteBookById,
         isLoading: false,
         errorMessage: e.toString(),
       );

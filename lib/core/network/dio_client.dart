@@ -1,8 +1,8 @@
 import 'package:book_app_basic_arch/core/constants/api_constant.dart';
 import 'package:book_app_basic_arch/core/helpers/current_user_credential_manager.dart';
-import 'package:book_app_basic_arch/core/shared/models/api_error_response.dart';
-import 'package:book_app_basic_arch/core/shared/models/api_meta.dart';
-import 'package:book_app_basic_arch/core/shared/models/api_success_response.dart';
+import 'package:book_app_basic_arch/core/network/models/api_error_response.dart';
+import 'package:book_app_basic_arch/core/network/models/api_meta.dart';
+import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';

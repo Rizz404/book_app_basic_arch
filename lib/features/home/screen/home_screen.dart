@@ -1,8 +1,8 @@
-import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
-import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -82,18 +82,19 @@ class HomeScreen extends StatelessWidget {
               sliver: Consumer<BookProvider>(
                 builder: (context, provider, _) {
                   final books =
-                      provider.getBooksForSpecificScreen(ScreenType.home);
+                      provider.getBooksForSpecificScreen(BookScreenType.home);
                   final isLoading =
-                      provider.isLoading(EnumBookOperation.getAll);
+                      provider.isLoading(BookOperationType.getBooks);
                   final errorMessage =
-                      provider.getError(EnumBookOperation.getAll);
+                      provider.getError(BookOperationType.getBooks);
 
                   return SliverToBoxAdapter(
                     child: BookGrid(
                       books: books,
                       isLoading: isLoading,
                       errorMessage: errorMessage,
-                      onRetry: () => provider.getBooks(screen: ScreenType.home),
+                      onRetry: () =>
+                          provider.getBooks(screen: BookScreenType.home),
                       onBookSelected: (book) {
                         context.push('/books/${book.id}');
                       },

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:book_app_basic_arch/core/shared/models/api_pagination.dart';
+import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';

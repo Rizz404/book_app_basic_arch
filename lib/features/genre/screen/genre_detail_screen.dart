@@ -1,4 +1,3 @@
-import 'package:book_app_basic_arch/core/helpers/enum_screen_type.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
@@ -7,7 +6,8 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_bui
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
-import 'package:book_app_basic_arch/features/book/enum_book_operation.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
 import 'package:book_app_basic_arch/features/genre/enum_genre_operation.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
@@ -33,13 +33,13 @@ class GenreDetailScreen extends StatelessWidget {
       genreProvider.getGenreById(genreId);
 
       bookProvider.updateFilterForSpecificScreen(
-        ScreenType.genreDetail,
+        BookScreenType.genreDetail,
         bookProvider
-            .getFilterForSpecificScreen(ScreenType.genreDetail)
+            .getFilterForSpecificScreen(BookScreenType.genreDetail)
             .copyWith(genreId: genreId),
       );
 
-      bookProvider.getBooks(screen: ScreenType.genreDetail);
+      bookProvider.getBooks(screen: BookScreenType.genreDetail);
     });
 
     return BaseScaffold(
@@ -90,16 +90,16 @@ class GenreDetailScreen extends StatelessWidget {
                 sliver: Consumer<BookProvider>(
                   builder: (context, bookProvider, _) {
                     final books = bookProvider.getBooksForSpecificScreen(
-                      ScreenType.genreDetail,
+                      BookScreenType.genreDetail,
                     );
 
                     return SliverToBoxAdapter(
                       child: BookGrid(
                         books: books,
                         isLoading:
-                            bookProvider.isLoading(EnumBookOperation.getAll),
+                            bookProvider.isLoading(BookOperationType.getBooks),
                         errorMessage:
-                            bookProvider.getError(EnumBookOperation.getAll),
+                            bookProvider.getError(BookOperationType.getBooks),
                         onRetry: () => bookProvider.getBooks(),
                         onBookSelected: (book) {
                           context.push('/books/${book.id}');

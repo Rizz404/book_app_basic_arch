@@ -1,4 +1,4 @@
-import 'package:book_app_basic_arch/core/shared/models/api_meta.dart';
+import 'package:book_app_basic_arch/core/network/models/api_meta.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
