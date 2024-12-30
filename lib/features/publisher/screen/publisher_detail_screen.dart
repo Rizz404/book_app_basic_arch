@@ -100,6 +100,8 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
                 website: publisher.website,
                 createdAt: publisher.createdAt,
                 updatedAt: publisher.updatedAt,
+                picture: publisher.picture,
+                followerCount: publisher.followerCount,
               ),
             );
           } else {

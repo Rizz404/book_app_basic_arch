@@ -14,8 +14,12 @@ _$PublisherModelImpl _$$PublisherModelImplFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String,
       website:
           (json['website'] as List<dynamic>).map((e) => e as String).toList(),
+      picture: json['picture'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      followerCount: (json['followerCount'] as num).toInt(),
+      isFollowedPublisher: json['isFollowedPublisher'] as bool? ?? false,
+      originalFollowStatus: json['originalFollowStatus'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$PublisherModelImplToJson(
@@ -26,8 +30,12 @@ Map<String, dynamic> _$$PublisherModelImplToJson(
       'email': instance.email,
       'description': instance.description,
       'website': instance.website,
+      'picture': instance.picture,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
+      'followerCount': instance.followerCount,
+      'isFollowedPublisher': instance.isFollowedPublisher,
+      'originalFollowStatus': instance.originalFollowStatus,
     };
 
 _$CreatePublisherModelImpl _$$CreatePublisherModelImplFromJson(
@@ -38,6 +46,7 @@ _$CreatePublisherModelImpl _$$CreatePublisherModelImplFromJson(
       description: json['description'] as String,
       website:
           (json['website'] as List<dynamic>).map((e) => e as String).toList(),
+      picture: json['picture'] as String,
     );
 
 Map<String, dynamic> _$$CreatePublisherModelImplToJson(
@@ -47,6 +56,7 @@ Map<String, dynamic> _$$CreatePublisherModelImplToJson(
       'email': instance.email,
       'description': instance.description,
       'website': instance.website,
+      'picture': instance.picture,
     };
 
 _$UpdatePublisherModelImpl _$$UpdatePublisherModelImplFromJson(
@@ -58,6 +68,7 @@ _$UpdatePublisherModelImpl _$$UpdatePublisherModelImplFromJson(
       description: json['description'] as String?,
       website:
           (json['website'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      picture: json['picture'] as String?,
     );
 
 Map<String, dynamic> _$$UpdatePublisherModelImplToJson(
@@ -68,4 +79,5 @@ Map<String, dynamic> _$$UpdatePublisherModelImplToJson(
       'email': instance.email,
       'description': instance.description,
       'website': instance.website,
+      'picture': instance.picture,
     };

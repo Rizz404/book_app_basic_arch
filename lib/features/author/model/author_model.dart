@@ -14,6 +14,9 @@ class AuthorModel with _$AuthorModel {
     required String profilePicture,
     required DateTime createdAt,
     required DateTime updatedAt,
+    required int followerCount,
+    @Default(false) bool isFollowedAuthor,
+    @Default(false) bool originalFollowStatus,
   }) = _AuthorModel;
 
   factory AuthorModel.fromJson(Map<String, dynamic> json) =>

@@ -28,6 +28,9 @@ mixin _$AuthorModel {
   String get profilePicture => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
+  int get followerCount => throw _privateConstructorUsedError;
+  bool get isFollowedAuthor => throw _privateConstructorUsedError;
+  bool get originalFollowStatus => throw _privateConstructorUsedError;
 
   /// Serializes this AuthorModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -53,7 +56,10 @@ abstract class $AuthorModelCopyWith<$Res> {
       String deathDate,
       String profilePicture,
       DateTime createdAt,
-      DateTime updatedAt});
+      DateTime updatedAt,
+      int followerCount,
+      bool isFollowedAuthor,
+      bool originalFollowStatus});
 }
 
 /// @nodoc
@@ -79,6 +85,9 @@ class _$AuthorModelCopyWithImpl<$Res, $Val extends AuthorModel>
     Object? profilePicture = null,
     Object? createdAt = null,
     Object? updatedAt = null,
+    Object? followerCount = null,
+    Object? isFollowedAuthor = null,
+    Object? originalFollowStatus = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -113,6 +122,18 @@ class _$AuthorModelCopyWithImpl<$Res, $Val extends AuthorModel>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      followerCount: null == followerCount
+          ? _value.followerCount
+          : followerCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      isFollowedAuthor: null == isFollowedAuthor
+          ? _value.isFollowedAuthor
+          : isFollowedAuthor // ignore: cast_nullable_to_non_nullable
+              as bool,
+      originalFollowStatus: null == originalFollowStatus
+          ? _value.originalFollowStatus
+          : originalFollowStatus // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -133,7 +154,10 @@ abstract class _$$AuthorModelImplCopyWith<$Res>
       String deathDate,
       String profilePicture,
       DateTime createdAt,
-      DateTime updatedAt});
+      DateTime updatedAt,
+      int followerCount,
+      bool isFollowedAuthor,
+      bool originalFollowStatus});
 }
 
 /// @nodoc
@@ -157,6 +181,9 @@ class __$$AuthorModelImplCopyWithImpl<$Res>
     Object? profilePicture = null,
     Object? createdAt = null,
     Object? updatedAt = null,
+    Object? followerCount = null,
+    Object? isFollowedAuthor = null,
+    Object? originalFollowStatus = null,
   }) {
     return _then(_$AuthorModelImpl(
       id: null == id
@@ -191,6 +218,18 @@ class __$$AuthorModelImplCopyWithImpl<$Res>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      followerCount: null == followerCount
+          ? _value.followerCount
+          : followerCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      isFollowedAuthor: null == isFollowedAuthor
+          ? _value.isFollowedAuthor
+          : isFollowedAuthor // ignore: cast_nullable_to_non_nullable
+              as bool,
+      originalFollowStatus: null == originalFollowStatus
+          ? _value.originalFollowStatus
+          : originalFollowStatus // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -206,7 +245,10 @@ class _$AuthorModelImpl implements _AuthorModel {
       required this.deathDate,
       required this.profilePicture,
       required this.createdAt,
-      required this.updatedAt});
+      required this.updatedAt,
+      required this.followerCount,
+      this.isFollowedAuthor = false,
+      this.originalFollowStatus = false});
 
   factory _$AuthorModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AuthorModelImplFromJson(json);
@@ -227,10 +269,18 @@ class _$AuthorModelImpl implements _AuthorModel {
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
+  @override
+  final int followerCount;
+  @override
+  @JsonKey()
+  final bool isFollowedAuthor;
+  @override
+  @JsonKey()
+  final bool originalFollowStatus;
 
   @override
   String toString() {
-    return 'AuthorModel(id: $id, name: $name, biography: $biography, birthDate: $birthDate, deathDate: $deathDate, profilePicture: $profilePicture, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'AuthorModel(id: $id, name: $name, biography: $biography, birthDate: $birthDate, deathDate: $deathDate, profilePicture: $profilePicture, createdAt: $createdAt, updatedAt: $updatedAt, followerCount: $followerCount, isFollowedAuthor: $isFollowedAuthor, originalFollowStatus: $originalFollowStatus)';
   }
 
   @override
@@ -251,13 +301,30 @@ class _$AuthorModelImpl implements _AuthorModel {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.followerCount, followerCount) ||
+                other.followerCount == followerCount) &&
+            (identical(other.isFollowedAuthor, isFollowedAuthor) ||
+                other.isFollowedAuthor == isFollowedAuthor) &&
+            (identical(other.originalFollowStatus, originalFollowStatus) ||
+                other.originalFollowStatus == originalFollowStatus));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, biography, birthDate,
-      deathDate, profilePicture, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      biography,
+      birthDate,
+      deathDate,
+      profilePicture,
+      createdAt,
+      updatedAt,
+      followerCount,
+      isFollowedAuthor,
+      originalFollowStatus);
 
   /// Create a copy of AuthorModel
   /// with the given fields replaced by the non-null parameter values.
@@ -284,7 +351,10 @@ abstract class _AuthorModel implements AuthorModel {
       required final String deathDate,
       required final String profilePicture,
       required final DateTime createdAt,
-      required final DateTime updatedAt}) = _$AuthorModelImpl;
+      required final DateTime updatedAt,
+      required final int followerCount,
+      final bool isFollowedAuthor,
+      final bool originalFollowStatus}) = _$AuthorModelImpl;
 
   factory _AuthorModel.fromJson(Map<String, dynamic> json) =
       _$AuthorModelImpl.fromJson;
@@ -305,6 +375,12 @@ abstract class _AuthorModel implements AuthorModel {
   DateTime get createdAt;
   @override
   DateTime get updatedAt;
+  @override
+  int get followerCount;
+  @override
+  bool get isFollowedAuthor;
+  @override
+  bool get originalFollowStatus;
 
   /// Create a copy of AuthorModel
   /// with the given fields replaced by the non-null parameter values.

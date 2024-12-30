@@ -32,10 +32,12 @@ class PublisherServices {
       return await _dioClient.get(
         '/publishers',
         queryParameters: queryParameters,
-        fromJsonT: (json) => (json as List)
-            .map(
-                (item) => PublisherModel.fromJson(item as Map<String, dynamic>))
-            .toList(),
+        fromJsonT: (json) => (json as List).map((item) {
+          final publisher =
+              PublisherModel.fromJson(item as Map<String, dynamic>);
+          return publisher.copyWith(
+              originalFollowStatus: publisher.isFollowedPublisher);
+        }).toList(),
       );
     } on ApiErrorResponse catch (e) {
       throw e.message;
@@ -46,8 +48,39 @@ class PublisherServices {
     try {
       return await _dioClient.get(
         '/publishers/$id',
-        fromJsonT: (json) =>
-            PublisherModel.fromJson(json as Map<String, dynamic>),
+        fromJsonT: (json) {
+          final publisher =
+              PublisherModel.fromJson(json as Map<String, dynamic>);
+          return publisher.copyWith(
+              originalFollowStatus: publisher.isFollowedPublisher);
+        },
+      );
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
+    }
+  }
+
+  Future<ApiSuccessResponse<List<PublisherModel>>> searchPublisherByTitle({
+    int page = 1,
+    int limit = 10,
+    required String title,
+  }) async {
+    try {
+      final queryParameters = {
+        'page': page,
+        'limit': limit,
+        'title': title,
+      };
+
+      return await _dioClient.get(
+        '/publishers/search',
+        queryParameters: queryParameters,
+        fromJsonT: (json) => (json as List).map((item) {
+          final publisher =
+              PublisherModel.fromJson(item as Map<String, dynamic>);
+          return publisher.copyWith(
+              originalFollowStatus: publisher.isFollowedPublisher);
+        }).toList(),
       );
     } on ApiErrorResponse catch (e) {
       throw e.message;

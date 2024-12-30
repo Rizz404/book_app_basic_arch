@@ -11,8 +11,12 @@ class PublisherModel with _$PublisherModel {
     required String email,
     required String description,
     required List<String> website,
+    required String picture,
     required DateTime createdAt,
     required DateTime updatedAt,
+    required int followerCount,
+    @Default(false) bool isFollowedPublisher,
+    @Default(false) bool originalFollowStatus,
   }) = _PublisherModel;
 
   factory PublisherModel.fromJson(Map<String, dynamic> json) =>
@@ -26,6 +30,7 @@ class CreatePublisherModel with _$CreatePublisherModel {
     required String email,
     required String description,
     required List<String> website,
+    required String picture,
   }) = _CreatePublisherModel;
 
   factory CreatePublisherModel.fromJson(Map<String, dynamic> json) =>
@@ -40,6 +45,7 @@ class UpdatePublisherModel with _$UpdatePublisherModel {
     String? email,
     String? description,
     List<String>? website,
+    String? picture,
   }) = _UpdatePublisherModel;
 
   factory UpdatePublisherModel.fromJson(Map<String, dynamic> json) =>

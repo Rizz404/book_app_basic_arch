@@ -1,74 +1,47 @@
-import 'package:equatable/equatable.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'genre_model.g.dart'; // * Generated file untuk serialization
+part 'genre_model.freezed.dart';
+part 'genre_model.g.dart';
 
-@JsonSerializable() // * Anotasi untuk auto-generate JSON code
-class GenreModel extends Equatable {
-  final String id;
-  final String name;
-  final String description;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+@freezed
+class GenreModel with _$GenreModel {
+  const factory GenreModel({
+    required String id,
+    required String name,
+    required String description,
+    required String picture,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    required int followerCount,
+    @Default(false) bool isFollowedGenre,
+    @Default(false) bool originalFollowStatus,
+  }) = _GenreModel;
 
-  const GenreModel({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-
-  // * Factory method untuk parsing dari JSON
   factory GenreModel.fromJson(Map<String, dynamic> json) =>
       _$GenreModelFromJson(json);
-
-  // * Method untuk convert ke JSON
-  Map<String, dynamic> toJson() => _$GenreModelToJson(this);
-
-  // * Override props untuk Equatable
-  @override
-  List<Object?> get props => [id, name, description, createdAt, updatedAt];
 }
 
-@JsonSerializable()
-class CreateGenreModel extends Equatable {
-  final String name;
-  final String description;
+@freezed
+class CreateGenreModel with _$CreateGenreModel {
+  const factory CreateGenreModel({
+    required String name,
+    required String description,
+    required String picture,
+  }) = _CreateGenreModel;
 
-  const CreateGenreModel({
-    required this.name,
-    required this.description,
-  });
-
-  // * JSON Serialization
   factory CreateGenreModel.fromJson(Map<String, dynamic> json) =>
       _$CreateGenreModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CreateGenreModelToJson(this);
-
-  @override
-  List<Object?> get props => [name, description];
 }
 
-@JsonSerializable()
-class UpdateGenreModel extends Equatable {
-  final String id;
-  final String? name;
-  final String? description;
+@freezed
+class UpdateGenreModel with _$UpdateGenreModel {
+  const factory UpdateGenreModel({
+    required String id,
+    String? name,
+    String? description,
+    String? picture,
+  }) = _UpdateGenreModel;
 
-  const UpdateGenreModel({
-    required this.id,
-    this.name,
-    this.description,
-  });
-
-  // * JSON Serialization
   factory UpdateGenreModel.fromJson(Map<String, dynamic> json) =>
       _$UpdateGenreModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$UpdateGenreModelToJson(this);
-
-  @override
-  List<Object?> get props => [id, name, description];
 }

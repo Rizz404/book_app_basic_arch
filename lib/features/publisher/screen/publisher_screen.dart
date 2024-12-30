@@ -89,8 +89,10 @@ class PublisherScreen extends StatelessWidget {
                             email: publisher.email,
                             description: publisher.description,
                             website: publisher.website,
+                            picture: publisher.picture,
                             createdAt: publisher.createdAt,
                             updatedAt: publisher.updatedAt,
+                            followerCount: publisher.followerCount,
                           ),
                           onTap: () {
                             // Navigasi ke halaman detail publisher

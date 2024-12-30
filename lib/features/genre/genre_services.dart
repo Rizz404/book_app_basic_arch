@@ -32,9 +32,10 @@ class GenreServices {
       return await _dioClient.get(
         '/genres',
         queryParameters: queryParameters,
-        fromJsonT: (json) => (json as List)
-            .map((item) => GenreModel.fromJson(item as Map<String, dynamic>))
-            .toList(),
+        fromJsonT: (json) => (json as List).map((item) {
+          final genre = GenreModel.fromJson(item as Map<String, dynamic>);
+          return genre.copyWith(originalFollowStatus: genre.isFollowedGenre);
+        }).toList(),
       );
     } on ApiErrorResponse catch (e) {
       throw e.message;
@@ -45,7 +46,35 @@ class GenreServices {
     try {
       return await _dioClient.get(
         '/genres/$id',
-        fromJsonT: (json) => GenreModel.fromJson(json as Map<String, dynamic>),
+        fromJsonT: (json) {
+          final genre = GenreModel.fromJson(json as Map<String, dynamic>);
+          return genre.copyWith(originalFollowStatus: genre.isFollowedGenre);
+        },
+      );
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
+    }
+  }
+
+  Future<ApiSuccessResponse<List<GenreModel>>> searchGenreByTitle({
+    int page = 1,
+    int limit = 10,
+    required String title,
+  }) async {
+    try {
+      final queryParameters = {
+        'page': page,
+        'limit': limit,
+        'title': title,
+      };
+
+      return await _dioClient.get(
+        '/genres/search',
+        queryParameters: queryParameters,
+        fromJsonT: (json) => (json as List).map((item) {
+          final genre = GenreModel.fromJson(item as Map<String, dynamic>);
+          return genre.copyWith(originalFollowStatus: genre.isFollowedGenre);
+        }).toList(),
       );
     } on ApiErrorResponse catch (e) {
       throw e.message;

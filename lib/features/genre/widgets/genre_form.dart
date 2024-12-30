@@ -100,6 +100,7 @@ class _GenreFormState extends State<GenreForm> {
                 final newGenre = CreateGenreModel(
                   name: _nameController.text,
                   description: _descriptionController.text,
+                  picture: '',
                 );
                 context.read<GenreProvider>().createGenre(newGenre);
                 ScaffoldMessenger.of(context).showSnackBar(

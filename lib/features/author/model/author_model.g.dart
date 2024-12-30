@@ -16,6 +16,9 @@ _$AuthorModelImpl _$$AuthorModelImplFromJson(Map<String, dynamic> json) =>
       profilePicture: json['profilePicture'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      followerCount: (json['followerCount'] as num).toInt(),
+      isFollowedAuthor: json['isFollowedAuthor'] as bool? ?? false,
+      originalFollowStatus: json['originalFollowStatus'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$AuthorModelImplToJson(_$AuthorModelImpl instance) =>
@@ -28,6 +31,9 @@ Map<String, dynamic> _$$AuthorModelImplToJson(_$AuthorModelImpl instance) =>
       'profilePicture': instance.profilePicture,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
+      'followerCount': instance.followerCount,
+      'isFollowedAuthor': instance.isFollowedAuthor,
+      'originalFollowStatus': instance.originalFollowStatus,
     };
 
 _$CreateAuthorModelImpl _$$CreateAuthorModelImplFromJson(

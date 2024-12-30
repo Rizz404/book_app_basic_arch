@@ -36,9 +36,10 @@ class AuthorServices {
       return await _dioClient.get(
         '/authors',
         queryParameters: queryParameters,
-        fromJsonT: (json) => (json as List)
-            .map((item) => AuthorModel.fromJson(item as Map<String, dynamic>))
-            .toList(),
+        fromJsonT: (json) => (json as List).map((item) {
+          final author = AuthorModel.fromJson(item as Map<String, dynamic>);
+          return author.copyWith(originalFollowStatus: author.isFollowedAuthor);
+        }).toList(),
       );
     } on ApiErrorResponse catch (e) {
       throw e.message;
@@ -49,7 +50,35 @@ class AuthorServices {
     try {
       return await _dioClient.get(
         '/authors/$id',
-        fromJsonT: (json) => AuthorModel.fromJson(json as Map<String, dynamic>),
+        fromJsonT: (json) {
+          final author = AuthorModel.fromJson(json as Map<String, dynamic>);
+          return author.copyWith(originalFollowStatus: author.isFollowedAuthor);
+        },
+      );
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
+    }
+  }
+
+  Future<ApiSuccessResponse<List<AuthorModel>>> searchAuthorByTitle({
+    int page = 1,
+    int limit = 10,
+    required String title,
+  }) async {
+    try {
+      final queryParameters = {
+        'page': page,
+        'limit': limit,
+        'title': title,
+      };
+
+      return await _dioClient.get(
+        '/authors/search',
+        queryParameters: queryParameters,
+        fromJsonT: (json) => (json as List).map((item) {
+          final author = AuthorModel.fromJson(item as Map<String, dynamic>);
+          return author.copyWith(originalFollowStatus: author.isFollowedAuthor);
+        }).toList(),
       );
     } on ApiErrorResponse catch (e) {
       throw e.message;

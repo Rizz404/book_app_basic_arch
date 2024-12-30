@@ -118,11 +118,11 @@ class _PublisherFormState extends State<PublisherForm> {
                 );
               } else {
                 final newPublisher = CreatePublisherModel(
-                  name: _nameController.text,
-                  description: _descriptionController.text,
-                  email: _emailController.text,
-                  website: _websiteController.text.split(','),
-                );
+                    name: _nameController.text,
+                    description: _descriptionController.text,
+                    email: _emailController.text,
+                    website: _websiteController.text.split(','),
+                    picture: '');
                 context.read<PublisherProvider>().createPublisher(newPublisher);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
