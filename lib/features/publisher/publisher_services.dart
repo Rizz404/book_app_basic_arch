@@ -60,16 +60,16 @@ class PublisherServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<PublisherModel>>> searchPublisherByTitle({
+  Future<ApiSuccessResponse<List<PublisherModel>>> searchPublishersByName({
     int page = 1,
     int limit = 10,
-    required String title,
+    required String name,
   }) async {
     try {
       final queryParameters = {
         'page': page,
         'limit': limit,
-        'title': title,
+        'name': name,
       };
 
       return await _dioClient.get(

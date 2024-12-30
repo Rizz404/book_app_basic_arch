@@ -155,6 +155,8 @@ class DioClient {
       final newAccessToken = response.data['data']['accessToken'];
 
       // * Update access token saja
+      // todo: Belum bener ini implementasinya
+      await _credentialManager.saveCredentials(accessToken: newAccessToken);
 
       // * Process pending requests
       for (var request in _pendingRequests) {

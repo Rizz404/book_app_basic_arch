@@ -139,7 +139,7 @@ class BookProvider with ChangeNotifier {
     }
   }
 
-  Future<void> searchBookByTitle({
+  Future<void> searchBooksByTitle({
     int page = 1,
     int limit = 10,
     required String title,
@@ -153,9 +153,17 @@ class BookProvider with ChangeNotifier {
     try {
       final response = await _bookServices.searchBookByTitle(
         title: title,
+        page: page,
+        limit: limit,
       );
 
-      _searchedBooks = response.data!;
+      // * Jika ini adalah halaman pertama, ganti list
+      // * Jika bukan, tambahkan ke list yang sudah ada
+      if (page == 1) {
+        _searchedBooks = response.data!;
+      } else {
+        _searchedBooks = [..._searchedBooks, ...response.data!];
+      }
       _searchedBooksPagination = response.meta.pagination;
 
       _updateOperationState(
@@ -171,6 +179,11 @@ class BookProvider with ChangeNotifier {
       );
       debugPrint('Error fetching books: $e');
     }
+  }
+
+  void resetSearch() {
+    _searchedBooks = [];
+    notifyListeners();
   }
 
   Future<void> getBookById(String id) async {
@@ -251,6 +264,76 @@ class BookProvider with ChangeNotifier {
       );
       debugPrint('Error updating book: $e');
     }
+  }
+
+  // * Buat infinite scroll
+  Future<void> loadMoreBooks(
+      {BookScreenType screen = BookScreenType.home}) async {
+    final currentFilter = _filterByScreen[screen]!;
+    final currentPagination = _paginationByScreen[screen];
+
+    // * Cek apakah masih ada halaman selanjutnya
+    if (currentPagination != null &&
+        currentPagination.currentPage >= currentPagination.totalPages) {
+      return;
+    }
+
+    // * Buat filter baru dengan page yang diupdate
+    final newFilter =
+        currentFilter.copyWith(page: (currentPagination?.currentPage ?? 0) + 1);
+    _filterByScreen[screen] = newFilter;
+
+    _updateOperationState(
+      BookOperationType.getBooks,
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response = await _bookServices.getBooks(
+        page: newFilter.page,
+        limit: newFilter.limit,
+        sellerId: newFilter.sellerId,
+        language: newFilter.language,
+        genreId: newFilter.genreId,
+      );
+
+      // * Tambahkan data baru ke list yang sudah ada
+      _booksByScreen[screen] = [
+        ...(_booksByScreen[screen] ?? []),
+        ...response.data!
+      ];
+      _paginationByScreen[screen] = response.meta.pagination;
+
+      _updateOperationState(
+        BookOperationType.getBooks,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        BookOperationType.getBooks,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error loading more books: $e');
+    }
+  }
+
+  Future<void> loadMoreSearchedBooks(String title) async {
+    // * Cek apakah masih ada halaman selanjutnya
+    if (_searchedBooksPagination != null &&
+        _searchedBooksPagination!.currentPage >=
+            _searchedBooksPagination!.totalPages) {
+      return;
+    }
+
+    // * Ambil halaman berikutnya
+    await searchBooksByTitle(
+      title: title,
+      page: (_searchedBooksPagination?.currentPage ?? 0) + 1,
+      limit: _filterByScreen[BookScreenType.search]!.limit,
+    );
   }
 
   void updateBookWishlistStatus(String bookId, bool isWishlisted) {

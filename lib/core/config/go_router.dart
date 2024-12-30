@@ -6,8 +6,10 @@ import 'package:book_app_basic_arch/features/auth/screen/login_screen.dart';
 import 'package:book_app_basic_arch/features/auth/screen/register_screen.dart';
 import 'package:book_app_basic_arch/features/author/screen/author_detail_screen.dart';
 import 'package:book_app_basic_arch/features/author/screen/author_screen.dart';
+import 'package:book_app_basic_arch/features/author/screen/author_search_result_screen.dart';
 import 'package:book_app_basic_arch/features/book/screen/book_detail_screen.dart';
 import 'package:book_app_basic_arch/features/book/screen/book_screen.dart';
+import 'package:book_app_basic_arch/features/book/screen/book_search_result_screen.dart';
 import 'package:book_app_basic_arch/features/genre/screen/genre_detail_screen.dart';
 import 'package:book_app_basic_arch/features/genre/screen/genre_screen.dart';
 import 'package:book_app_basic_arch/features/home/screen/home_screen.dart';
@@ -16,6 +18,7 @@ import 'package:book_app_basic_arch/features/language/screen/language_screen.dar
 import 'package:book_app_basic_arch/features/profile/screen/profile_screen.dart';
 import 'package:book_app_basic_arch/features/publisher/screen/publisher_detail_screen.dart';
 import 'package:book_app_basic_arch/features/publisher/screen/publisher_screen.dart';
+import 'package:book_app_basic_arch/features/publisher/screen/publisher_search_result_screen.dart';
 import 'package:book_app_basic_arch/features/search/screen/search_screen.dart';
 import 'package:book_app_basic_arch/features/wishlist/screen/wishlist_screen.dart';
 import 'package:flutter/material.dart';
@@ -116,6 +119,13 @@ final goRouter = GoRouter(
       ),
       routes: [
         GoRoute(
+          path: 'search',
+          builder: (context, state) {
+            final query = state.uri.queryParameters['q'] ?? '';
+            return BookSearchResultScreen(query: query);
+          },
+        ),
+        GoRoute(
           path: ':id',
           pageBuilder: (context, state) {
             final bookId = state.pathParameters['id']!;
@@ -152,6 +162,13 @@ final goRouter = GoRouter(
       ),
       routes: [
         GoRoute(
+          path: 'search',
+          builder: (context, state) {
+            final query = state.uri.queryParameters['q'] ?? '';
+            return AuthorSearchResultScreen(query: query);
+          },
+        ),
+        GoRoute(
           path: ':id',
           pageBuilder: (context, state) {
             final authorId = state.pathParameters['id']!;
@@ -169,6 +186,13 @@ final goRouter = GoRouter(
         child: PublisherScreen(),
       ),
       routes: [
+        GoRoute(
+          path: 'search',
+          builder: (context, state) {
+            final query = state.uri.queryParameters['q'] ?? '';
+            return PublisherSearchResultScreen(query: query);
+          },
+        ),
         GoRoute(
           path: ':id',
           pageBuilder: (context, state) {

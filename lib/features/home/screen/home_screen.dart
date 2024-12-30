@@ -3,10 +3,10 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeh
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
+import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
-import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
 import 'package:book_app_basic_arch/features/home/widgets/genre_list.dart';
 import 'package:book_app_basic_arch/features/home/widgets/book_offer_carousel.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +79,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-            // BookGrid
+            // * BookGrid
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: Consumer<BookProvider>(
@@ -91,17 +91,16 @@ class HomeScreen extends StatelessWidget {
                   final errorMessage =
                       provider.getError(BookOperationType.getBooks);
 
-                  return SliverToBoxAdapter(
-                    child: BookGrid(
-                      books: books,
-                      isLoading: isLoading,
-                      errorMessage: errorMessage,
-                      onRetry: () =>
-                          provider.getBooks(screen: BookScreenType.home),
-                      onBookSelected: (book) {
-                        context.push('/books/${book.id}');
-                      },
-                    ),
+                  return InfiniteScrollBookGrid(
+                    books: books,
+                    isLoading: isLoading,
+                    errorMessage: errorMessage,
+                    onLoadMore: () =>
+                        provider.loadMoreBooks(screen: BookScreenType.home),
+                    onBookSelected: (book) {
+                      context.push('/books/${book.id}');
+                    },
+                    scrollController: controller,
                   );
                 },
               ),

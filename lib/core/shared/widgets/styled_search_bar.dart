@@ -5,6 +5,7 @@ class StyledSearchBar extends StatelessWidget {
   final void Function() onIconPressed;
   final void Function(String) onChanged;
   final String? hintText;
+  final bool autoFocus;
 
   const StyledSearchBar({
     super.key,
@@ -12,11 +13,13 @@ class StyledSearchBar extends StatelessWidget {
     required this.onIconPressed,
     required this.onChanged,
     this.hintText,
+    this.autoFocus = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return SearchBar(
+      autoFocus: autoFocus,
       elevation: WidgetStateProperty.all(0),
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(

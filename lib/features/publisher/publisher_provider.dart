@@ -145,6 +145,45 @@ class PublisherProvider with ChangeNotifier {
     }
   }
 
+  Future<void> searchPublishersByName({
+    int page = 1,
+    int limit = 10,
+    required String name,
+  }) async {
+    _updateOperationState(
+      PublisherOperationType.searchPublishers,
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response = await _publisherServices.searchPublishersByName(
+        name: name,
+      );
+
+      _searchedPublishers = response.data!;
+      _searchedPublishersPagination = response.meta.pagination;
+
+      _updateOperationState(
+        PublisherOperationType.searchPublishers,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        PublisherOperationType.searchPublishers,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error fetching publishers: $e');
+    }
+  }
+
+  void resetSearch() {
+    _searchedPublishers = [];
+    notifyListeners();
+  }
+
   Future<void> updatePublisher(UpdatePublisherModel publisher) async {
     _updateOperationState(PublisherOperationType.updatePublisherById,
         isLoading: true);

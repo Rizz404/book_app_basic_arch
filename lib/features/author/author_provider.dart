@@ -158,6 +158,45 @@ class AuthorProvider with ChangeNotifier {
     }
   }
 
+  Future<void> searchAuthorsByName({
+    int page = 1,
+    int limit = 10,
+    required String name,
+  }) async {
+    _updateOperationState(
+      AuthorOperationType.searchAuthors,
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response = await _authorServices.searchAuthorsByName(
+        name: name,
+      );
+
+      _searchedAuthors = response.data!;
+      _searchedAuthorsPagination = response.meta.pagination;
+
+      _updateOperationState(
+        AuthorOperationType.searchAuthors,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        AuthorOperationType.searchAuthors,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error fetching authors: $e');
+    }
+  }
+
+  void resetSearch() {
+    _searchedAuthors = [];
+    notifyListeners();
+  }
+
   Future<void> updateAuthor(UpdateAuthorModel author) async {
     _updateOperationState(
       AuthorOperationType.updateAuthorById,
