@@ -30,7 +30,6 @@ class SignUpModel with _$SignUpModel {
     required String username,
     required String email,
     required String password,
-    required String confirmPassword,
   }) = _SignUpModel;
 
   factory SignUpModel.fromJson(Map<String, dynamic> json) =>

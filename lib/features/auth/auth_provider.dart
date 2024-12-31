@@ -130,7 +130,7 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       _updateOperationState(
         EnumAuthOperation.signIn,
-        isLoading: true,
+        isLoading: false,
         errorMessage: e.toString(),
       );
       debugPrint(e.toString());

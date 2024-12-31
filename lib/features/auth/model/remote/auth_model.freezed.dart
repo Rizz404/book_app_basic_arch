@@ -419,7 +419,6 @@ mixin _$SignUpModel {
   String get username => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
   String get password => throw _privateConstructorUsedError;
-  String get confirmPassword => throw _privateConstructorUsedError;
 
   /// Serializes this SignUpModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -437,8 +436,7 @@ abstract class $SignUpModelCopyWith<$Res> {
           SignUpModel value, $Res Function(SignUpModel) then) =
       _$SignUpModelCopyWithImpl<$Res, SignUpModel>;
   @useResult
-  $Res call(
-      {String username, String email, String password, String confirmPassword});
+  $Res call({String username, String email, String password});
 }
 
 /// @nodoc
@@ -459,7 +457,6 @@ class _$SignUpModelCopyWithImpl<$Res, $Val extends SignUpModel>
     Object? username = null,
     Object? email = null,
     Object? password = null,
-    Object? confirmPassword = null,
   }) {
     return _then(_value.copyWith(
       username: null == username
@@ -474,10 +471,6 @@ class _$SignUpModelCopyWithImpl<$Res, $Val extends SignUpModel>
           ? _value.password
           : password // ignore: cast_nullable_to_non_nullable
               as String,
-      confirmPassword: null == confirmPassword
-          ? _value.confirmPassword
-          : confirmPassword // ignore: cast_nullable_to_non_nullable
-              as String,
     ) as $Val);
   }
 }
@@ -490,8 +483,7 @@ abstract class _$$SignUpModelImplCopyWith<$Res>
       __$$SignUpModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String username, String email, String password, String confirmPassword});
+  $Res call({String username, String email, String password});
 }
 
 /// @nodoc
@@ -510,7 +502,6 @@ class __$$SignUpModelImplCopyWithImpl<$Res>
     Object? username = null,
     Object? email = null,
     Object? password = null,
-    Object? confirmPassword = null,
   }) {
     return _then(_$SignUpModelImpl(
       username: null == username
@@ -525,10 +516,6 @@ class __$$SignUpModelImplCopyWithImpl<$Res>
           ? _value.password
           : password // ignore: cast_nullable_to_non_nullable
               as String,
-      confirmPassword: null == confirmPassword
-          ? _value.confirmPassword
-          : confirmPassword // ignore: cast_nullable_to_non_nullable
-              as String,
     ));
   }
 }
@@ -537,10 +524,7 @@ class __$$SignUpModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$SignUpModelImpl implements _SignUpModel {
   const _$SignUpModelImpl(
-      {required this.username,
-      required this.email,
-      required this.password,
-      required this.confirmPassword});
+      {required this.username, required this.email, required this.password});
 
   factory _$SignUpModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$SignUpModelImplFromJson(json);
@@ -551,12 +535,10 @@ class _$SignUpModelImpl implements _SignUpModel {
   final String email;
   @override
   final String password;
-  @override
-  final String confirmPassword;
 
   @override
   String toString() {
-    return 'SignUpModel(username: $username, email: $email, password: $password, confirmPassword: $confirmPassword)';
+    return 'SignUpModel(username: $username, email: $email, password: $password)';
   }
 
   @override
@@ -568,15 +550,12 @@ class _$SignUpModelImpl implements _SignUpModel {
                 other.username == username) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.password, password) ||
-                other.password == password) &&
-            (identical(other.confirmPassword, confirmPassword) ||
-                other.confirmPassword == confirmPassword));
+                other.password == password));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, username, email, password, confirmPassword);
+  int get hashCode => Object.hash(runtimeType, username, email, password);
 
   /// Create a copy of SignUpModel
   /// with the given fields replaced by the non-null parameter values.
@@ -598,8 +577,7 @@ abstract class _SignUpModel implements SignUpModel {
   const factory _SignUpModel(
       {required final String username,
       required final String email,
-      required final String password,
-      required final String confirmPassword}) = _$SignUpModelImpl;
+      required final String password}) = _$SignUpModelImpl;
 
   factory _SignUpModel.fromJson(Map<String, dynamic> json) =
       _$SignUpModelImpl.fromJson;
@@ -610,8 +588,6 @@ abstract class _SignUpModel implements SignUpModel {
   String get email;
   @override
   String get password;
-  @override
-  String get confirmPassword;
 
   /// Create a copy of SignUpModel
   /// with the given fields replaced by the non-null parameter values.

@@ -228,10 +228,10 @@ final goRouter = GoRouter(
   redirect: (context, state) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final isAuthenticated = authProvider.isAuthenticated;
-    final authRoutes = ['/sign-up', '/sign-up'];
+    final authRoutes = ['/sign-up', '/sign-in'];
 
     if (isAuthenticated && authRoutes.contains(state.fullPath)) {
-      return '/home';
+      return '/';
     }
 
     return null;
