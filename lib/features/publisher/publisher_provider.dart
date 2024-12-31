@@ -28,6 +28,7 @@ class PublisherProvider with ChangeNotifier {
   // * State untuk menyimpan filter tiap screen
   final Map<PublisherScreenType, PublisherFilterModel> _filterByScreen = {
     PublisherScreenType.publishers: PublisherFilterModel(),
+    PublisherScreenType.publisherDetail: PublisherFilterModel(),
   };
 
   // * Getter untuk publishers berdasarkan screen

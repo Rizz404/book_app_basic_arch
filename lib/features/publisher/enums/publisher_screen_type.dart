@@ -1,1 +1,1 @@
-enum PublisherScreenType { publishers }
+enum PublisherScreenType { publishers, publisherDetail }
