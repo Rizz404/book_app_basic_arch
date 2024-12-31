@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+// todo: Belum bener
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -156,7 +157,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     width: double.infinity,
                     child: StyledButton(
                       onPressed: () async {
-                        // * Tunggu proses sign-in selesai
+                        // * Tunggu proses sign-up selesai
                         await provider.signUp(SignUpModel(
                           username: _usernameController.text,
                           email: _emailController.text,
@@ -164,10 +165,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           confirmPassword: _confirmPasswordController.text,
                         ));
 
-                        // * Periksa apakah berhasil login
-                        if (errorMessageSigUp == null && context.mounted) {
-                          context.push('/');
-                        }
+                        // // * Periksa apakah berhasil login
+                        // if (errorMessageSigUp == null && context.mounted) {
+                        //   await context.push('/');
+                        // }
                       },
                       child: Text('Sign Up'),
                     ),

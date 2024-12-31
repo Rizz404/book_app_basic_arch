@@ -1,244 +1,256 @@
+import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
 import 'package:book_app_basic_arch/features/author/enums/author_operation_type.dart';
+import 'package:book_app_basic_arch/features/author/enums/author_screen_type.dart';
 import 'package:book_app_basic_arch/features/author/model/author_model.dart';
-import 'package:book_app_basic_arch/features/author/widgets/author_form.dart';
-import 'package:book_app_basic_arch/features/author/widgets/book_author_list.dart';
+import 'package:book_app_basic_arch/features/author/widgets/author_list_horizontal.dart';
+import 'package:book_app_basic_arch/features/book/book_provider.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
+import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class AuthorDetailScreen extends StatefulWidget {
+class AuthorDetailScreen extends StatelessWidget {
   final String authorId;
-  const AuthorDetailScreen({super.key, required this.authorId});
 
-  @override
-  State<AuthorDetailScreen> createState() => _AuthorDetailScreenState();
-}
-
-class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
-  late ScrollController _scrollController;
-  bool _isDescriptionVisible = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-    _scrollController.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthorProvider>().getAuthorById(widget.authorId);
-    });
-  }
-
-  void _onScroll() {
-    if (_scrollController.offset > 50 && _isDescriptionVisible) {
-      setState(() => _isDescriptionVisible = false);
-    } else if (_scrollController.offset <= 50 && !_isDescriptionVisible) {
-      setState(() => _isDescriptionVisible = true);
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  const AuthorDetailScreen({
+    super.key,
+    required this.authorId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Author'),
-      ),
-      floatingActionButton: Consumer<AuthorProvider>(
-        builder: (context, provider, _) => FloatingActionButton(
-          onPressed: () {
-            final author = provider.author;
-            if (author != null) {
-              showDialog(
-                context: context,
-                builder: (context) => AuthorForm(
-                  updateAuthorModel: UpdateAuthorModel(
-                    id: author.id,
-                    name: author.name,
-                    biography: author.biography,
-                    birthDate: author.birthDate,
-                    deathDate: author.deathDate,
-                    profilePicture: author.profilePicture,
-                  ),
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Author not loaded yet.')),
-              );
-            }
-          },
-          child: const Icon(Icons.edit),
-        ),
-      ),
-      body: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () => context.push('/authors'),
-            child: Text('See all author'),
-          ),
-          Consumer<AuthorProvider>(
-            builder: (context, provider, _) {
-              return _buildAuthorContent(context, provider);
-            },
-          ),
-          Expanded(
-            child: BookAuthorList(
-              scrollController: _scrollController,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authorProvider = context.read<AuthorProvider>();
+      final bookProvider = context.read<BookProvider>();
+
+      authorProvider.getAuthorById(authorId);
+      authorProvider.getAuthors(screen: AuthorScreenType.authorDetail);
+
+      bookProvider.updateFilterForSpecificScreen(
+        BookScreenType.authorDetail,
+        bookProvider
+            .getFilterForSpecificScreen(BookScreenType.authorDetail)
+            .copyWith(authorId: authorId),
+      );
+      bookProvider.getBooks(screen: BookScreenType.authorDetail);
+    });
+
+    return BaseScaffold(
+      body: StyledScreenLayoutBuilder(
+        builder: (builder, controller) {
+          return [
+            SliverToBoxAdapter(
+              child: Consumer<AuthorProvider>(
+                builder: (context, provider, _) {
+                  final isLoadingAuthor =
+                      provider.isLoading(AuthorOperationType.getAuthorById);
+                  final errorMessageAuthor =
+                      provider.getError(AuthorOperationType.getAuthorById);
+                  final author = provider.author;
+
+                  final isLoadingAuthors =
+                      provider.isLoading(AuthorOperationType.getAuthors);
+                  final errorMessageAuthors =
+                      provider.getError(AuthorOperationType.getAuthors);
+                  final authors = provider.getAuthorsForSpecificScreen(
+                      AuthorScreenType.authorDetail);
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildAuthorCard(
+                        context,
+                        isLoadingAuthor,
+                        errorMessageAuthor,
+                        author,
+                      ),
+                      SizedBox(height: 24),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          "Similar Authors",
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      AuthorListHorizontal(
+                        isLoading: isLoadingAuthors,
+                        errorMessage: errorMessageAuthors,
+                        authors: authors,
+                        onRetry: () => provider.getAuthors(
+                            screen: AuthorScreenType.authorDetail),
+                        onAuthorSelected: (authorId) => context.push(
+                          '/authors/$authorId',
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+            SliverPadding(
+              padding: EdgeInsets.only(
+                top: 32,
+                bottom: 16,
+                left: 16,
+                right: 16,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: Text(
+                  "Our Books",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+            ),
+            Consumer<BookProvider>(
+              builder: (context, provider, _) {
+                final isLoading =
+                    provider.isLoading(BookOperationType.getBooks);
+                final errorMessage =
+                    provider.getError(BookOperationType.getBooks);
+                final books = provider
+                    .getBooksForSpecificScreen(BookScreenType.authorDetail);
+
+                return SliverPadding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  sliver: InfiniteScrollBookGrid(
+                    books: books,
+                    isLoading: isLoading,
+                    errorMessage: errorMessage,
+                    onLoadMore: () => provider.loadMoreBooks(
+                        screen: BookScreenType.authorDetail),
+                    onBookSelected: (book) {
+                      context.push('/books/${book.id}');
+                    },
+                    scrollController: controller,
+                  ),
+                );
+              },
+            ),
+          ];
+        },
       ),
     );
   }
 
-  Widget _buildAuthorContent(BuildContext context, AuthorProvider provider) {
-    final isLoadingAuthor =
-        provider.isLoading(AuthorOperationType.getAuthorById);
-    final errorMessageAuthor =
-        provider.getError(AuthorOperationType.getAuthorById);
-    final author = provider.author;
-
-    if (isLoadingAuthor) {
-      return const Center(child: CircularProgressIndicator());
+  Widget _buildAuthorCard(
+    BuildContext context,
+    bool isLoading,
+    String? errorMessage,
+    AuthorModel? author,
+  ) {
+    if (isLoading) {
+      return const SizedBox(
+        height: 300,
+        child: Center(
+          child: StyledLoadingState(),
+        ),
+      );
     }
 
-    if (errorMessageAuthor != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Error: $errorMessageAuthor",
-              style: const TextStyle(color: Colors.red),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => provider.getAuthorById(widget.authorId),
-              child: const Text("Retry"),
-            ),
-          ],
+    if (errorMessage != null) {
+      return SizedBox(
+        height: 300,
+        child: Center(
+          child: StyledErrorMessage(
+            errorMessage: errorMessage,
+            onRetry: () {
+              context.read<AuthorProvider>().getAuthorById(authorId);
+            },
+          ),
         ),
       );
     }
 
     if (author == null) {
-      return const Center(child: Text("No author found."));
+      return const SizedBox(
+        height: 300,
+        child: Center(
+          child: StyledEmptyData(message: 'Author not found'),
+        ),
+      );
     }
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Author Header - Selalu Terlihat
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                // Profile Picture
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                    image: DecorationImage(
-                      image: NetworkImage(author.profilePicture),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  author.profilePicture,
+                  fit: BoxFit.cover,
+                  width: 120,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      author.name,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      author.biography,
+                      style: Theme.of(context).textTheme.bodySmall,
+                      softWrap: true,
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      'Birthday: ${author.birthDate}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    Text(
+                      'Death: ${author.deathDate}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Column(
+                children: [
+                  Row(
                     children: [
+                      Icon(Icons.person_outline),
                       Text(
-                        author.name,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                        '${author.followerCount}',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                      ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          author.birthDate,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
-                        ),
-                      ],
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
-          // Author Details - Menghilang saat scroll
-          AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            child: _isDescriptionVisible
-                ? Container(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Divider(),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Biography',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          author.biography,
-                          style:
-                              Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Colors.black87,
-                                    height: 1.5,
-                                  ),
-                        ),
-                        ...[
-                          const SizedBox(height: 16),
-                          Text(
-                            'Passed away: ${author.deathDate}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color: Colors.grey[600],
-                                  fontStyle: FontStyle.italic,
-                                ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  )
-                : const SizedBox.shrink(),
+                  SizedBox(height: 8),
+                  Text(
+                    'Followers',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+              StyledButton(
+                onPressed: () {},
+                child: Text('Follow'),
+              )
+            ],
           ),
         ],
       ),

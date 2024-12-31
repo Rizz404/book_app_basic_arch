@@ -119,6 +119,18 @@ class BookDetailScreen extends StatelessWidget {
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ),
+                            const SizedBox(height: 4),
+
+                            // * Publisher
+                            GestureDetector(
+                              onTap: () => context.push(
+                                '/publishers/${book.publisher.id}',
+                              ),
+                              child: Text(
+                                'Publish by: ${book.publisher.name}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
                             const SizedBox(height: 24),
 
                             // * Description title

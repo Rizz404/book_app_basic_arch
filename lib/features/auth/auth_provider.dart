@@ -75,23 +75,36 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> signUp(SignUpModel payload) async {
-    _updateOperationState(EnumAuthOperation.signUp, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumAuthOperation.signUp,
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       await _authServices.signUp(payload);
+
+      _updateOperationState(
+        EnumAuthOperation.signUp,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumAuthOperation.signUp,
-          errorMessage: e.toString());
-    } finally {
-      _updateOperationState(EnumAuthOperation.signUp, isLoading: false);
-      notifyListeners();
+      _updateOperationState(
+        EnumAuthOperation.signUp,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint(e.toString());
     }
   }
 
   Future<void> signIn(SignInModel payload) async {
-    _updateOperationState(EnumAuthOperation.signIn, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumAuthOperation.signIn,
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       final response = await _authServices.signIn(payload);
@@ -108,30 +121,45 @@ class AuthProvider with ChangeNotifier {
           refreshToken: _userCredential?.refreshToken,
         );
       }
+
+      _updateOperationState(
+        EnumAuthOperation.signIn,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumAuthOperation.signIn,
-          errorMessage: e.toString());
+      _updateOperationState(
+        EnumAuthOperation.signIn,
+        isLoading: true,
+        errorMessage: e.toString(),
+      );
       debugPrint(e.toString());
-    } finally {
-      _updateOperationState(EnumAuthOperation.signIn, isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> signOut() async {
-    _updateOperationState(EnumAuthOperation.signOut, isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      EnumAuthOperation.signOut,
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       await _credentialManager.clearTokens();
       _userCredential = null;
+
+      _updateOperationState(
+        EnumAuthOperation.signOut,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(EnumAuthOperation.signOut,
-          errorMessage: e.toString());
+      _updateOperationState(
+        EnumAuthOperation.signOut,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint(e.toString());
-    } finally {
-      _updateOperationState(EnumAuthOperation.signOut, isLoading: false);
-      notifyListeners();
     }
   }
 

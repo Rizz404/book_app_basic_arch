@@ -5,4 +5,8 @@ enum AuthorOperationType {
   searchAuthors,
   updateAuthorById,
   deleteAuthorById,
+  // * Beda routes
+  followAuthorById,
+  getAuthorsFollowed,
+  unfollowAuthorById,
 }

@@ -1,1 +1,1 @@
-enum AuthorScreenType { authors }
+enum AuthorScreenType { authors, authorDetail, search, authorsFollowed }

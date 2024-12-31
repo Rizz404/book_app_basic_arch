@@ -13,6 +13,7 @@ _$AuthorFilterModelImpl _$$AuthorFilterModelImplFromJson(
       limit: (json['limit'] as num?)?.toInt() ?? 10,
       birthDateRange: json['birthDateRange'] as String?,
       deathDateRange: json['deathDateRange'] as String?,
+      searchQuery: json['searchQuery'] as String?,
     );
 
 Map<String, dynamic> _$$AuthorFilterModelImplToJson(
@@ -22,4 +23,5 @@ Map<String, dynamic> _$$AuthorFilterModelImplToJson(
       'limit': instance.limit,
       'birthDateRange': instance.birthDateRange,
       'deathDateRange': instance.deathDateRange,
+      'searchQuery': instance.searchQuery,
     };

@@ -113,13 +113,7 @@ class BookProvider with ChangeNotifier {
     );
 
     try {
-      final response = await _bookServices.getBooks(
-        page: filter.page,
-        limit: filter.limit,
-        sellerId: filter.sellerId,
-        language: filter.language,
-        genreId: filter.genreId,
-      );
+      final response = await _bookServices.getBooks(filter);
 
       _booksByScreen[screen] = response.data!;
       _paginationByScreen[screen] = response.meta.pagination;
@@ -290,13 +284,7 @@ class BookProvider with ChangeNotifier {
     );
 
     try {
-      final response = await _bookServices.getBooks(
-        page: newFilter.page,
-        limit: newFilter.limit,
-        sellerId: newFilter.sellerId,
-        language: newFilter.language,
-        genreId: newFilter.genreId,
-      );
+      final response = await _bookServices.getBooks(newFilter);
 
       // * Tambahkan data baru ke list yang sudah ada
       _booksByScreen[screen] = [

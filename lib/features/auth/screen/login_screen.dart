@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         // * Periksa apakah berhasil login
                         if (errorMessageSignIn == null && context.mounted) {
-                          context.go('/');
+                          context.push('/');
                         }
                       },
                       child: Text('Sign In'),

@@ -20,7 +20,7 @@ class ProfileScreen extends StatelessWidget {
             children: [
               // * Pakenya itu background image kalo circle avatar
               CircleAvatar(
-                radius: 120,
+                radius: 60,
                 backgroundImage: NetworkImage(
                   currentUser.profilePicture ?? 'kintil',
                 ),

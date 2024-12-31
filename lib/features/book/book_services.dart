@@ -1,6 +1,7 @@
 import 'package:book_app_basic_arch/core/network/dio_client.dart';
 import 'package:book_app_basic_arch/core/network/models/api_error_response.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
+import 'package:book_app_basic_arch/features/book/model/book_filter_model.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 
 class BookServices {
@@ -20,20 +21,25 @@ class BookServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<BookModel>>> getBooks({
-    int page = 1,
-    int limit = 10,
-    String? sellerId,
-    String? language,
-    String? genreId,
-  }) async {
+  Future<ApiSuccessResponse<List<BookModel>>> getBooks(
+    BookFilterModel bookFilterModel,
+  ) async {
     try {
       final queryParameters = {
-        'page': page,
-        'limit': limit,
-        if (sellerId != null) 'sellerId': sellerId,
-        if (language != null) 'language': language,
-        if (genreId != null) 'genreId': genreId,
+        'page': bookFilterModel.page,
+        'limit': bookFilterModel.limit,
+        if (bookFilterModel.status != null) 'status': bookFilterModel.status,
+        if (bookFilterModel.sellerId != null)
+          'sellerId': bookFilterModel.sellerId,
+        if (bookFilterModel.genreId != null) 'genreId': bookFilterModel.genreId,
+        if (bookFilterModel.authorId != null)
+          'authorId': bookFilterModel.authorId,
+        if (bookFilterModel.publisherId != null)
+          'publisherId': bookFilterModel.publisherId,
+        if (bookFilterModel.publicationDateRange != null)
+          'publicationDateRange': bookFilterModel.publicationDateRange,
+        if (bookFilterModel.language != null)
+          'language': bookFilterModel.language,
       };
 
       return await _dioClient.get(

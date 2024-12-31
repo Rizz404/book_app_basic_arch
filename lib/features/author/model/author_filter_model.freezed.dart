@@ -24,6 +24,7 @@ mixin _$AuthorFilterModel {
   int get limit => throw _privateConstructorUsedError;
   String? get birthDateRange => throw _privateConstructorUsedError;
   String? get deathDateRange => throw _privateConstructorUsedError;
+  String? get searchQuery => throw _privateConstructorUsedError;
 
   /// Serializes this AuthorFilterModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -42,7 +43,11 @@ abstract class $AuthorFilterModelCopyWith<$Res> {
       _$AuthorFilterModelCopyWithImpl<$Res, AuthorFilterModel>;
   @useResult
   $Res call(
-      {int page, int limit, String? birthDateRange, String? deathDateRange});
+      {int page,
+      int limit,
+      String? birthDateRange,
+      String? deathDateRange,
+      String? searchQuery});
 }
 
 /// @nodoc
@@ -64,6 +69,7 @@ class _$AuthorFilterModelCopyWithImpl<$Res, $Val extends AuthorFilterModel>
     Object? limit = null,
     Object? birthDateRange = freezed,
     Object? deathDateRange = freezed,
+    Object? searchQuery = freezed,
   }) {
     return _then(_value.copyWith(
       page: null == page
@@ -82,6 +88,10 @@ class _$AuthorFilterModelCopyWithImpl<$Res, $Val extends AuthorFilterModel>
           ? _value.deathDateRange
           : deathDateRange // ignore: cast_nullable_to_non_nullable
               as String?,
+      searchQuery: freezed == searchQuery
+          ? _value.searchQuery
+          : searchQuery // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -95,7 +105,11 @@ abstract class _$$AuthorFilterModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int page, int limit, String? birthDateRange, String? deathDateRange});
+      {int page,
+      int limit,
+      String? birthDateRange,
+      String? deathDateRange,
+      String? searchQuery});
 }
 
 /// @nodoc
@@ -115,6 +129,7 @@ class __$$AuthorFilterModelImplCopyWithImpl<$Res>
     Object? limit = null,
     Object? birthDateRange = freezed,
     Object? deathDateRange = freezed,
+    Object? searchQuery = freezed,
   }) {
     return _then(_$AuthorFilterModelImpl(
       page: null == page
@@ -133,6 +148,10 @@ class __$$AuthorFilterModelImplCopyWithImpl<$Res>
           ? _value.deathDateRange
           : deathDateRange // ignore: cast_nullable_to_non_nullable
               as String?,
+      searchQuery: freezed == searchQuery
+          ? _value.searchQuery
+          : searchQuery // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -144,7 +163,8 @@ class _$AuthorFilterModelImpl implements _AuthorFilterModel {
       {this.page = 1,
       this.limit = 10,
       this.birthDateRange,
-      this.deathDateRange});
+      this.deathDateRange,
+      this.searchQuery});
 
   factory _$AuthorFilterModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AuthorFilterModelImplFromJson(json);
@@ -159,10 +179,12 @@ class _$AuthorFilterModelImpl implements _AuthorFilterModel {
   final String? birthDateRange;
   @override
   final String? deathDateRange;
+  @override
+  final String? searchQuery;
 
   @override
   String toString() {
-    return 'AuthorFilterModel(page: $page, limit: $limit, birthDateRange: $birthDateRange, deathDateRange: $deathDateRange)';
+    return 'AuthorFilterModel(page: $page, limit: $limit, birthDateRange: $birthDateRange, deathDateRange: $deathDateRange, searchQuery: $searchQuery)';
   }
 
   @override
@@ -175,13 +197,15 @@ class _$AuthorFilterModelImpl implements _AuthorFilterModel {
             (identical(other.birthDateRange, birthDateRange) ||
                 other.birthDateRange == birthDateRange) &&
             (identical(other.deathDateRange, deathDateRange) ||
-                other.deathDateRange == deathDateRange));
+                other.deathDateRange == deathDateRange) &&
+            (identical(other.searchQuery, searchQuery) ||
+                other.searchQuery == searchQuery));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, page, limit, birthDateRange, deathDateRange);
+  int get hashCode => Object.hash(
+      runtimeType, page, limit, birthDateRange, deathDateRange, searchQuery);
 
   /// Create a copy of AuthorFilterModel
   /// with the given fields replaced by the non-null parameter values.
@@ -205,7 +229,8 @@ abstract class _AuthorFilterModel implements AuthorFilterModel {
       {final int page,
       final int limit,
       final String? birthDateRange,
-      final String? deathDateRange}) = _$AuthorFilterModelImpl;
+      final String? deathDateRange,
+      final String? searchQuery}) = _$AuthorFilterModelImpl;
 
   factory _AuthorFilterModel.fromJson(Map<String, dynamic> json) =
       _$AuthorFilterModelImpl.fromJson;
@@ -218,6 +243,8 @@ abstract class _AuthorFilterModel implements AuthorFilterModel {
   String? get birthDateRange;
   @override
   String? get deathDateRange;
+  @override
+  String? get searchQuery;
 
   /// Create a copy of AuthorFilterModel
   /// with the given fields replaced by the non-null parameter values.

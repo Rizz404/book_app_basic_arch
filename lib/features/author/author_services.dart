@@ -108,4 +108,53 @@ class AuthorServices {
       throw e.message;
     }
   }
+
+  // * Gabungin aja biarpun routesnya beda, nanti backend kapan kapan benerin
+  Future<ApiSuccessResponse<void>> followAuthorById(String id) async {
+    try {
+      return await _dioClient.post(
+        '/author-follows/$id',
+        fromJsonT: (json) {},
+      );
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
+    }
+  }
+
+  Future<ApiSuccessResponse<List<AuthorModel>>> getAuthorsFollowed(
+    AuthorFilterModel authorFilterModel,
+  ) async {
+    try {
+      final queryParameters = {
+        'page': authorFilterModel.page,
+        'limit': authorFilterModel.limit,
+        if (authorFilterModel.birthDateRange != null)
+          'birthDateRange': authorFilterModel.birthDateRange,
+        if (authorFilterModel.deathDateRange != null)
+          'deathDateRange': authorFilterModel.deathDateRange,
+      };
+
+      return await _dioClient.get(
+        '/author-follows',
+        queryParameters: queryParameters,
+        fromJsonT: (json) => (json as List).map((item) {
+          final author = AuthorModel.fromJson(item as Map<String, dynamic>);
+          return author.copyWith(originalFollowStatus: author.isFollowedAuthor);
+        }).toList(),
+      );
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
+    }
+  }
+
+  Future<ApiSuccessResponse<void>> unfollowAuthorById(String id) async {
+    try {
+      return await _dioClient.delete(
+        '/author-follows/$id',
+        fromJsonT: (json) {},
+      );
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
+    }
+  }
 }

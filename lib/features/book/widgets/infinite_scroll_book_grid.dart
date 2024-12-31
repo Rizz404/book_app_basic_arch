@@ -54,13 +54,13 @@ class _InfiniteScrollBookGridState extends State<InfiniteScrollBookGrid> {
   Widget build(BuildContext context) {
     if (widget.books.isEmpty) {
       if (widget.isLoading) {
-        return const SliverToBoxAdapter(
+        return const SliverFillRemaining(
           child: StyledLoadingState(),
         );
       }
 
       if (widget.errorMessage != null) {
-        return SliverToBoxAdapter(
+        return SliverFillRemaining(
           child: StyledErrorMessage(
             errorMessage: widget.errorMessage!,
             onRetry: widget.onRetry,
@@ -68,7 +68,7 @@ class _InfiniteScrollBookGridState extends State<InfiniteScrollBookGrid> {
         );
       }
 
-      return const SliverToBoxAdapter(
+      return const SliverFillRemaining(
         child: StyledEmptyData(message: 'No books found'),
       );
     }

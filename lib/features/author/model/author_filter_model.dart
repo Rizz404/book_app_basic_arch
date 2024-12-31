@@ -10,6 +10,7 @@ class AuthorFilterModel with _$AuthorFilterModel {
     @Default(10) int limit,
     String? birthDateRange,
     String? deathDateRange,
+    String? searchQuery, // * Untuk menyimpan query pencarian
   }) = _AuthorFilterModel;
 
   factory AuthorFilterModel.fromJson(Map<String, dynamic> json) =>
