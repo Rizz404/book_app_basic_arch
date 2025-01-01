@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+// todo: Fix ini kaga jelas
 class AuthWrapper extends StatelessWidget {
   final Widget child;
 
@@ -15,16 +16,14 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
 
-    // Cek apakah sedang di halaman register
     final String currentPath = GoRouterState.of(context).fullPath ?? '';
     final bool isRegisterPage = currentPath == '/sign-up';
 
-    // Jika belum login dan bukan di halaman register, redirect ke login
     if (!isAuthenticated && !isRegisterPage) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.push(
           '/sign-in',
-        ); // Menggunakan go alih-alih push untuk menghindari penumpukan history
+        );
       });
 
       return const Scaffold(

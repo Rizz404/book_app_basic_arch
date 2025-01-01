@@ -61,6 +61,7 @@ final goRouter = GoRouter(
               pageBuilder: (context, state) => MaterialPage(
                 child: HomeScreen(),
               ),
+              parentNavigatorKey: _rootNavigatorKey,
             ),
           ],
         ),

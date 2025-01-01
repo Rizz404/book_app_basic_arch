@@ -20,6 +20,17 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  void _handleLoginSuccess() {
+    // * Ambil parameter 'from' dari URL
+    final fromLocation = GoRouterState.of(context).uri.queryParameters['from'];
+
+    if (fromLocation != null) {
+      context.go(fromLocation);
+    } else {
+      context.go('/home');
+    }
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -136,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         // * Periksa apakah berhasil login
                         if (errorMessageSignIn == null && context.mounted) {
-                          context.push('/');
+                          _handleLoginSuccess();
                         }
                       },
                       child: Text('Sign In'),

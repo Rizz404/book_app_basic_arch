@@ -1,3 +1,4 @@
+import 'package:book_app_basic_arch/core/constants/app_routes.dart';
 import 'package:book_app_basic_arch/core/shared/screens/splash_screen.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/auth_wrapper.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/scaffold_with_bottom_app_bar.dart';
@@ -61,6 +62,7 @@ final goRouter = GoRouter(
               pageBuilder: (context, state) => MaterialPage(
                 child: HomeScreen(),
               ),
+              parentNavigatorKey: _rootNavigatorKey,
             ),
           ],
         ),
@@ -72,6 +74,7 @@ final goRouter = GoRouter(
               pageBuilder: (context, state) => MaterialPage(
                 child: AuthWrapper(child: WishlistScreen()),
               ),
+              parentNavigatorKey: _rootNavigatorKey,
             )
           ],
         ),
@@ -85,6 +88,7 @@ final goRouter = GoRouter(
                   child: ProfileScreen(),
                 ),
               ),
+              parentNavigatorKey: _rootNavigatorKey,
             )
           ],
         ),
@@ -228,12 +232,30 @@ final goRouter = GoRouter(
   redirect: (context, state) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final isAuthenticated = authProvider.isAuthenticated;
-    final authRoutes = ['/sign-up', '/sign-in'];
 
-    if (isAuthenticated && authRoutes.contains(state.fullPath)) {
-      return '/';
+    // Cek apakah sedang di login screen
+    final isLoggingIn = state.matchedLocation.startsWith('/sign-in');
+
+    // Cek apakah current route perlu autentikasi
+    final requiresAuth = AppRoutes.protectedRoutes
+        .any((route) => state.matchedLocation.startsWith(route));
+
+    // Jika route perlu auth dan user belum login
+    if (requiresAuth && !isAuthenticated) {
+      // Jika sudah di login screen, jangan redirect lagi
+      if (isLoggingIn) return null;
+
+      return '/sign-in?from=${state.matchedLocation}';
+    }
+
+    // Jika user sudah login dan mencoba akses halaman auth
+    if (isAuthenticated &&
+        AppRoutes.authRoutes.contains(state.matchedLocation)) {
+      return '/home';
     }
 
     return null;
   },
+  // Tambahkan ini untuk handle back button
+  routerNeglect: true, // Ini akan mencegah router merespon navigasi sistem
 );
