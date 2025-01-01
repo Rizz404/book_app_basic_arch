@@ -5,7 +5,7 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.da
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
-import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
+import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -37,17 +37,18 @@ class BookScreen extends StatelessWidget {
                   final errorMessage =
                       bookProvider.getError(BookOperationType.getBooks);
 
-                  return SliverToBoxAdapter(
-                    child: BookGrid(
-                      books: books,
-                      isLoading: isLoading,
-                      errorMessage: errorMessage,
-                      onRetry: () => bookProvider.getBooks(
-                        screen: BookScreenType.books,
-                      ),
-                      onBookSelected: (book) {
-                        context.push('/books/${book.id}');
-                      },
+                  return InfiniteScrollBookGrid(
+                    books: books,
+                    isLoading: isLoading,
+                    errorMessage: errorMessage,
+                    onLoadMore: () => bookProvider.loadMoreBooks(
+                        screen: BookScreenType.books),
+                    onBookSelected: (book) {
+                      context.push('/books/${book.id}');
+                    },
+                    scrollController: controller,
+                    onRetry: () => bookProvider.getBooks(
+                      screen: BookScreenType.books,
                     ),
                   );
                 },

@@ -20,16 +20,21 @@ class HomeScreen extends StatelessWidget {
 
   // Fungsi untuk refresh data
   Future<void> _handleRefresh(BuildContext context) async {
-    // Reset data dan memuat ulang
+    final bookProvider = context.read<BookProvider>();
+    final genreProvider = context.read<GenreProvider>();
+
+    // Clear existing data first
+    await bookProvider.resetBooks(BookScreenType.home);
+
     await Future.wait([
-      context.read<BookProvider>().getBooks(
-            screen: BookScreenType.home,
-            refresh: true,
-          ),
-      context.read<GenreProvider>().getGenres(
-            screen: GenreScreenType.home,
-            refresh: true,
-          ),
+      bookProvider.getBooks(
+        screen: BookScreenType.home,
+        refresh: true,
+      ),
+      genreProvider.getGenres(
+        screen: GenreScreenType.home,
+        refresh: true,
+      ),
     ]);
   }
 
@@ -119,7 +124,7 @@ class HomeScreen extends StatelessWidget {
                       },
                       scrollController: controller,
                       onRetry: () => provider.getBooks(
-                        screen: BookScreenType.books,
+                        screen: BookScreenType.home,
                       ),
                     );
                   },

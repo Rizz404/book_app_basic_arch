@@ -54,7 +54,8 @@ class DioClient {
     );
 
     dio.interceptors.addAll([
-      DioCacheInterceptor(options: defaultCacheOptions),
+      // ! cache belum bener
+      // DioCacheInterceptor(options: defaultCacheOptions),
       AuthInterceptor(dio: dio, credentialManager: _credentialManager),
       LoggerInterceptor(),
     ]);

@@ -46,6 +46,16 @@ class AuthorDetailScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _handleRefresh(BuildContext context) async {
+    await Future.wait([
+      context.read<AuthorProvider>().getAuthorById(authorId),
+      context.read<BookProvider>().getBooks(
+            screen: BookScreenType.authorDetail,
+            refresh: true,
+          ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -53,102 +63,105 @@ class AuthorDetailScreen extends StatelessWidget {
     });
 
     return BaseScaffold(
-      body: StyledScreenLayoutBuilder(
-        builder: (builder, controller) {
-          return [
-            SliverToBoxAdapter(
-              child: Consumer<AuthorProvider>(
-                builder: (context, authorProvider, _) {
-                  final isLoadingAuthor = authorProvider
-                      .isLoading(AuthorOperationType.getAuthorById);
-                  final errorMessageAuthor = authorProvider
-                      .getError(AuthorOperationType.getAuthorById);
-                  final author = authorProvider.author;
+      body: RefreshIndicator(
+        onRefresh: () => _handleRefresh(context),
+        child: StyledScreenLayoutBuilder(
+          builder: (builder, controller) {
+            return [
+              SliverToBoxAdapter(
+                child: Consumer<AuthorProvider>(
+                  builder: (context, authorProvider, _) {
+                    final isLoadingAuthor = authorProvider
+                        .isLoading(AuthorOperationType.getAuthorById);
+                    final errorMessageAuthor = authorProvider
+                        .getError(AuthorOperationType.getAuthorById);
+                    final author = authorProvider.author;
 
-                  final isLoadingAuthors =
-                      authorProvider.isLoading(AuthorOperationType.getAuthors);
-                  final errorMessageAuthors =
-                      authorProvider.getError(AuthorOperationType.getAuthors);
-                  final authors = authorProvider.getAuthorsForSpecificScreen(
-                      AuthorScreenType.authorDetail);
+                    final isLoadingAuthors = authorProvider
+                        .isLoading(AuthorOperationType.getAuthors);
+                    final errorMessageAuthors =
+                        authorProvider.getError(AuthorOperationType.getAuthors);
+                    final authors = authorProvider.getAuthorsForSpecificScreen(
+                        AuthorScreenType.authorDetail);
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildAuthorCard(
-                        context,
-                        isLoadingAuthor,
-                        errorMessageAuthor,
-                        author,
-                      ),
-                      SizedBox(height: 24),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          "Similar Authors",
-                          style: Theme.of(context).textTheme.bodyLarge,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildAuthorCard(
+                          context,
+                          isLoadingAuthor,
+                          errorMessageAuthor,
+                          author,
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      AuthorListHorizontal(
-                        isLoading: isLoadingAuthors,
-                        errorMessage: errorMessageAuthors,
-                        authors: authors,
-                        onRetry: () => authorProvider.getAuthors(
-                            screen: AuthorScreenType.authorDetail),
-                        onAuthorSelected: (authorId) => context.push(
-                          '/authors/$authorId',
+                        SizedBox(height: 24),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            "Similar Authors",
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
                         ),
+                        SizedBox(height: 16),
+                        AuthorListHorizontal(
+                          isLoading: isLoadingAuthors,
+                          errorMessage: errorMessageAuthors,
+                          authors: authors,
+                          onRetry: () => authorProvider.getAuthors(
+                              screen: AuthorScreenType.authorDetail),
+                          onAuthorSelected: (authorId) => context.push(
+                            '/authors/$authorId',
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              SliverPadding(
+                padding: EdgeInsets.only(
+                  top: 32,
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    "Our Books",
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ),
+              ),
+              Consumer<BookProvider>(
+                builder: (context, bookProvider, _) {
+                  final isLoading =
+                      bookProvider.isLoading(BookOperationType.getBooks);
+                  final errorMessage =
+                      bookProvider.getError(BookOperationType.getBooks);
+                  final books = bookProvider
+                      .getBooksForSpecificScreen(BookScreenType.authorDetail);
+
+                  return SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    sliver: InfiniteScrollBookGrid(
+                      books: books,
+                      isLoading: isLoading,
+                      errorMessage: errorMessage,
+                      onLoadMore: () async => await bookProvider.loadMoreBooks(
+                          screen: BookScreenType.authorDetail),
+                      onBookSelected: (book) {
+                        context.push('/books/${book.id}');
+                      },
+                      scrollController: controller,
+                      onRetry: () async => await bookProvider.getBooks(
+                        screen: BookScreenType.authorDetail,
                       ),
-                    ],
+                    ),
                   );
                 },
               ),
-            ),
-            SliverPadding(
-              padding: EdgeInsets.only(
-                top: 32,
-                bottom: 16,
-                left: 16,
-                right: 16,
-              ),
-              sliver: SliverToBoxAdapter(
-                child: Text(
-                  "Our Books",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
-            ),
-            Consumer<BookProvider>(
-              builder: (context, bookProvider, _) {
-                final isLoading =
-                    bookProvider.isLoading(BookOperationType.getBooks);
-                final errorMessage =
-                    bookProvider.getError(BookOperationType.getBooks);
-                final books = bookProvider
-                    .getBooksForSpecificScreen(BookScreenType.authorDetail);
-
-                return SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  sliver: InfiniteScrollBookGrid(
-                    books: books,
-                    isLoading: isLoading,
-                    errorMessage: errorMessage,
-                    onLoadMore: () async => await bookProvider.loadMoreBooks(
-                        screen: BookScreenType.authorDetail),
-                    onBookSelected: (book) {
-                      context.push('/books/${book.id}');
-                    },
-                    scrollController: controller,
-                    onRetry: () async => await bookProvider.getBooks(
-                      screen: BookScreenType.authorDetail,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ];
-        },
+            ];
+          },
+        ),
       ),
     );
   }
@@ -259,8 +272,10 @@ class AuthorDetailScreen extends StatelessWidget {
                 ],
               ),
               StyledButton(
-                onPressed: () {},
-                child: Text('Follow'),
+                onPressed: () {
+                  context.read<AuthorProvider>().toggleFollowAuthor(authorId);
+                },
+                child: Text(author.isFollowedAuthor ? 'unfollow' : 'follow'),
               )
             ],
           ),

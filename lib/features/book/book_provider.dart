@@ -429,4 +429,18 @@ class BookProvider with ChangeNotifier {
 
     notifyListeners();
   }
+
+  // Add this method in BookProvider class
+  Future<void> resetBooks(BookScreenType screen) async {
+    // Clear books for the specific screen
+    _booksByScreen[screen] = [];
+
+    // Reset pagination
+    _paginationByScreen[screen] = null;
+
+    // Reset filter to initial state with page 1
+    _filterByScreen[screen] = BookFilterModel().copyWith(page: 1);
+
+    notifyListeners();
+  }
 }
