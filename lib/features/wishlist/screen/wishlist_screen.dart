@@ -11,6 +11,13 @@ import 'package:go_router/go_router.dart';
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
 
+  Future<void> _handleRefresh(BuildContext context) async {
+    // Reset data dan memuat ulang
+    await Future.wait([
+      context.read<WishlistProvider>().getBooksWishlished(),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final wishlistProvider =
@@ -21,39 +28,42 @@ class WishlistScreen extends StatelessWidget {
     });
 
     return BaseScaffold(
-      body: StyledScreenLayoutBuilder(
-          sliverAppBar: StyledSliverAppBar(
-            title: Text('Wishlist'),
-            centerTitle: true,
-          ),
-          builder: (builder, controller) {
-            return [
-              SliverPadding(
-                padding: EdgeInsets.all(16),
-                sliver: Consumer<WishlistProvider>(
-                  builder: (context, provider, _) {
-                    final books = provider.getBooksForScreen('wishlist');
-                    final isLoading = provider
-                        .isLoading(WishlistOperationType.getBooksFromWishlish);
-                    final errorMessage = provider
-                        .getError(WishlistOperationType.getBooksFromWishlish);
+      body: RefreshIndicator(
+        onRefresh: () => _handleRefresh(context),
+        child: StyledScreenLayoutBuilder(
+            sliverAppBar: StyledSliverAppBar(
+              title: Text('Wishlist'),
+              centerTitle: true,
+            ),
+            builder: (builder, controller) {
+              return [
+                SliverPadding(
+                  padding: EdgeInsets.all(16),
+                  sliver: Consumer<WishlistProvider>(
+                    builder: (context, provider, _) {
+                      final books = provider.getBooksForScreen('wishlist');
+                      final isLoading = provider.isLoading(
+                          WishlistOperationType.getBooksFromWishlish);
+                      final errorMessage = provider
+                          .getError(WishlistOperationType.getBooksFromWishlish);
 
-                    return SliverToBoxAdapter(
-                      child: BookGrid(
-                        books: books,
-                        isLoading: isLoading,
-                        onBookSelected: (book) {
-                          context.push('/books/${book.id}');
-                        },
-                        errorMessage: errorMessage,
-                        onRetry: () => wishlistProvider.getBooksWishlished(),
-                      ),
-                    );
-                  },
-                ),
-              )
-            ];
-          }),
+                      return SliverToBoxAdapter(
+                        child: BookGrid(
+                          books: books,
+                          isLoading: isLoading,
+                          onBookSelected: (book) {
+                            context.push('/books/${book.id}');
+                          },
+                          errorMessage: errorMessage,
+                          onRetry: () => wishlistProvider.getBooksWishlished(),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              ];
+            }),
+      ),
     );
   }
 }

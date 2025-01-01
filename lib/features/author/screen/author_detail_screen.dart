@@ -25,22 +25,31 @@ class AuthorDetailScreen extends StatelessWidget {
     required this.authorId,
   });
 
+  Future<void> _initializeData(BuildContext context) async {
+    final authorProvider = context.read<AuthorProvider>();
+    final bookProvider = context.read<BookProvider>();
+
+    await authorProvider.getAuthorById(authorId);
+    await authorProvider.getAuthors(screen: AuthorScreenType.authorDetail);
+
+    final currentFilter = bookProvider.getFilterForSpecificScreen(
+      BookScreenType.authorDetail,
+    );
+
+    if (currentFilter.authorId != authorId) {
+      bookProvider.updateFilterForSpecificScreen(
+        BookScreenType.authorDetail,
+        currentFilter.copyWith(authorId: authorId, page: 1),
+      );
+
+      await bookProvider.getBooks(screen: BookScreenType.authorDetail);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authorProvider = context.read<AuthorProvider>();
-      final bookProvider = context.read<BookProvider>();
-
-      authorProvider.getAuthorById(authorId);
-      authorProvider.getAuthors(screen: AuthorScreenType.authorDetail);
-
-      bookProvider.updateFilterForSpecificScreen(
-        BookScreenType.authorDetail,
-        bookProvider
-            .getFilterForSpecificScreen(BookScreenType.authorDetail)
-            .copyWith(authorId: authorId),
-      );
-      bookProvider.getBooks(screen: BookScreenType.authorDetail);
+      _initializeData(context);
     });
 
     return BaseScaffold(
@@ -49,18 +58,18 @@ class AuthorDetailScreen extends StatelessWidget {
           return [
             SliverToBoxAdapter(
               child: Consumer<AuthorProvider>(
-                builder: (context, provider, _) {
-                  final isLoadingAuthor =
-                      provider.isLoading(AuthorOperationType.getAuthorById);
-                  final errorMessageAuthor =
-                      provider.getError(AuthorOperationType.getAuthorById);
-                  final author = provider.author;
+                builder: (context, authorProvider, _) {
+                  final isLoadingAuthor = authorProvider
+                      .isLoading(AuthorOperationType.getAuthorById);
+                  final errorMessageAuthor = authorProvider
+                      .getError(AuthorOperationType.getAuthorById);
+                  final author = authorProvider.author;
 
                   final isLoadingAuthors =
-                      provider.isLoading(AuthorOperationType.getAuthors);
+                      authorProvider.isLoading(AuthorOperationType.getAuthors);
                   final errorMessageAuthors =
-                      provider.getError(AuthorOperationType.getAuthors);
-                  final authors = provider.getAuthorsForSpecificScreen(
+                      authorProvider.getError(AuthorOperationType.getAuthors);
+                  final authors = authorProvider.getAuthorsForSpecificScreen(
                       AuthorScreenType.authorDetail);
 
                   return Column(
@@ -85,7 +94,7 @@ class AuthorDetailScreen extends StatelessWidget {
                         isLoading: isLoadingAuthors,
                         errorMessage: errorMessageAuthors,
                         authors: authors,
-                        onRetry: () => provider.getAuthors(
+                        onRetry: () => authorProvider.getAuthors(
                             screen: AuthorScreenType.authorDetail),
                         onAuthorSelected: (authorId) => context.push(
                           '/authors/$authorId',
@@ -111,12 +120,12 @@ class AuthorDetailScreen extends StatelessWidget {
               ),
             ),
             Consumer<BookProvider>(
-              builder: (context, provider, _) {
+              builder: (context, bookProvider, _) {
                 final isLoading =
-                    provider.isLoading(BookOperationType.getBooks);
+                    bookProvider.isLoading(BookOperationType.getBooks);
                 final errorMessage =
-                    provider.getError(BookOperationType.getBooks);
-                final books = provider
+                    bookProvider.getError(BookOperationType.getBooks);
+                final books = bookProvider
                     .getBooksForSpecificScreen(BookScreenType.authorDetail);
 
                 return SliverPadding(
@@ -125,12 +134,15 @@ class AuthorDetailScreen extends StatelessWidget {
                     books: books,
                     isLoading: isLoading,
                     errorMessage: errorMessage,
-                    onLoadMore: () => provider.loadMoreBooks(
+                    onLoadMore: () async => await bookProvider.loadMoreBooks(
                         screen: BookScreenType.authorDetail),
                     onBookSelected: (book) {
                       context.push('/books/${book.id}');
                     },
                     scrollController: controller,
+                    onRetry: () async => await bookProvider.getBooks(
+                      screen: BookScreenType.authorDetail,
+                    ),
                   ),
                 );
               },

@@ -8,9 +8,9 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_con
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
+import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
-import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -23,23 +23,31 @@ class GenreDetailScreen extends StatelessWidget {
     required this.genreId,
   });
 
+  Future<void> _initializeData(BuildContext context) async {
+    final genreProvider = context.read<GenreProvider>();
+    final bookProvider = context.read<BookProvider>();
+
+    await genreProvider.getGenreById(genreId);
+
+    final currentFilter = bookProvider.getFilterForSpecificScreen(
+      BookScreenType.genreDetail,
+    );
+
+    if (currentFilter.genreId != genreId) {
+      bookProvider.updateFilterForSpecificScreen(
+        BookScreenType.genreDetail,
+        currentFilter.copyWith(genreId: genreId, page: 1),
+      );
+
+      await bookProvider.getBooks(screen: BookScreenType.genreDetail);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // * Kalo stateles itu pakenya read aja
-      final genreProvider = context.read<GenreProvider>();
-      final bookProvider = context.read<BookProvider>();
-
-      genreProvider.getGenreById(genreId);
-
-      bookProvider.updateFilterForSpecificScreen(
-        BookScreenType.genreDetail,
-        bookProvider
-            .getFilterForSpecificScreen(BookScreenType.genreDetail)
-            .copyWith(genreId: genreId),
-      );
-
-      bookProvider.getBooks(screen: BookScreenType.genreDetail);
+      _initializeData(context);
     });
 
     return BaseScaffold(
@@ -89,22 +97,31 @@ class GenreDetailScreen extends StatelessWidget {
                 padding: EdgeInsets.all(16),
                 sliver: Consumer<BookProvider>(
                   builder: (context, bookProvider, _) {
+                    final isLoadingBooks =
+                        bookProvider.isLoading(BookOperationType.getBooks);
+                    final errorMessageBooks =
+                        bookProvider.getError(BookOperationType.getBooks);
                     final books = bookProvider.getBooksForSpecificScreen(
                       BookScreenType.genreDetail,
                     );
 
-                    return SliverToBoxAdapter(
-                      child: BookGrid(
-                        books: books,
-                        isLoading:
-                            bookProvider.isLoading(BookOperationType.getBooks),
-                        errorMessage:
-                            bookProvider.getError(BookOperationType.getBooks),
-                        onRetry: () => bookProvider.getBooks(),
-                        onBookSelected: (book) {
-                          context.push('/books/${book.id}');
-                        },
+                    return InfiniteScrollBookGrid(
+                      books: books,
+                      isLoading: isLoadingBooks,
+                      errorMessage: errorMessageBooks,
+                      onRetry: () async => await bookProvider.getBooks(
+                        screen: BookScreenType.genreDetail,
+                        refresh: true,
                       ),
+                      onLoadMore: () async {
+                        await bookProvider.loadMoreBooks(
+                          screen: BookScreenType.genreDetail,
+                        );
+                      },
+                      onBookSelected: (book) {
+                        context.push('/books/${book.id}');
+                      },
+                      scrollController: controller,
                     );
                   },
                 ),

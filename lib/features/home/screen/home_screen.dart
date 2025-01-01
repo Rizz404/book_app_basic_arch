@@ -118,6 +118,9 @@ class HomeScreen extends StatelessWidget {
                         context.push('/books/${book.id}');
                       },
                       scrollController: controller,
+                      onRetry: () => provider.getBooks(
+                        screen: BookScreenType.books,
+                      ),
                     );
                   },
                 ),
