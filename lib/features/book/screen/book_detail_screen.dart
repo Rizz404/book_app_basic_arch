@@ -27,14 +27,15 @@ class BookDetailScreen extends StatelessWidget {
 
       bookProvider.getBookById(bookId);
 
+      // todo: Nanti tambahin get books random di api
       bookProvider.updateFilterForSpecificScreen(
-        BookScreenType.books,
+        BookScreenType.bookDetail,
         bookProvider
-            .getFilterForSpecificScreen(BookScreenType.books)
+            .getFilterForSpecificScreen(BookScreenType.bookDetail)
             .copyWith(limit: 20),
       );
 
-      bookProvider.getBooks(screen: BookScreenType.books);
+      bookProvider.getBooks(screen: BookScreenType.bookDetail);
     });
 
     return BaseScaffold(
@@ -167,7 +168,7 @@ class BookDetailScreen extends StatelessWidget {
               sliver: Consumer<BookProvider>(
                 builder: (context, bookProvider, _) {
                   final books = bookProvider
-                      .getBooksForSpecificScreen(BookScreenType.books);
+                      .getBooksForSpecificScreen(BookScreenType.bookDetail);
                   final isLoading =
                       bookProvider.isLoading(BookOperationType.getBooks);
                   final errorMessage =
@@ -191,7 +192,7 @@ class BookDetailScreen extends StatelessWidget {
                           return Center(
                             child: TextButton(
                               onPressed: () => bookProvider.getBooks(
-                                screen: BookScreenType.books,
+                                screen: BookScreenType.bookDetail,
                               ),
                               child: const Text('Retry'),
                             ),

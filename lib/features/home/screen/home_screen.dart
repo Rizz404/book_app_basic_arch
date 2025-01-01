@@ -18,6 +18,21 @@ import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  // Fungsi untuk refresh data
+  Future<void> _handleRefresh(BuildContext context) async {
+    // Reset data dan memuat ulang
+    await Future.wait([
+      context.read<BookProvider>().getBooks(
+            screen: BookScreenType.home,
+            refresh: true,
+          ),
+      context.read<GenreProvider>().getGenres(
+            screen: GenreScreenType.home,
+            refresh: true,
+          ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -31,81 +46,84 @@ class HomeScreen extends StatelessWidget {
       "https://i.pinimg.com/236x/9e/7c/46/9e7c469cdd4842b408ce3a09230b9b29.jpg"
     ];
 
-    return StyledScreenLayoutBuilder(
-        sliverAppBar: StyledSliverAppBar(
-          title: StyledSearchBarPlaceholder(
-            hintText: "Hinted search text",
+    return RefreshIndicator(
+      onRefresh: () => _handleRefresh(context),
+      child: StyledScreenLayoutBuilder(
+          sliverAppBar: StyledSliverAppBar(
+            title: StyledSearchBarPlaceholder(
+              hintText: "Hinted search text",
+            ),
           ),
-        ),
-        builder: (context, controller) {
-          return [
-            // Carousel
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 24,
-                  left: 16,
-                  right: 16,
+          builder: (context, controller) {
+            return [
+              // Carousel
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 24,
+                    left: 16,
+                    right: 16,
+                  ),
+                  child: Column(
+                    children: [
+                      BookOfferCarousel(
+                        bannerImages: images,
+                      ),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    BookOfferCarousel(
-                      bannerImages: images,
-                    ),
-                  ],
+              ),
+
+              // Sticky GenreList
+              StyledStickySliverContainer(
+                height: 64,
+                padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
+                child: Consumer<GenreProvider>(
+                  builder: (context, genreProvider, _) {
+                    return GenreList(
+                      genres: genreProvider.getGenresForSpecificScreen(
+                        GenreScreenType.home,
+                      ),
+                      isLoading:
+                          genreProvider.isLoading(GenreOperationType.getGenres),
+                      errorMessage:
+                          genreProvider.getError(GenreOperationType.getGenres),
+                      onRetry: () => genreProvider.getGenres(),
+                      onGenreSelected: (genreId) =>
+                          context.push('/genres/$genreId'),
+                    );
+                  },
                 ),
               ),
-            ),
 
-            // Sticky GenreList
-            StyledStickySliverContainer(
-              height: 64,
-              padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
-              child: Consumer<GenreProvider>(
-                builder: (context, genreProvider, _) {
-                  return GenreList(
-                    genres: genreProvider.getGenresForSpecificScreen(
-                      GenreScreenType.home,
-                    ),
-                    isLoading:
-                        genreProvider.isLoading(GenreOperationType.getGenres),
-                    errorMessage:
-                        genreProvider.getError(GenreOperationType.getGenres),
-                    onRetry: () => genreProvider.getGenres(),
-                    onGenreSelected: (genreId) =>
-                        context.push('/genres/$genreId'),
-                  );
-                },
+              // * BookGrid
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: Consumer<BookProvider>(
+                  builder: (context, provider, _) {
+                    final books =
+                        provider.getBooksForSpecificScreen(BookScreenType.home);
+                    final isLoading =
+                        provider.isLoading(BookOperationType.getBooks);
+                    final errorMessage =
+                        provider.getError(BookOperationType.getBooks);
+
+                    return InfiniteScrollBookGrid(
+                      books: books,
+                      isLoading: isLoading,
+                      errorMessage: errorMessage,
+                      onLoadMore: () =>
+                          provider.loadMoreBooks(screen: BookScreenType.home),
+                      onBookSelected: (book) {
+                        context.push('/books/${book.id}');
+                      },
+                      scrollController: controller,
+                    );
+                  },
+                ),
               ),
-            ),
-
-            // * BookGrid
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: Consumer<BookProvider>(
-                builder: (context, provider, _) {
-                  final books =
-                      provider.getBooksForSpecificScreen(BookScreenType.home);
-                  final isLoading =
-                      provider.isLoading(BookOperationType.getBooks);
-                  final errorMessage =
-                      provider.getError(BookOperationType.getBooks);
-
-                  return InfiniteScrollBookGrid(
-                    books: books,
-                    isLoading: isLoading,
-                    errorMessage: errorMessage,
-                    onLoadMore: () =>
-                        provider.loadMoreBooks(screen: BookScreenType.home),
-                    onBookSelected: (book) {
-                      context.push('/books/${book.id}');
-                    },
-                    scrollController: controller,
-                  );
-                },
-              ),
-            ),
-          ];
-        });
+            ];
+          }),
+    );
   }
 }

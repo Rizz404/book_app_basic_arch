@@ -29,6 +29,7 @@ class BookProvider with ChangeNotifier {
   final Map<BookScreenType, BookFilterModel> _filterByScreen = {
     BookScreenType.home: BookFilterModel(),
     BookScreenType.books: BookFilterModel(),
+    BookScreenType.bookDetail: BookFilterModel(),
     BookScreenType.search: BookFilterModel(),
     BookScreenType.genreDetail: BookFilterModel(),
     BookScreenType.authorDetail: BookFilterModel(),
@@ -103,7 +104,10 @@ class BookProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getBooks({BookScreenType screen = BookScreenType.home}) async {
+  Future<void> getBooks({
+    BookScreenType screen = BookScreenType.home,
+    bool refresh = false,
+  }) async {
     final filter = _filterByScreen[screen]!;
 
     _updateOperationState(
@@ -113,7 +117,10 @@ class BookProvider with ChangeNotifier {
     );
 
     try {
-      final response = await _bookServices.getBooks(filter);
+      final response = await _bookServices.getBooks(
+        filter,
+        forceRefresh: refresh,
+      );
 
       _booksByScreen[screen] = response.data!;
       _paginationByScreen[screen] = response.meta.pagination;
@@ -137,6 +144,7 @@ class BookProvider with ChangeNotifier {
     int page = 1,
     int limit = 10,
     required String title,
+    bool refresh = false,
   }) async {
     _updateOperationState(
       BookOperationType.searchBooks,
@@ -149,6 +157,7 @@ class BookProvider with ChangeNotifier {
         title: title,
         page: page,
         limit: limit,
+        forceRefresh: refresh,
       );
 
       // * Jika ini adalah halaman pertama, ganti list
@@ -180,7 +189,10 @@ class BookProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getBookById(String id) async {
+  Future<void> getBookById(
+    String id, {
+    bool refresh = false,
+  }) async {
     _updateOperationState(
       BookOperationType.getBookById,
       isLoading: true,
@@ -188,7 +200,10 @@ class BookProvider with ChangeNotifier {
     );
 
     try {
-      final response = await _bookServices.getBookById(id);
+      final response = await _bookServices.getBookById(
+        id,
+        forceRefresh: refresh,
+      );
 
       _book = response.data!;
 

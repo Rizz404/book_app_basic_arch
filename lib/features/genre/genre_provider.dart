@@ -100,6 +100,7 @@ class GenreProvider with ChangeNotifier {
 
   Future<void> getGenres({
     GenreScreenType screen = GenreScreenType.genres,
+    bool refresh = false,
   }) async {
     final filter = _filterByScreen[screen]!;
 
@@ -109,7 +110,10 @@ class GenreProvider with ChangeNotifier {
       errorMessage: null,
     );
     try {
-      final response = await _genreServices.getGenres(filter);
+      final response = await _genreServices.getGenres(
+        filter,
+        forceRefresh: refresh,
+      );
 
       _genresByScreen[screen] = response.data!;
       _paginationByScreen[screen] = response.meta.pagination;
@@ -129,14 +133,20 @@ class GenreProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getGenreById(String id) async {
+  Future<void> getGenreById(
+    String id, {
+    bool refresh = false,
+  }) async {
     _updateOperationState(
       GenreOperationType.getGenreById,
       isLoading: true,
       errorMessage: null,
     );
     try {
-      final response = await _genreServices.getGenreById(id);
+      final response = await _genreServices.getGenreById(
+        id,
+        forceRefresh: refresh,
+      );
 
       _genre = response.data!;
 

@@ -22,8 +22,10 @@ class BookServices {
   }
 
   Future<ApiSuccessResponse<List<BookModel>>> getBooks(
-    BookFilterModel bookFilterModel,
-  ) async {
+    BookFilterModel bookFilterModel, {
+    bool forceRefresh = false,
+  } // * Parameter buat forceRefresh
+      ) async {
     try {
       final queryParameters = {
         'page': bookFilterModel.page,
@@ -45,6 +47,7 @@ class BookServices {
       return await _dioClient.get(
         '/books',
         queryParameters: queryParameters,
+        forceRefresh: forceRefresh,
         fromJsonT: (json) => (json as List).map((item) {
           final book = BookModel.fromJson(item as Map<String, dynamic>);
           return book.copyWith(originalWishlistStatus: book.isWishlisted);
@@ -55,10 +58,14 @@ class BookServices {
     }
   }
 
-  Future<ApiSuccessResponse<BookModel>> getBookById(String id) async {
+  Future<ApiSuccessResponse<BookModel>> getBookById(
+    String id, {
+    bool forceRefresh = false,
+  }) async {
     try {
       return await _dioClient.get(
         '/books/$id',
+        forceRefresh: forceRefresh,
         fromJsonT: (json) {
           final book = BookModel.fromJson(json as Map<String, dynamic>);
           return book.copyWith(originalWishlistStatus: book.isWishlisted);
@@ -73,6 +80,7 @@ class BookServices {
     int page = 1,
     int limit = 10,
     required String title,
+    bool forceRefresh = false,
   }) async {
     try {
       final queryParameters = {
@@ -84,6 +92,7 @@ class BookServices {
       return await _dioClient.get(
         '/books/search',
         queryParameters: queryParameters,
+        forceRefresh: forceRefresh,
         fromJsonT: (json) => (json as List).map((item) {
           final book = BookModel.fromJson(item as Map<String, dynamic>);
           return book.copyWith(originalWishlistStatus: book.isWishlisted);

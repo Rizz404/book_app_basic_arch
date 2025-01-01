@@ -13,6 +13,8 @@ import 'package:path_provider/path_provider.dart';
 class DioClient {
   static final DioClient _instance = DioClient._internal();
   late final Dio dio;
+  late final CacheStore cacheStore;
+  late final CacheOptions defaultCacheOptions;
   final CurrentUserCredentialManager _credentialManager =
       CurrentUserCredentialManager();
 
@@ -36,12 +38,12 @@ class DioClient {
 
   Future<void> _setupCache() async {
     var cacheDir = await getTemporaryDirectory();
-    var cacheStore = HiveCacheStore(
+    cacheStore = HiveCacheStore(
       cacheDir.path,
       hiveBoxName: "dio_cache",
     );
 
-    var customCacheOptions = CacheOptions(
+    defaultCacheOptions = CacheOptions(
       store: cacheStore,
       policy: CachePolicy.forceCache,
       priority: CachePriority.high,
@@ -52,10 +54,15 @@ class DioClient {
     );
 
     dio.interceptors.addAll([
-      DioCacheInterceptor(options: customCacheOptions),
+      DioCacheInterceptor(options: defaultCacheOptions),
       AuthInterceptor(dio: dio, credentialManager: _credentialManager),
       LoggerInterceptor(),
     ]);
+  }
+
+  // Method method untuk clear cache
+  Future<void> clearCache() async {
+    await cacheStore.clean();
   }
 
   // * Generic request methods
@@ -66,12 +73,30 @@ class DioClient {
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
+    bool forceRefresh = false, // * Buat force refresh
   }) async {
     try {
+      // Jika forceRefresh true, gunakan policy CachePolicy.refresh
+      final cacheOptions = forceRefresh
+          ? defaultCacheOptions.copyWith(
+              policy: CachePolicy.refresh,
+            )
+          : defaultCacheOptions;
+
       final response = await dio.get(
         path,
         queryParameters: queryParameters,
-        options: options,
+        options: options?.copyWith(
+              extra: {
+                ...options.extra ?? {},
+                'cache_options': cacheOptions,
+              },
+            ) ??
+            Options(
+              extra: {
+                'cache_options': cacheOptions,
+              },
+            ),
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
