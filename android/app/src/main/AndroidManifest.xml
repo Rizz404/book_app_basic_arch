@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:label="book_app_basic_arch"
+        android:label="Book App Suffering From Success"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
