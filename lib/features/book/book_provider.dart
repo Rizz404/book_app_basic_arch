@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
+import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
-import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/book_services.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/model/book_filter_model.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 import 'package:flutter/material.dart';
@@ -10,25 +13,27 @@ import 'package:flutter/material.dart';
 class BookProvider with ChangeNotifier {
   final BookServices _bookServices = BookServices();
 
-  // * State untuk menyimpan books per screen
+  // * * State untuk menyimpan books per screen
   final Map<BookScreenType, List<BookModel>> _booksByScreen = {};
-  // * State untuk menyimpan pagination per screen
+  // * * State untuk menyimpan pagination per screen
   final Map<BookScreenType, ApiPagination?> _paginationByScreen = {};
 
-  // * Beda buat search
-  List<BookModel> _searchedBooks = [];
-  List<BookModel> get searchedBooks => _searchedBooks;
-  ApiPagination? _searchedBooksPagination;
-  ApiPagination? get searchedBooksPagination => _searchedBooksPagination;
+  // * * Getter untuk hasil search (pake map yang sama)
+  List<BookModel> get searchedBooks =>
+      _booksByScreen[BookScreenType.search] ?? [];
 
-  // * State untuk single book detail
+  ApiPagination? get searchedBooksPagination =>
+      _paginationByScreen[BookScreenType.search];
+
+  // * * State untuk single book detail
   BookModel? _book;
   BookModel? get book => _book;
 
-  // * State untuk menyimpan filter tiap screen
+  // * * State untuk menyimpan filter tiap screen
   final Map<BookScreenType, BookFilterModel> _filterByScreen = {
     BookScreenType.home: BookFilterModel(),
     BookScreenType.books: BookFilterModel(),
+    BookScreenType.wishlist: BookFilterModel(),
     BookScreenType.bookDetail: BookFilterModel(),
     BookScreenType.search: BookFilterModel(),
     BookScreenType.genreDetail: BookFilterModel(),
@@ -36,35 +41,35 @@ class BookProvider with ChangeNotifier {
     BookScreenType.publisherDetail: BookFilterModel(),
   };
 
-  // * Getter untuk books berdasarkan screen
+  // * * Getter untuk books berdasarkan screen
   List<BookModel> getBooksForSpecificScreen(BookScreenType screen) {
     return _booksByScreen[screen] ?? [];
   }
 
-  // * Getter untuk pagination berdasarkan screen
+  // * * Getter untuk pagination berdasarkan screen
   ApiPagination? getPaginationForSpecificScreen(BookScreenType screen) {
     return _paginationByScreen[screen];
   }
 
-  // * Getter untuk filter berdasarkan screen
+  // * * Getter untuk filter berdasarkan screen
   BookFilterModel getFilterForSpecificScreen(BookScreenType screen) {
     return _filterByScreen[screen] ?? BookFilterModel();
   }
 
-  // * Method untuk update filter
+  // * * Method untuk update filter
   void updateFilterForSpecificScreen(
       BookScreenType screen, BookFilterModel newFilter) {
     _filterByScreen[screen] = newFilter;
     notifyListeners();
   }
 
-  // * Map untuk store operation state
+  // * * Map untuk store operation state
   final Map<BookOperationType, OperationState> _operationStates = {
     for (var operation in BookOperationType.values)
       operation: (isLoading: false, errorMessage: null)
   };
 
-  // * Getter untuk state
+  // * * Getter untuk state
   bool isLoading(BookOperationType operation) =>
       _operationStates[operation]!.isLoading;
   String? getError(BookOperationType operation) =>
@@ -85,6 +90,7 @@ class BookProvider with ChangeNotifier {
       isLoading: true,
       errorMessage: null,
     );
+
     try {
       await _bookServices.createBook(book);
       await getBooks();
@@ -105,8 +111,7 @@ class BookProvider with ChangeNotifier {
   }
 
   Future<void> getBooks({
-    BookScreenType screen = BookScreenType.home,
-    bool refresh = false,
+    BookScreenType screen = BookScreenType.books,
   }) async {
     final filter = _filterByScreen[screen]!;
 
@@ -117,10 +122,7 @@ class BookProvider with ChangeNotifier {
     );
 
     try {
-      final response = await _bookServices.getBooks(
-        filter,
-        forceRefresh: refresh,
-      );
+      final response = await _bookServices.getBooks(filter);
 
       _booksByScreen[screen] = response.data!;
       _paginationByScreen[screen] = response.meta.pagination;
@@ -140,59 +142,7 @@ class BookProvider with ChangeNotifier {
     }
   }
 
-  Future<void> searchBooksByTitle({
-    int page = 1,
-    int limit = 10,
-    required String title,
-    bool refresh = false,
-  }) async {
-    _updateOperationState(
-      BookOperationType.searchBooks,
-      isLoading: true,
-      errorMessage: null,
-    );
-
-    try {
-      final response = await _bookServices.searchBookByTitle(
-        title: title,
-        page: page,
-        limit: limit,
-        forceRefresh: refresh,
-      );
-
-      // * Jika ini adalah halaman pertama, ganti list
-      // * Jika bukan, tambahkan ke list yang sudah ada
-      if (page == 1) {
-        _searchedBooks = response.data!;
-      } else {
-        _searchedBooks = [..._searchedBooks, ...response.data!];
-      }
-      _searchedBooksPagination = response.meta.pagination;
-
-      _updateOperationState(
-        BookOperationType.searchBooks,
-        isLoading: false,
-        errorMessage: null,
-      );
-    } catch (e) {
-      _updateOperationState(
-        BookOperationType.searchBooks,
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
-      debugPrint('Error fetching books: $e');
-    }
-  }
-
-  void resetSearch() {
-    _searchedBooks = [];
-    notifyListeners();
-  }
-
-  Future<void> getBookById(
-    String id, {
-    bool refresh = false,
-  }) async {
+  Future<void> getBookById(String id) async {
     _updateOperationState(
       BookOperationType.getBookById,
       isLoading: true,
@@ -200,10 +150,7 @@ class BookProvider with ChangeNotifier {
     );
 
     try {
-      final response = await _bookServices.getBookById(
-        id,
-        forceRefresh: refresh,
-      );
+      final response = await _bookServices.getBookById(id);
 
       _book = response.data!;
 
@@ -222,6 +169,43 @@ class BookProvider with ChangeNotifier {
     }
   }
 
+  Future<void> searchBooksByTitle({
+    required String title,
+  }) async {
+    // * Reset filter search ke page 1 dengan query baru
+    final newFilter = BookFilterModel(
+      page: 1,
+      searchQuery: title,
+    );
+    _filterByScreen[BookScreenType.search] = newFilter;
+
+    _updateOperationState(
+      BookOperationType.searchBooks,
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response = await _bookServices.searchBooksByTitle(title: title);
+
+      _booksByScreen[BookScreenType.search] = response.data!;
+      _paginationByScreen[BookScreenType.search] = response.meta.pagination;
+
+      _updateOperationState(
+        BookOperationType.searchBooks,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        BookOperationType.searchBooks,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error searching books: $e');
+    }
+  }
+
   Future<void> updateBook(UpdateBookModel book) async {
     _updateOperationState(
       BookOperationType.updateBookById,
@@ -231,6 +215,7 @@ class BookProvider with ChangeNotifier {
 
     try {
       await _bookServices.updateBookById(book);
+
       await getBookById(book.id);
       await getBooks();
 
@@ -275,33 +260,117 @@ class BookProvider with ChangeNotifier {
     }
   }
 
-  // * Buat infinite scroll
-  Future<void> loadMoreBooks(
-      {BookScreenType screen = BookScreenType.home}) async {
-    final currentFilter = _filterByScreen[screen]!;
-    final currentPagination = _paginationByScreen[screen];
+  // * * Beda routes tapi disatuin aja
+  Future<void> addBookToWishlist(String id) async {
+    _updateOperationState(
+      BookOperationType.addBookToWishlist,
+      isLoading: true,
+      errorMessage: null,
+    );
+    try {
+      await _bookServices.addBookToWishlist(id);
 
-    // * Cek apakah masih ada halaman selanjutnya
-    if (currentPagination != null &&
-        currentPagination.currentPage >= currentPagination.totalPages) {
-      return;
+      _updateOperationState(
+        BookOperationType.addBookToWishlist,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        BookOperationType.addBookToWishlist,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error follow book: $e');
     }
+  }
 
-    // * Buat filter baru dengan page yang diupdate
-    final newFilter =
-        currentFilter.copyWith(page: (currentPagination?.currentPage ?? 0) + 1);
-    _filterByScreen[screen] = newFilter;
+  Future<void> getBooksInWishlist({
+    BookScreenType screen = BookScreenType.wishlist,
+  }) async {
+    final filter = _filterByScreen[screen]!;
 
     _updateOperationState(
-      BookOperationType.getBooks,
+      BookOperationType.getBooksInWishlist,
       isLoading: true,
       errorMessage: null,
     );
 
     try {
-      final response = await _bookServices.getBooks(newFilter);
+      final response = await _bookServices.getBooksInWishlist(filter);
 
-      // * Tambahkan data baru ke list yang sudah ada
+      _booksByScreen[screen] = response.data!;
+      _paginationByScreen[screen] = response.meta.pagination;
+
+      _updateOperationState(
+        BookOperationType.getBooksInWishlist,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        BookOperationType.getBooksInWishlist,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error fetching books followed: $e');
+    }
+  }
+
+  Future<void> removeBookFromWishlist(String id) async {
+    _updateOperationState(
+      BookOperationType.removeBookFromWishlist,
+      isLoading: true,
+      errorMessage: null,
+    );
+    try {
+      await _bookServices.removeBookFromWishlist(id);
+
+      _updateOperationState(
+        BookOperationType.removeBookFromWishlist,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        BookOperationType.removeBookFromWishlist,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error follow book: $e');
+    }
+  }
+
+  // * * Method generic untuk load more data
+  Future<void> loadMoreBooks(BookScreenType screen) async {
+    final currentFilter = _filterByScreen[screen]!;
+    final currentPagination = _paginationByScreen[screen];
+
+    // * * Cek apakah masih ada halaman selanjutnya
+    if (currentPagination != null &&
+        currentPagination.currentPage >= currentPagination.totalPages) {
+      return;
+    }
+
+    // * * Update filter dengan page selanjutnya
+    final newFilter = currentFilter.copyWith(
+      page: (currentPagination?.currentPage ?? 0) + 1,
+    );
+    _filterByScreen[screen] = newFilter;
+
+    // * * Tentukan operation type berdasarkan screen
+    final operationType = _getOperationTypeForScreen(screen);
+
+    _updateOperationState(
+      operationType,
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response = await _getDataForScreen(screen, newFilter);
+
+      // * * Tambahkan data baru ke list yang sudah ada
       _booksByScreen[screen] = [
         ...(_booksByScreen[screen] ?? []),
         ...response.data!
@@ -309,84 +378,116 @@ class BookProvider with ChangeNotifier {
       _paginationByScreen[screen] = response.meta.pagination;
 
       _updateOperationState(
-        BookOperationType.getBooks,
+        operationType,
         isLoading: false,
         errorMessage: null,
       );
     } catch (e) {
       _updateOperationState(
-        BookOperationType.getBooks,
+        operationType,
         isLoading: false,
         errorMessage: e.toString(),
       );
-      debugPrint('Error loading more books: $e');
+      debugPrint('Error loading more data: $e');
     }
   }
 
-  Future<void> loadMoreSearchedBooks(String title) async {
-    // * Cek apakah masih ada halaman selanjutnya
-    if (_searchedBooksPagination != null &&
-        _searchedBooksPagination!.currentPage >=
-            _searchedBooksPagination!.totalPages) {
-      return;
+  // * *============*function yang gak langsung fetch api*============*
+  // * * Helper method untuk mendapatkan operation type berdasarkan screen
+  BookOperationType _getOperationTypeForScreen(BookScreenType screen) {
+    switch (screen) {
+      case BookScreenType.home:
+        return BookOperationType.getBooks;
+      case BookScreenType.books:
+        return BookOperationType.getBooks;
+      case BookScreenType.wishlist:
+        return BookOperationType.getBooksInWishlist;
+      case BookScreenType.search:
+        return BookOperationType.searchBooks;
+      case BookScreenType.bookDetail:
+        return BookOperationType.getBooks;
+      case BookScreenType.genreDetail:
+        return BookOperationType.getBooks;
+      case BookScreenType.authorDetail:
+        return BookOperationType.getBooks;
+      case BookScreenType.publisherDetail:
+        return BookOperationType.getBooks;
     }
-
-    // * Ambil halaman berikutnya
-    await searchBooksByTitle(
-      title: title,
-      page: (_searchedBooksPagination?.currentPage ?? 0) + 1,
-      limit: _filterByScreen[BookScreenType.search]!.limit,
-    );
   }
 
-  void updateBookWishlistStatus(String bookId, bool isWishlisted) {
-    // Update di semua screen yang menyimpan buku
+  // * * Helper method untuk mendapatkan data berdasarkan screen
+  Future<ApiSuccessResponse<List<BookModel>>> _getDataForScreen(
+    BookScreenType screen,
+    BookFilterModel filter,
+  ) async {
+    switch (screen) {
+      case BookScreenType.home:
+        return await _bookServices.getBooks(filter);
+      case BookScreenType.books:
+        return await _bookServices.getBooks(filter);
+      case BookScreenType.wishlist:
+        return await _bookServices.getBooksInWishlist(filter);
+      case BookScreenType.search:
+        // * Asumsikan ada searchQuery yang disimpan
+        final searchQuery = filter.searchQuery;
+        if (searchQuery == null) {
+          throw Exception('Search query is required for search screen');
+        }
+        return await _bookServices.searchBooksByTitle(title: searchQuery);
+      case BookScreenType.genreDetail:
+        return await _bookServices.getBooks(filter);
+      case BookScreenType.authorDetail:
+        return await _bookServices.getBooks(filter);
+      case BookScreenType.publisherDetail:
+        return await _bookServices.getBooks(filter);
+      case BookScreenType.bookDetail:
+        return await _bookServices.getBooks(filter);
+    }
+  }
+
+  void resetSearch() {
+    _booksByScreen[BookScreenType.search] = [];
+    _paginationByScreen[BookScreenType.search] = null;
+    notifyListeners();
+  }
+
+  // * * Optimistik update
+  // * Map untuk menyimpan timer debounce per book
+  final Map<String, Timer> _followDebounceTimers = {};
+  // * Duration untuk debounce
+  static const _debounceDuration = Duration(milliseconds: 500);
+
+  // * Method untuk update status follow secara optimistic
+  void updateBookFollowStatus(String bookId, bool isFollowed) {
+    // * Update di semua screen yang menyimpan book
     _booksByScreen.forEach((screen, books) {
       final bookIndex = books.indexWhere((book) => book.id == bookId);
       if (bookIndex != -1) {
         final updatedBooks = List<BookModel>.from(books);
         updatedBooks[bookIndex] = books[bookIndex].copyWith(
-          isWishlisted: isWishlisted,
-          wishlistCount: isWishlisted
+          isWishlisted: isFollowed,
+          wishlistCount: isFollowed
               ? books[bookIndex].wishlistCount + 1
               : books[bookIndex].wishlistCount - 1,
-          // Simpan status original yang baru
-          originalWishlistStatus: isWishlisted,
         );
         _booksByScreen[screen] = updatedBooks;
       }
     });
 
-    // Update untuk searched books
-    final searchedBookIndex =
-        _searchedBooks.indexWhere((book) => book.id == bookId);
-    if (searchedBookIndex != -1) {
-      final updatedSearchedBooks = List<BookModel>.from(_searchedBooks);
-      updatedSearchedBooks[searchedBookIndex] =
-          _searchedBooks[searchedBookIndex].copyWith(
-        isWishlisted: isWishlisted,
-        wishlistCount: isWishlisted
-            ? _searchedBooks[searchedBookIndex].wishlistCount + 1
-            : _searchedBooks[searchedBookIndex].wishlistCount - 1,
-        originalWishlistStatus: isWishlisted,
-      );
-      _searchedBooks = updatedSearchedBooks;
-    }
-
-    // Update untuk single book detail
+    // * Update untuk single book detail
     if (_book?.id == bookId) {
       _book = _book!.copyWith(
-        isWishlisted: isWishlisted,
+        isWishlisted: isFollowed,
         wishlistCount:
-            isWishlisted ? _book!.wishlistCount + 1 : _book!.wishlistCount - 1,
-        originalWishlistStatus: isWishlisted,
+            isFollowed ? _book!.wishlistCount + 1 : _book!.wishlistCount - 1,
       );
     }
 
     notifyListeners();
   }
 
-  void rollbackBookWishlistStatus(String bookId) {
+  // * Method untuk rollback status follow
+  void rollbackBookFollowStatus(String bookId) {
     // * Rollback di semua screen
     _booksByScreen.forEach((screen, books) {
       final bookIndex = books.indexWhere((book) => book.id == bookId);
@@ -402,22 +503,7 @@ class BookProvider with ChangeNotifier {
       }
     });
 
-    // * Rollback untuk searched books
-    final searchedBookIndex =
-        _searchedBooks.indexWhere((book) => book.id == bookId);
-    if (searchedBookIndex != -1) {
-      final updatedSearchedBooks = List<BookModel>.from(_searchedBooks);
-      updatedSearchedBooks[searchedBookIndex] =
-          _searchedBooks[searchedBookIndex].copyWith(
-        isWishlisted: _searchedBooks[searchedBookIndex].originalWishlistStatus,
-        wishlistCount: _searchedBooks[searchedBookIndex].originalWishlistStatus
-            ? _searchedBooks[searchedBookIndex].wishlistCount + 1
-            : _searchedBooks[searchedBookIndex].wishlistCount - 1,
-      );
-      _searchedBooks = updatedSearchedBooks;
-    }
-
-    // Rollback untuk single book detail
+    // * Rollback untuk single book detail
     if (_book?.id == bookId) {
       _book = _book!.copyWith(
         isWishlisted: _book!.originalWishlistStatus,
@@ -430,17 +516,87 @@ class BookProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Add this method in BookProvider class
-  Future<void> resetBooks(BookScreenType screen) async {
-    // Clear books for the specific screen
-    _booksByScreen[screen] = [];
+  // * Method untuk handle follow/unfollow dengan debounce
+  Future<void> toggleWishlist(String bookId) async {
+    // * Cari book di semua screen
+    BookModel? targetBook;
+    for (var books in _booksByScreen.values) {
+      targetBook = books.firstWhere(
+        (book) => book.id == bookId,
+        orElse: () => targetBook ?? _book!,
+      );
+      break;
+    }
 
-    // Reset pagination
-    _paginationByScreen[screen] = null;
+    if (targetBook == null) return;
 
-    // Reset filter to initial state with page 1
-    _filterByScreen[screen] = BookFilterModel().copyWith(page: 1);
+    // * Cancel timer yang sedang berjalan (jika ada)
+    _followDebounceTimers[bookId]?.cancel();
+
+    // * Update UI secara optimistic
+    final newFollowStatus = !targetBook.isWishlisted;
+    updateBookFollowStatus(bookId, newFollowStatus);
+
+    // * Set timer baru untuk debounce
+    _followDebounceTimers[bookId] = Timer(_debounceDuration, () async {
+      // * Cek apakah status berubah dari original
+      final currentBook = _findBookById(bookId);
+      if (currentBook == null) return;
+
+      if (currentBook.isWishlisted != currentBook.originalWishlistStatus) {
+        try {
+          if (currentBook.isWishlisted) {
+            await addBookToWishlist(bookId);
+          } else {
+            await removeBookFromWishlist(bookId);
+          }
+
+          // * Update original status setelah berhasil
+          _updateOriginalFollowStatus(bookId, currentBook.isWishlisted);
+        } catch (e) {
+          // * Rollback jika gagal
+          rollbackBookFollowStatus(bookId);
+          debugPrint('Error toggling follow status: $e');
+        }
+      }
+    });
+  }
+
+  // * Helper method untuk mencari book di semua screen
+  BookModel? _findBookById(String bookId) {
+    for (var books in _booksByScreen.values) {
+      final book = books.where((book) => book.id == bookId).firstOrNull;
+      if (book != null) return book;
+    }
+    return _book?.id == bookId ? _book : null;
+  }
+
+  // * Helper method untuk update original follow status
+  void _updateOriginalFollowStatus(String bookId, bool newStatus) {
+    _booksByScreen.forEach((screen, books) {
+      final bookIndex = books.indexWhere((book) => book.id == bookId);
+      if (bookIndex != -1) {
+        final updatedBooks = List<BookModel>.from(books);
+        updatedBooks[bookIndex] = books[bookIndex].copyWith(
+          originalWishlistStatus: newStatus,
+        );
+        _booksByScreen[screen] = updatedBooks;
+      }
+    });
+
+    if (_book?.id == bookId) {
+      _book = _book!.copyWith(originalWishlistStatus: newStatus);
+    }
 
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    // * Cancel semua timer saat dispose
+    for (var timer in _followDebounceTimers.values) {
+      timer.cancel();
+    }
+    super.dispose();
   }
 }

@@ -15,7 +15,6 @@ class UserCredentialModel with _$UserCredentialModel {
     required bool isEmailVerified,
     required DateTime createdAt,
     required DateTime updatedAt,
-    required String password,
     required String accessToken,
     required String refreshToken,
   }) = _UserCredentialModel;

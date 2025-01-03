@@ -1,16 +1,14 @@
 import 'package:book_app_basic_arch/core/config/app_themes.dart';
-import 'package:book_app_basic_arch/core/config/go_router.dart';
+import 'package:book_app_basic_arch/core/config/app_router.dart';
 import 'package:book_app_basic_arch/core/constants/app_pallete.dart';
 import 'package:book_app_basic_arch/core/shared/provider/theme_provider.dart';
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
-import 'package:book_app_basic_arch/features/auth/model/local/user_credential_model.dart';
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/language/language_provider.dart';
 import 'package:book_app_basic_arch/features/profile/profile_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
-import 'package:book_app_basic_arch/features/wishlist/wishlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
@@ -22,9 +20,6 @@ void main() async {
 
   await Hive.initFlutter(appDocumentDirectory.path);
 
-  // * Register semua adapter Hive di sini
-  Hive.registerAdapter(UserCredentialModelAdapter());
-
   runApp(
     MultiProvider(providers: [
       ChangeNotifierProvider(
@@ -35,13 +30,6 @@ void main() async {
       ),
       ChangeNotifierProvider(
         create: (_) => BookProvider(),
-      ),
-      ChangeNotifierProxyProvider<BookProvider, WishlistProvider>(
-        create: (context) => WishlistProvider(
-          bookProvider: context.read<BookProvider>(),
-        ),
-        update: (context, bookProvider, previous) =>
-            previous ?? WishlistProvider(bookProvider: bookProvider),
       ),
       ChangeNotifierProvider(
         create: (_) => ProfileProvider(),
@@ -73,7 +61,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Just chilling',
       theme: AppThemes.createThemeData(themeProvider.currentTheme),
-      routerConfig: goRouter,
+      routerConfig: AppRouter.goRouter,
     );
   }
 }

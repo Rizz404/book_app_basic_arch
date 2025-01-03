@@ -1,15 +1,14 @@
-import 'package:book_app_basic_arch/core/helpers/current_user_credential_manager.dart';
 import 'package:flutter/material.dart';
 
 class StyledSliverAppBar extends StatelessWidget {
-  final Widget? title;
+  final Widget title;
   final List<Widget>? actions;
   final double? elevation;
   final bool? centerTitle;
 
   const StyledSliverAppBar({
     super.key,
-    this.title,
+    required this.title,
     this.actions,
     this.elevation,
     this.centerTitle = false,
@@ -17,9 +16,6 @@ class StyledSliverAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    CurrentUserCredentialManager userCredential =
-        CurrentUserCredentialManager();
-
     return SliverAppBar(
       floating: false,
       pinned: true,
@@ -47,22 +43,11 @@ class StyledSliverAppBar extends StatelessWidget {
                   padding: EdgeInsets.only(
                     left: ModalRoute.of(context)?.canPop == true ? 48 : 0,
                   ),
-                  child: title ?? const SizedBox(),
+                  child: title,
                 ),
               ),
               const SizedBox(width: 8),
-              Row(
-                children: actions ??
-                    [
-                      CircleAvatar(
-                        radius: 24,
-                        backgroundImage: NetworkImage(
-                          userCredential.profilePicture ??
-                              "https://i.pinimg.com/236x/0e/f3/6f/0ef36fb12fec6342b5f0116cf613c0ab.jpg",
-                        ),
-                      ),
-                    ],
-              ),
+              Row(children: actions ?? []),
             ],
           ),
         ),

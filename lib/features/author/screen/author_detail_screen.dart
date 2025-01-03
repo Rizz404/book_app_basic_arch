@@ -4,6 +4,8 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
 import 'package:book_app_basic_arch/features/author/enums/author_operation_type.dart';
 import 'package:book_app_basic_arch/features/author/enums/author_screen_type.dart';
@@ -51,7 +53,6 @@ class AuthorDetailScreen extends StatelessWidget {
       context.read<AuthorProvider>().getAuthorById(authorId),
       context.read<BookProvider>().getBooks(
             screen: BookScreenType.authorDetail,
-            refresh: true,
           ),
     ]);
   }
@@ -66,6 +67,11 @@ class AuthorDetailScreen extends StatelessWidget {
       body: RefreshIndicator(
         onRefresh: () => _handleRefresh(context),
         child: StyledScreenLayoutBuilder(
+          sliverAppBar: StyledSliverAppBar(
+            title: StyledSearchBarPlaceholder(
+              hintText: "Hinted search text",
+            ),
+          ),
           builder: (builder, controller) {
             return [
               SliverToBoxAdapter(
@@ -146,8 +152,8 @@ class AuthorDetailScreen extends StatelessWidget {
                       books: books,
                       isLoading: isLoading,
                       errorMessage: errorMessage,
-                      onLoadMore: () async => await bookProvider.loadMoreBooks(
-                          screen: BookScreenType.authorDetail),
+                      onLoadMore: () async => await bookProvider
+                          .loadMoreBooks(BookScreenType.authorDetail),
                       onBookSelected: (book) {
                         context.push('/books/${book.id}');
                       },

@@ -111,11 +111,10 @@ class GenreDetailScreen extends StatelessWidget {
                       errorMessage: errorMessageBooks,
                       onRetry: () async => await bookProvider.getBooks(
                         screen: BookScreenType.genreDetail,
-                        refresh: true,
                       ),
                       onLoadMore: () async {
                         await bookProvider.loadMoreBooks(
-                          screen: BookScreenType.genreDetail,
+                          BookScreenType.genreDetail,
                         );
                       },
                       onBookSelected: (book) {

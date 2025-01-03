@@ -29,7 +29,6 @@ mixin _$UserCredentialModel {
   bool get isEmailVerified => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
-  String get password => throw _privateConstructorUsedError;
   String get accessToken => throw _privateConstructorUsedError;
   String get refreshToken => throw _privateConstructorUsedError;
 
@@ -59,7 +58,6 @@ abstract class $UserCredentialModelCopyWith<$Res> {
       bool isEmailVerified,
       DateTime createdAt,
       DateTime updatedAt,
-      String password,
       String accessToken,
       String refreshToken});
 }
@@ -88,7 +86,6 @@ class _$UserCredentialModelCopyWithImpl<$Res, $Val extends UserCredentialModel>
     Object? isEmailVerified = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? password = null,
     Object? accessToken = null,
     Object? refreshToken = null,
   }) {
@@ -129,10 +126,6 @@ class _$UserCredentialModelCopyWithImpl<$Res, $Val extends UserCredentialModel>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      password: null == password
-          ? _value.password
-          : password // ignore: cast_nullable_to_non_nullable
-              as String,
       accessToken: null == accessToken
           ? _value.accessToken
           : accessToken // ignore: cast_nullable_to_non_nullable
@@ -163,7 +156,6 @@ abstract class _$$UserCredentialModelImplCopyWith<$Res>
       bool isEmailVerified,
       DateTime createdAt,
       DateTime updatedAt,
-      String password,
       String accessToken,
       String refreshToken});
 }
@@ -190,7 +182,6 @@ class __$$UserCredentialModelImplCopyWithImpl<$Res>
     Object? isEmailVerified = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? password = null,
     Object? accessToken = null,
     Object? refreshToken = null,
   }) {
@@ -231,10 +222,6 @@ class __$$UserCredentialModelImplCopyWithImpl<$Res>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      password: null == password
-          ? _value.password
-          : password // ignore: cast_nullable_to_non_nullable
-              as String,
       accessToken: null == accessToken
           ? _value.accessToken
           : accessToken // ignore: cast_nullable_to_non_nullable
@@ -260,7 +247,6 @@ class _$UserCredentialModelImpl implements _UserCredentialModel {
       required this.isEmailVerified,
       required this.createdAt,
       required this.updatedAt,
-      required this.password,
       required this.accessToken,
       required this.refreshToken});
 
@@ -286,15 +272,13 @@ class _$UserCredentialModelImpl implements _UserCredentialModel {
   @override
   final DateTime updatedAt;
   @override
-  final String password;
-  @override
   final String accessToken;
   @override
   final String refreshToken;
 
   @override
   String toString() {
-    return 'UserCredentialModel(id: $id, username: $username, email: $email, role: $role, profilePicture: $profilePicture, isVerified: $isVerified, isEmailVerified: $isEmailVerified, createdAt: $createdAt, updatedAt: $updatedAt, password: $password, accessToken: $accessToken, refreshToken: $refreshToken)';
+    return 'UserCredentialModel(id: $id, username: $username, email: $email, role: $role, profilePicture: $profilePicture, isVerified: $isVerified, isEmailVerified: $isEmailVerified, createdAt: $createdAt, updatedAt: $updatedAt, accessToken: $accessToken, refreshToken: $refreshToken)';
   }
 
   @override
@@ -317,8 +301,6 @@ class _$UserCredentialModelImpl implements _UserCredentialModel {
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
-            (identical(other.password, password) ||
-                other.password == password) &&
             (identical(other.accessToken, accessToken) ||
                 other.accessToken == accessToken) &&
             (identical(other.refreshToken, refreshToken) ||
@@ -338,7 +320,6 @@ class _$UserCredentialModelImpl implements _UserCredentialModel {
       isEmailVerified,
       createdAt,
       updatedAt,
-      password,
       accessToken,
       refreshToken);
 
@@ -370,7 +351,6 @@ abstract class _UserCredentialModel implements UserCredentialModel {
       required final bool isEmailVerified,
       required final DateTime createdAt,
       required final DateTime updatedAt,
-      required final String password,
       required final String accessToken,
       required final String refreshToken}) = _$UserCredentialModelImpl;
 
@@ -395,8 +375,6 @@ abstract class _UserCredentialModel implements UserCredentialModel {
   DateTime get createdAt;
   @override
   DateTime get updatedAt;
-  @override
-  String get password;
   @override
   String get accessToken;
   @override

@@ -23,6 +23,7 @@ class BookFilterModel with _$BookFilterModel {
     String? publisherId,
     String? publicationDateRange,
     String? language,
+    String? searchQuery, // * Untuk menyimpan query pencarian
   }) = _BookFilterModel;
 
   factory BookFilterModel.fromJson(Map<String, dynamic> json) =>

@@ -1,8 +1,8 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_text_form_field.dart';
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
-import 'package:book_app_basic_arch/features/auth/enum_auth_operation.dart';
-import 'package:book_app_basic_arch/features/auth/model/remote/auth_model.dart';
+import 'package:book_app_basic_arch/features/auth/enums/auth_operation_type.dart';
+import 'package:book_app_basic_arch/features/auth/model/auth_model.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -41,9 +41,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Consumer<AuthProvider>(
         builder: (BuildContext context, provider, _) {
           final isLoadingSignUpModel =
-              provider.isLoading(EnumAuthOperation.signUp);
+              provider.isLoading(AuthOperationType.signUp);
           final errorMessageSignUp =
-              provider.getError(EnumAuthOperation.signUp);
+              provider.getError(AuthOperationType.signUp);
 
           if (isLoadingSignUpModel) {
             // Loading State

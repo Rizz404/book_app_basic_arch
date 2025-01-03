@@ -1,9 +1,10 @@
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
-import 'package:book_app_basic_arch/features/book/widgets/book_grid.dart';
-import 'package:book_app_basic_arch/features/wishlist/enums/wishlist_operation_type.dart';
-import 'package:book_app_basic_arch/features/wishlist/wishlist_provider.dart';
+import 'package:book_app_basic_arch/features/book/book_provider.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
+import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -14,17 +15,16 @@ class WishlistScreen extends StatelessWidget {
   Future<void> _handleRefresh(BuildContext context) async {
     // Reset data dan memuat ulang
     await Future.wait([
-      context.read<WishlistProvider>().getBooksWishlished(),
+      context.read<BookProvider>().getBooksInWishlist(),
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    final wishlistProvider =
-        Provider.of<WishlistProvider>(context, listen: false);
+    final wishlistProvider = Provider.of<BookProvider>(context, listen: false);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      wishlistProvider.getBooksWishlished();
+      wishlistProvider.getBooksInWishlist();
     });
 
     return BaseScaffold(
@@ -39,23 +39,27 @@ class WishlistScreen extends StatelessWidget {
               return [
                 SliverPadding(
                   padding: EdgeInsets.all(16),
-                  sliver: Consumer<WishlistProvider>(
-                    builder: (context, provider, _) {
-                      final books = provider.getBooksForScreen('wishlist');
-                      final isLoading = provider.isLoading(
-                          WishlistOperationType.getBooksFromWishlish);
-                      final errorMessage = provider
-                          .getError(WishlistOperationType.getBooksFromWishlish);
+                  sliver: Consumer<BookProvider>(
+                    builder: (context, bookProvider, _) {
+                      final books = bookProvider
+                          .getBooksForSpecificScreen(BookScreenType.wishlist);
+                      final isLoading = bookProvider
+                          .isLoading(BookOperationType.getBooksInWishlist);
+                      final errorMessage = bookProvider
+                          .getError(BookOperationType.getBooksInWishlist);
 
-                      return SliverToBoxAdapter(
-                        child: BookGrid(
-                          books: books,
-                          isLoading: isLoading,
-                          onBookSelected: (book) {
-                            context.push('/books/${book.id}');
-                          },
-                          errorMessage: errorMessage,
-                          onRetry: () => wishlistProvider.getBooksWishlished(),
+                      return InfiniteScrollBookGrid(
+                        books: books,
+                        isLoading: isLoading,
+                        errorMessage: errorMessage,
+                        onLoadMore: () =>
+                            bookProvider.loadMoreBooks(BookScreenType.wishlist),
+                        onBookSelected: (book) {
+                          context.push('/books/${book.id}');
+                        },
+                        scrollController: controller,
+                        onRetry: () => bookProvider.getBooks(
+                          screen: BookScreenType.wishlist,
                         ),
                       );
                     },

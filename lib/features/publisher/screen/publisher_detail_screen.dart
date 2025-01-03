@@ -4,6 +4,8 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/enums/publisher_operation_type.dart';
 import 'package:book_app_basic_arch/features/publisher/enums/publisher_screen_type.dart';
@@ -56,6 +58,11 @@ class PublisherDetailScreen extends StatelessWidget {
 
     return BaseScaffold(
       body: StyledScreenLayoutBuilder(
+        sliverAppBar: StyledSliverAppBar(
+          title: StyledSearchBarPlaceholder(
+            hintText: "Hinted search text",
+          ),
+        ),
         builder: (builder, controller) {
           return [
             SliverToBoxAdapter(
@@ -136,8 +143,8 @@ class PublisherDetailScreen extends StatelessWidget {
                     books: books,
                     isLoading: isLoading,
                     errorMessage: errorMessage,
-                    onLoadMore: () async => await bookProvider.loadMoreBooks(
-                        screen: BookScreenType.publisherDetail),
+                    onLoadMore: () async => await bookProvider
+                        .loadMoreBooks(BookScreenType.publisherDetail),
                     onBookSelected: (book) {
                       context.push('/books/${book.id}');
                     },

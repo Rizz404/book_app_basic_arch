@@ -18,6 +18,7 @@ _$BookFilterModelImpl _$$BookFilterModelImplFromJson(
       publisherId: json['publisherId'] as String?,
       publicationDateRange: json['publicationDateRange'] as String?,
       language: json['language'] as String?,
+      searchQuery: json['searchQuery'] as String?,
     );
 
 Map<String, dynamic> _$$BookFilterModelImplToJson(
@@ -32,6 +33,7 @@ Map<String, dynamic> _$$BookFilterModelImplToJson(
       'publisherId': instance.publisherId,
       'publicationDateRange': instance.publicationDateRange,
       'language': instance.language,
+      'searchQuery': instance.searchQuery,
     };
 
 const _$BookStatusEnumMap = {

@@ -29,6 +29,7 @@ mixin _$BookFilterModel {
   String? get publisherId => throw _privateConstructorUsedError;
   String? get publicationDateRange => throw _privateConstructorUsedError;
   String? get language => throw _privateConstructorUsedError;
+  String? get searchQuery => throw _privateConstructorUsedError;
 
   /// Serializes this BookFilterModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -55,7 +56,8 @@ abstract class $BookFilterModelCopyWith<$Res> {
       String? authorId,
       String? publisherId,
       String? publicationDateRange,
-      String? language});
+      String? language,
+      String? searchQuery});
 }
 
 /// @nodoc
@@ -82,6 +84,7 @@ class _$BookFilterModelCopyWithImpl<$Res, $Val extends BookFilterModel>
     Object? publisherId = freezed,
     Object? publicationDateRange = freezed,
     Object? language = freezed,
+    Object? searchQuery = freezed,
   }) {
     return _then(_value.copyWith(
       page: null == page
@@ -120,6 +123,10 @@ class _$BookFilterModelCopyWithImpl<$Res, $Val extends BookFilterModel>
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as String?,
+      searchQuery: freezed == searchQuery
+          ? _value.searchQuery
+          : searchQuery // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -141,7 +148,8 @@ abstract class _$$BookFilterModelImplCopyWith<$Res>
       String? authorId,
       String? publisherId,
       String? publicationDateRange,
-      String? language});
+      String? language,
+      String? searchQuery});
 }
 
 /// @nodoc
@@ -166,6 +174,7 @@ class __$$BookFilterModelImplCopyWithImpl<$Res>
     Object? publisherId = freezed,
     Object? publicationDateRange = freezed,
     Object? language = freezed,
+    Object? searchQuery = freezed,
   }) {
     return _then(_$BookFilterModelImpl(
       page: null == page
@@ -204,6 +213,10 @@ class __$$BookFilterModelImplCopyWithImpl<$Res>
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as String?,
+      searchQuery: freezed == searchQuery
+          ? _value.searchQuery
+          : searchQuery // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -220,7 +233,8 @@ class _$BookFilterModelImpl implements _BookFilterModel {
       this.authorId,
       this.publisherId,
       this.publicationDateRange,
-      this.language});
+      this.language,
+      this.searchQuery});
 
   factory _$BookFilterModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$BookFilterModelImplFromJson(json);
@@ -245,10 +259,12 @@ class _$BookFilterModelImpl implements _BookFilterModel {
   final String? publicationDateRange;
   @override
   final String? language;
+  @override
+  final String? searchQuery;
 
   @override
   String toString() {
-    return 'BookFilterModel(page: $page, limit: $limit, status: $status, sellerId: $sellerId, genreId: $genreId, authorId: $authorId, publisherId: $publisherId, publicationDateRange: $publicationDateRange, language: $language)';
+    return 'BookFilterModel(page: $page, limit: $limit, status: $status, sellerId: $sellerId, genreId: $genreId, authorId: $authorId, publisherId: $publisherId, publicationDateRange: $publicationDateRange, language: $language, searchQuery: $searchQuery)';
   }
 
   @override
@@ -269,13 +285,25 @@ class _$BookFilterModelImpl implements _BookFilterModel {
             (identical(other.publicationDateRange, publicationDateRange) ||
                 other.publicationDateRange == publicationDateRange) &&
             (identical(other.language, language) ||
-                other.language == language));
+                other.language == language) &&
+            (identical(other.searchQuery, searchQuery) ||
+                other.searchQuery == searchQuery));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, page, limit, status, sellerId,
-      genreId, authorId, publisherId, publicationDateRange, language);
+  int get hashCode => Object.hash(
+      runtimeType,
+      page,
+      limit,
+      status,
+      sellerId,
+      genreId,
+      authorId,
+      publisherId,
+      publicationDateRange,
+      language,
+      searchQuery);
 
   /// Create a copy of BookFilterModel
   /// with the given fields replaced by the non-null parameter values.
@@ -304,7 +332,8 @@ abstract class _BookFilterModel implements BookFilterModel {
       final String? authorId,
       final String? publisherId,
       final String? publicationDateRange,
-      final String? language}) = _$BookFilterModelImpl;
+      final String? language,
+      final String? searchQuery}) = _$BookFilterModelImpl;
 
   factory _BookFilterModel.fromJson(Map<String, dynamic> json) =
       _$BookFilterModelImpl.fromJson;
@@ -327,6 +356,8 @@ abstract class _BookFilterModel implements BookFilterModel {
   String? get publicationDateRange;
   @override
   String? get language;
+  @override
+  String? get searchQuery;
 
   /// Create a copy of BookFilterModel
   /// with the given fields replaced by the non-null parameter values.

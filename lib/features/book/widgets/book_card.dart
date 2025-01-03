@@ -1,5 +1,6 @@
+import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
+import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';
-import 'package:book_app_basic_arch/features/wishlist/wishlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -70,9 +71,13 @@ class BookCard extends StatelessWidget {
                               : Colors.white,
                         ),
                         onPressed: () {
-                          context
-                              .read<WishlistProvider>()
-                              .toggleWishlist(bookModel);
+                          if (context.read<AuthProvider>().isAuthenticated) {
+                            context
+                                .read<BookProvider>()
+                                .toggleWishlist(bookModel.id);
+                          } else {
+                            context.push('/sign-in');
+                          }
                         },
                         padding: EdgeInsets.zero,
                       ),

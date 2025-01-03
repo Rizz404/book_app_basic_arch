@@ -12,9 +12,7 @@ class BookServices {
       return await _dioClient.post(
         '/books',
         data: book,
-        fromJsonT: (json) => BookModel.fromJson(json as Map<String, dynamic>)
-            .copyWith(
-                originalWishlistStatus: BookModel.fromJson(json).isWishlisted),
+        fromJsonT: (json) => BookModel.fromJson(json as Map<String, dynamic>),
       );
     } on ApiErrorResponse catch (e) {
       throw e.message;
@@ -22,10 +20,8 @@ class BookServices {
   }
 
   Future<ApiSuccessResponse<List<BookModel>>> getBooks(
-    BookFilterModel bookFilterModel, {
-    bool forceRefresh = false,
-  } // * Parameter buat forceRefresh
-      ) async {
+    BookFilterModel bookFilterModel,
+  ) async {
     try {
       final queryParameters = {
         'page': bookFilterModel.page,
@@ -47,7 +43,6 @@ class BookServices {
       return await _dioClient.get(
         '/books',
         queryParameters: queryParameters,
-        forceRefresh: forceRefresh,
         fromJsonT: (json) => (json as List).map((item) {
           final book = BookModel.fromJson(item as Map<String, dynamic>);
           return book.copyWith(originalWishlistStatus: book.isWishlisted);
@@ -58,14 +53,10 @@ class BookServices {
     }
   }
 
-  Future<ApiSuccessResponse<BookModel>> getBookById(
-    String id, {
-    bool forceRefresh = false,
-  }) async {
+  Future<ApiSuccessResponse<BookModel>> getBookById(String id) async {
     try {
       return await _dioClient.get(
         '/books/$id',
-        forceRefresh: forceRefresh,
         fromJsonT: (json) {
           final book = BookModel.fromJson(json as Map<String, dynamic>);
           return book.copyWith(originalWishlistStatus: book.isWishlisted);
@@ -76,11 +67,10 @@ class BookServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<BookModel>>> searchBookByTitle({
+  Future<ApiSuccessResponse<List<BookModel>>> searchBooksByTitle({
     int page = 1,
     int limit = 10,
     required String title,
-    bool forceRefresh = false,
   }) async {
     try {
       final queryParameters = {
@@ -92,7 +82,6 @@ class BookServices {
       return await _dioClient.get(
         '/books/search',
         queryParameters: queryParameters,
-        forceRefresh: forceRefresh,
         fromJsonT: (json) => (json as List).map((item) {
           final book = BookModel.fromJson(item as Map<String, dynamic>);
           return book.copyWith(originalWishlistStatus: book.isWishlisted);
@@ -109,11 +98,7 @@ class BookServices {
       return await _dioClient.patch(
         '/books/${book.id}',
         data: book,
-        fromJsonT: (json) {
-          final updatedBook = BookModel.fromJson(json as Map<String, dynamic>);
-          return updatedBook.copyWith(
-              originalWishlistStatus: updatedBook.isWishlisted);
-        },
+        fromJsonT: (json) => BookModel.fromJson(json as Map<String, dynamic>),
       );
     } on ApiErrorResponse catch (e) {
       throw e.message;
@@ -124,11 +109,52 @@ class BookServices {
     try {
       return await _dioClient.delete(
         '/books/$id',
-        fromJsonT: (json) {
-          final deletedBook = BookModel.fromJson(json as Map<String, dynamic>);
-          return deletedBook.copyWith(
-              originalWishlistStatus: deletedBook.isWishlisted);
-        },
+        fromJsonT: (json) => BookModel.fromJson(json as Map<String, dynamic>),
+      );
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
+    }
+  }
+
+  // * Gabungin aja biarpun routesnya beda, nanti backend kapan kapan benerin
+  Future<ApiSuccessResponse<void>> addBookToWishlist(String id) async {
+    try {
+      return await _dioClient.post(
+        '/book-wishlist/$id',
+        fromJsonT: (json) {},
+      );
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
+    }
+  }
+
+  Future<ApiSuccessResponse<List<BookModel>>> getBooksInWishlist(
+    BookFilterModel bookFilterModel,
+  ) async {
+    try {
+      final queryParameters = {
+        'page': bookFilterModel.page,
+        'limit': bookFilterModel.limit,
+      };
+
+      return await _dioClient.get(
+        '/book-wishlist',
+        queryParameters: queryParameters,
+        fromJsonT: (json) => (json as List).map((item) {
+          final book = BookModel.fromJson(item as Map<String, dynamic>);
+          return book.copyWith(originalWishlistStatus: book.isWishlisted);
+        }).toList(),
+      );
+    } on ApiErrorResponse catch (e) {
+      throw e.message;
+    }
+  }
+
+  Future<ApiSuccessResponse<void>> removeBookFromWishlist(String id) async {
+    try {
+      return await _dioClient.delete(
+        '/book-wishlist/$id',
+        fromJsonT: (json) {},
       );
     } on ApiErrorResponse catch (e) {
       throw e.message;

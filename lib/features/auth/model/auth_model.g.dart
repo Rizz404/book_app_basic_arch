@@ -18,7 +18,6 @@ _$UserCredentialModelImpl _$$UserCredentialModelImplFromJson(
       isEmailVerified: json['isEmailVerified'] as bool,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
-      password: json['password'] as String,
       accessToken: json['accessToken'] as String,
       refreshToken: json['refreshToken'] as String,
     );
@@ -35,7 +34,6 @@ Map<String, dynamic> _$$UserCredentialModelImplToJson(
       'isEmailVerified': instance.isEmailVerified,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
-      'password': instance.password,
       'accessToken': instance.accessToken,
       'refreshToken': instance.refreshToken,
     };

@@ -5,4 +5,9 @@ enum BookOperationType {
   searchBooks,
   updateBookById,
   deleteBookById,
+
+  // * Beda endpoint
+  addBookToWishlist,
+  getBooksInWishlist,
+  removeBookFromWishlist,
 }

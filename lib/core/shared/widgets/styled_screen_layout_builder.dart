@@ -1,14 +1,13 @@
-import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:flutter/material.dart';
 
 // * Pake sliver
 class StyledScreenLayoutBuilder extends StatelessWidget {
-  final Widget? sliverAppBar;
+  final Widget sliverAppBar;
   final List<Widget> Function(BuildContext, ScrollController) builder;
 
   const StyledScreenLayoutBuilder({
     super.key,
-    this.sliverAppBar,
+    required this.sliverAppBar,
     required this.builder,
   });
 
@@ -21,7 +20,7 @@ class StyledScreenLayoutBuilder extends StatelessWidget {
           return CustomScrollView(
             controller: controller,
             slivers: [
-              sliverAppBar ?? StyledSliverAppBar(),
+              sliverAppBar,
               ...builder(context, controller),
             ],
           );

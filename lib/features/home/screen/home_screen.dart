@@ -2,6 +2,7 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_bui
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_user_avatar.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
@@ -23,13 +24,9 @@ class HomeScreen extends StatelessWidget {
     final bookProvider = context.read<BookProvider>();
     final genreProvider = context.read<GenreProvider>();
 
-    // Clear existing data first
-    await bookProvider.resetBooks(BookScreenType.home);
-
     await Future.wait([
       bookProvider.getBooks(
         screen: BookScreenType.home,
-        refresh: true,
       ),
       genreProvider.getGenres(
         screen: GenreScreenType.home,
@@ -58,6 +55,9 @@ class HomeScreen extends StatelessWidget {
             title: StyledSearchBarPlaceholder(
               hintText: "Hinted search text",
             ),
+            actions: [
+              StyledUserAvatar(),
+            ],
           ),
           builder: (context, controller) {
             return [
@@ -118,7 +118,7 @@ class HomeScreen extends StatelessWidget {
                       isLoading: isLoading,
                       errorMessage: errorMessage,
                       onLoadMore: () =>
-                          provider.loadMoreBooks(screen: BookScreenType.home),
+                          provider.loadMoreBooks(BookScreenType.home),
                       onBookSelected: (book) {
                         context.push('/books/${book.id}');
                       },

@@ -1,8 +1,8 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_text_form_field.dart';
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
-import 'package:book_app_basic_arch/features/auth/enum_auth_operation.dart';
-import 'package:book_app_basic_arch/features/auth/model/remote/auth_model.dart';
+import 'package:book_app_basic_arch/features/auth/enums/auth_operation_type.dart';
+import 'package:book_app_basic_arch/features/auth/model/auth_model.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -20,17 +20,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _handleLoginSuccess() {
-    // * Ambil parameter 'from' dari URL
-    final fromLocation = GoRouterState.of(context).uri.queryParameters['from'];
-
-    if (fromLocation != null) {
-      context.go(fromLocation);
-    } else {
-      context.go('/home');
-    }
-  }
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -44,9 +33,9 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Consumer<AuthProvider>(
         builder: (BuildContext context, provider, _) {
           final isLoadingSignInModel =
-              provider.isLoading(EnumAuthOperation.signIn);
+              provider.isLoading(AuthOperationType.signIn);
           final errorMessageSignIn =
-              provider.getError(EnumAuthOperation.signIn);
+              provider.getError(AuthOperationType.signIn);
 
           if (isLoadingSignInModel) {
             // Loading State
@@ -147,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         // * Periksa apakah berhasil login
                         if (errorMessageSignIn == null && context.mounted) {
-                          _handleLoginSuccess();
+                          context.go("/home");
                         }
                       },
                       child: Text('Sign In'),

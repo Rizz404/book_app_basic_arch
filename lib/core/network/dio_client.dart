@@ -1,5 +1,5 @@
 import 'package:book_app_basic_arch/core/constants/api_constant.dart';
-import 'package:book_app_basic_arch/core/helpers/current_user_credential_manager.dart';
+import 'package:book_app_basic_arch/core/helpers/user_credential_manager.dart';
 import 'package:book_app_basic_arch/core/network/auth_interceptor.dart';
 import 'package:book_app_basic_arch/core/network/logger_interceptor.dart';
 import 'package:book_app_basic_arch/core/network/models/api_error_response.dart';
@@ -15,8 +15,7 @@ class DioClient {
   late final Dio dio;
   late final CacheStore cacheStore;
   late final CacheOptions defaultCacheOptions;
-  final CurrentUserCredentialManager _credentialManager =
-      CurrentUserCredentialManager();
+  final UserCredentialManager _credentialManager = UserCredentialManager();
 
   factory DioClient() => _instance;
 

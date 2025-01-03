@@ -1,10 +1,10 @@
 import 'package:book_app_basic_arch/core/constants/api_constant.dart';
-import 'package:book_app_basic_arch/core/helpers/current_user_credential_manager.dart';
+import 'package:book_app_basic_arch/core/helpers/user_credential_manager.dart';
 import 'package:dio/dio.dart';
 
 class AuthInterceptor extends Interceptor {
   final Dio dio;
-  final CurrentUserCredentialManager credentialManager;
+  final UserCredentialManager credentialManager;
   bool isRefreshing = false;
   final List<Function> pendingRequests = [];
 

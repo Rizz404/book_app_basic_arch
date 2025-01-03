@@ -41,8 +41,8 @@ class BookScreen extends StatelessWidget {
                     books: books,
                     isLoading: isLoading,
                     errorMessage: errorMessage,
-                    onLoadMore: () => bookProvider.loadMoreBooks(
-                        screen: BookScreenType.books),
+                    onLoadMore: () =>
+                        bookProvider.loadMoreBooks(BookScreenType.books),
                     onBookSelected: (book) {
                       context.push('/books/${book.id}');
                     },
