@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class GenreDetailScreen extends StatelessWidget {
+class GenreDetailScreen extends StatefulWidget {
   final String genreId;
 
   const GenreDetailScreen({
@@ -26,45 +26,55 @@ class GenreDetailScreen extends StatelessWidget {
     required this.genreId,
   });
 
-  Future<void> _initializeData(BuildContext context) async {
+  @override
+  State<GenreDetailScreen> createState() => _GenreDetailScreenState();
+}
+
+class _GenreDetailScreenState extends State<GenreDetailScreen> {
+  Future<void> _fetchData() async {
     final genreProvider = context.read<GenreProvider>();
     final bookProvider = context.read<BookProvider>();
 
-    await genreProvider.getGenreById(genreId);
+    await genreProvider.getGenreById(widget.genreId);
     await genreProvider.getGenres(screen: GenreScreenType.genreDetail);
 
     final currentFilter = bookProvider.getFilterForSpecificScreen(
       BookScreenType.genreDetail,
     );
 
-    if (currentFilter.genreId != genreId) {
-      bookProvider.updateFilterForSpecificScreen(
-        BookScreenType.genreDetail,
-        currentFilter.copyWith(genreId: genreId, page: 1),
-      );
+    bookProvider.updateFilterForSpecificScreen(
+      BookScreenType.genreDetail,
+      currentFilter.copyWith(genreId: widget.genreId, page: 1),
+    );
 
-      await bookProvider.getBooks(screen: BookScreenType.genreDetail);
+    await bookProvider.getBooks(screen: BookScreenType.genreDetail);
+  }
+
+  @override
+  void didUpdateWidget(covariant GenreDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.genreId != widget.genreId) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          _fetchData();
+        },
+      );
     }
   }
 
-  Future<void> _handleRefresh(BuildContext context) async {
-    await Future.wait([
-      context.read<GenreProvider>().getGenreById(genreId),
-      context.read<BookProvider>().getBooks(
-            screen: BookScreenType.genreDetail,
-          ),
-    ]);
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchData();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeData(context);
-    });
-
     return BaseScaffold(
       body: RefreshIndicator(
-        onRefresh: () => _handleRefresh(context),
+        onRefresh: () => _fetchData(),
         child: StyledScreenLayoutBuilder(
           sliverAppBar: StyledSliverAppBar(
             title: StyledSearchBarPlaceholder(
@@ -80,7 +90,8 @@ class GenreDetailScreen extends StatelessWidget {
                         .isLoading(GenreOperationType.getGenreById);
                     final errorMessageGenre =
                         genreProvider.getError(GenreOperationType.getGenreById);
-                    final genre = genreProvider.genre;
+                    final genre =
+                        genreProvider.getGenreByIdFromCache(widget.genreId);
 
                     final isLoadingGenres =
                         genreProvider.isLoading(GenreOperationType.getGenres);
@@ -193,7 +204,7 @@ class GenreDetailScreen extends StatelessWidget {
           child: StyledErrorMessage(
             errorMessage: errorMessage,
             onRetry: () {
-              context.read<GenreProvider>().getGenreById(genreId);
+              context.read<GenreProvider>().getGenreById(widget.genreId);
             },
           ),
         ),
@@ -222,6 +233,17 @@ class GenreDetailScreen extends StatelessWidget {
                   genre.picture,
                   fit: BoxFit.cover,
                   width: 120,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 120,
+                      height: 120,
+                      color: Colors.grey[300],
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey[600],
+                      ),
+                    );
+                  },
                 ),
               ),
               SizedBox(width: 16),
@@ -238,7 +260,7 @@ class GenreDetailScreen extends StatelessWidget {
                       genre.description,
                       style: Theme.of(context).textTheme.bodySmall,
                       softWrap: true,
-                    )
+                    ),
                   ],
                 ),
               ),

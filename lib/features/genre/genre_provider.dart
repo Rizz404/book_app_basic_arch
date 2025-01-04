@@ -22,9 +22,11 @@ class GenreProvider with ChangeNotifier {
   ApiPagination? get searchedGenresPagination =>
       _paginationByScreen[GenreScreenType.search];
 
-  // * State untuk single genre detail
-  GenreModel? _genre;
-  GenreModel? get genre => _genre;
+  // * Cache untuk genre berdasarkan ID
+  final Map<String, GenreModel> _genreCache = {};
+
+  // * Getter untuk single genre dari cache
+  GenreModel? getGenreByIdFromCache(String id) => _genreCache[id];
 
   // * State untuk menyimpan filter tiap screen
   final Map<GenreScreenType, GenreFilterModel> _filterByScreen = {
@@ -136,22 +138,21 @@ class GenreProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getGenreById(
-    String id, {
-    bool refresh = false,
-  }) async {
+  Future<void> getGenreById(String id) async {
+    // * Cek cache terlebih dahulu
+    if (_genreCache.containsKey(id)) {
+      return; // * Tidak perlu fetch jika sudah ada di cache dan refresh false
+    }
+
     _updateOperationState(
       GenreOperationType.getGenreById,
       isLoading: true,
       errorMessage: null,
     );
     try {
-      final response = await _genreServices.getGenreById(
-        id,
-        forceRefresh: refresh,
-      );
+      final response = await _genreServices.getGenreById(id);
 
-      _genre = response.data!;
+      _genreCache[id] = response.data!;
 
       _updateOperationState(
         GenreOperationType.getGenreById,

@@ -22,6 +22,7 @@ PublisherFilterModel _$PublisherFilterModelFromJson(Map<String, dynamic> json) {
 mixin _$PublisherFilterModel {
   int get page => throw _privateConstructorUsedError;
   int get limit => throw _privateConstructorUsedError;
+  String? get searchQuery => throw _privateConstructorUsedError;
 
   /// Serializes this PublisherFilterModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,7 +40,7 @@ abstract class $PublisherFilterModelCopyWith<$Res> {
           $Res Function(PublisherFilterModel) then) =
       _$PublisherFilterModelCopyWithImpl<$Res, PublisherFilterModel>;
   @useResult
-  $Res call({int page, int limit});
+  $Res call({int page, int limit, String? searchQuery});
 }
 
 /// @nodoc
@@ -60,6 +61,7 @@ class _$PublisherFilterModelCopyWithImpl<$Res,
   $Res call({
     Object? page = null,
     Object? limit = null,
+    Object? searchQuery = freezed,
   }) {
     return _then(_value.copyWith(
       page: null == page
@@ -70,6 +72,10 @@ class _$PublisherFilterModelCopyWithImpl<$Res,
           ? _value.limit
           : limit // ignore: cast_nullable_to_non_nullable
               as int,
+      searchQuery: freezed == searchQuery
+          ? _value.searchQuery
+          : searchQuery // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -82,7 +88,7 @@ abstract class _$$PublisherFilterModelImplCopyWith<$Res>
       __$$PublisherFilterModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int page, int limit});
+  $Res call({int page, int limit, String? searchQuery});
 }
 
 /// @nodoc
@@ -100,6 +106,7 @@ class __$$PublisherFilterModelImplCopyWithImpl<$Res>
   $Res call({
     Object? page = null,
     Object? limit = null,
+    Object? searchQuery = freezed,
   }) {
     return _then(_$PublisherFilterModelImpl(
       page: null == page
@@ -110,6 +117,10 @@ class __$$PublisherFilterModelImplCopyWithImpl<$Res>
           ? _value.limit
           : limit // ignore: cast_nullable_to_non_nullable
               as int,
+      searchQuery: freezed == searchQuery
+          ? _value.searchQuery
+          : searchQuery // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -117,7 +128,8 @@ class __$$PublisherFilterModelImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$PublisherFilterModelImpl implements _PublisherFilterModel {
-  const _$PublisherFilterModelImpl({this.page = 1, this.limit = 10});
+  const _$PublisherFilterModelImpl(
+      {this.page = 1, this.limit = 10, this.searchQuery});
 
   factory _$PublisherFilterModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$PublisherFilterModelImplFromJson(json);
@@ -128,10 +140,12 @@ class _$PublisherFilterModelImpl implements _PublisherFilterModel {
   @override
   @JsonKey()
   final int limit;
+  @override
+  final String? searchQuery;
 
   @override
   String toString() {
-    return 'PublisherFilterModel(page: $page, limit: $limit)';
+    return 'PublisherFilterModel(page: $page, limit: $limit, searchQuery: $searchQuery)';
   }
 
   @override
@@ -140,12 +154,14 @@ class _$PublisherFilterModelImpl implements _PublisherFilterModel {
         (other.runtimeType == runtimeType &&
             other is _$PublisherFilterModelImpl &&
             (identical(other.page, page) || other.page == page) &&
-            (identical(other.limit, limit) || other.limit == limit));
+            (identical(other.limit, limit) || other.limit == limit) &&
+            (identical(other.searchQuery, searchQuery) ||
+                other.searchQuery == searchQuery));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, page, limit);
+  int get hashCode => Object.hash(runtimeType, page, limit, searchQuery);
 
   /// Create a copy of PublisherFilterModel
   /// with the given fields replaced by the non-null parameter values.
@@ -166,8 +182,10 @@ class _$PublisherFilterModelImpl implements _PublisherFilterModel {
 }
 
 abstract class _PublisherFilterModel implements PublisherFilterModel {
-  const factory _PublisherFilterModel({final int page, final int limit}) =
-      _$PublisherFilterModelImpl;
+  const factory _PublisherFilterModel(
+      {final int page,
+      final int limit,
+      final String? searchQuery}) = _$PublisherFilterModelImpl;
 
   factory _PublisherFilterModel.fromJson(Map<String, dynamic> json) =
       _$PublisherFilterModelImpl.fromJson;
@@ -176,6 +194,8 @@ abstract class _PublisherFilterModel implements PublisherFilterModel {
   int get page;
   @override
   int get limit;
+  @override
+  String? get searchQuery;
 
   /// Create a copy of PublisherFilterModel
   /// with the given fields replaced by the non-null parameter values.

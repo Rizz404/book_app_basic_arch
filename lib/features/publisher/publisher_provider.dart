@@ -9,26 +9,30 @@ import 'package:flutter/material.dart';
 
 class PublisherProvider with ChangeNotifier {
   final PublisherServices _publisherServices = PublisherServices();
-// * State untuk menyimpan publishers per screen
+
+  // * State untuk menyimpan publishers per screen
   final Map<PublisherScreenType, List<PublisherModel>> _publishersByScreen = {};
   // * State untuk menyimpan pagination per screen
   final Map<PublisherScreenType, ApiPagination?> _paginationByScreen = {};
 
-  // * Beda buat search
-  List<PublisherModel> _searchedPublishers = [];
-  List<PublisherModel> get searchedPublishers => _searchedPublishers;
-  ApiPagination? _searchedPublishersPagination;
-  ApiPagination? get searchedPublishersPagination =>
-      _searchedPublishersPagination;
+  // * Getter untuk hasil search (pake map yang sama)
+  List<PublisherModel> get searchedPublishers =>
+      _publishersByScreen[PublisherScreenType.search] ?? [];
 
-  // * State untuk single publisher detail
-  PublisherModel? _publisher;
-  PublisherModel? get publisher => _publisher;
+  ApiPagination? get searchedPublishersPagination =>
+      _paginationByScreen[PublisherScreenType.search];
+
+  // * Cache untuk publisher berdasarkan ID
+  final Map<String, PublisherModel> _publisherCache = {};
+
+  // * Getter untuk single publisher dari cache
+  PublisherModel? getPublisherByIdFromCache(String id) => _publisherCache[id];
 
   // * State untuk menyimpan filter tiap screen
   final Map<PublisherScreenType, PublisherFilterModel> _filterByScreen = {
     PublisherScreenType.publishers: PublisherFilterModel(),
     PublisherScreenType.publisherDetail: PublisherFilterModel(),
+    PublisherScreenType.search: PublisherFilterModel(),
   };
 
   // * Getter untuk publishers berdasarkan screen
@@ -51,7 +55,6 @@ class PublisherProvider with ChangeNotifier {
   void updateFilterForSpecificScreen(
       PublisherScreenType screen, PublisherFilterModel newFilter) {
     _filterByScreen[screen] = newFilter;
-    notifyListeners();
   }
 
   // * Map untuk store operation state
@@ -66,7 +69,7 @@ class PublisherProvider with ChangeNotifier {
   String? getError(PublisherOperationType operation) =>
       _operationStates[operation]!.errorMessage;
 
-  // Helper to update operation state
+  // * Helper to update operation state
   void _updateOperationState(PublisherOperationType operation,
       {bool? isLoading, String? errorMessage}) {
     _operationStates[operation] = (
@@ -77,21 +80,28 @@ class PublisherProvider with ChangeNotifier {
   }
 
   Future<void> createPublisher(CreatePublisherModel publisher) async {
-    _updateOperationState(PublisherOperationType.createPublisher,
-        isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      PublisherOperationType.createPublisher,
+      isLoading: true,
+      errorMessage: null,
+    );
+
     try {
       await _publisherServices.createPublisher(publisher);
-
       await getPublishers();
+
+      _updateOperationState(
+        PublisherOperationType.createPublisher,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(PublisherOperationType.createPublisher,
-          errorMessage: 'Error creating genre: $e');
+      _updateOperationState(
+        PublisherOperationType.createPublisher,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error fetching publishers: $e');
-    } finally {
-      _updateOperationState(PublisherOperationType.createPublisher,
-          isLoading: false);
-      notifyListeners();
     }
   }
 
@@ -128,29 +138,47 @@ class PublisherProvider with ChangeNotifier {
   }
 
   Future<void> getPublisherById(String id) async {
-    _updateOperationState(PublisherOperationType.getPublisherById,
-        isLoading: true);
-    notifyListeners();
+    // * Cek cache terlebih dahulu
+    if (_publisherCache.containsKey(id)) {
+      return; // * Tidak perlu fetch jika sudah ada di cache dan refresh false
+    }
+
+    _updateOperationState(
+      PublisherOperationType.getPublisherById,
+      isLoading: true,
+      errorMessage: null,
+    );
+
     try {
       final response = await _publisherServices.getPublisherById(id);
 
-      _publisher = response.data!;
+      _publisherCache[id] = response.data!;
+
+      _updateOperationState(
+        PublisherOperationType.getPublisherById,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(PublisherOperationType.getPublisherById,
-          errorMessage: 'Error fetching genre: $e');
+      _updateOperationState(
+        PublisherOperationType.getPublisherById,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error fetching publishers: $e');
-    } finally {
-      _updateOperationState(PublisherOperationType.getPublisherById,
-          isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> searchPublishersByName({
-    int page = 1,
-    int limit = 10,
     required String name,
   }) async {
+    // * Reset filter search ke page 1 dengan query baru
+    final newFilter = PublisherFilterModel(
+      page: 1,
+      searchQuery: name,
+    );
+    _filterByScreen[PublisherScreenType.search] = newFilter;
+
     _updateOperationState(
       PublisherOperationType.searchPublishers,
       isLoading: true,
@@ -158,12 +186,12 @@ class PublisherProvider with ChangeNotifier {
     );
 
     try {
-      final response = await _publisherServices.searchPublishersByName(
-        name: name,
-      );
+      final response =
+          await _publisherServices.searchPublishersByName(name: name);
 
-      _searchedPublishers = response.data!;
-      _searchedPublishersPagination = response.meta.pagination;
+      _publishersByScreen[PublisherScreenType.search] = response.data!;
+      _paginationByScreen[PublisherScreenType.search] =
+          response.meta.pagination;
 
       _updateOperationState(
         PublisherOperationType.searchPublishers,
@@ -176,52 +204,67 @@ class PublisherProvider with ChangeNotifier {
         isLoading: false,
         errorMessage: e.toString(),
       );
-      debugPrint('Error fetching publishers: $e');
+      debugPrint('Error searching publishers: $e');
     }
   }
 
-  void resetSearch() {
-    _searchedPublishers = [];
-    notifyListeners();
-  }
-
   Future<void> updatePublisher(UpdatePublisherModel publisher) async {
-    _updateOperationState(PublisherOperationType.updatePublisherById,
-        isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      PublisherOperationType.updatePublisherById,
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       await _publisherServices.updatePublisherById(publisher);
 
       await getPublisherById(publisher.id);
       await getPublishers();
+
+      _updateOperationState(
+        PublisherOperationType.updatePublisherById,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(PublisherOperationType.updatePublisherById,
-          errorMessage: 'Error updating genre: $e');
+      _updateOperationState(
+        PublisherOperationType.updatePublisherById,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error updating publisher: $e');
-    } finally {
-      _updateOperationState(PublisherOperationType.updatePublisherById,
-          isLoading: false);
-      notifyListeners();
     }
   }
 
   Future<void> deletePublisher(String id) async {
-    _updateOperationState(PublisherOperationType.deletePublisherById,
-        isLoading: true);
-    notifyListeners();
+    _updateOperationState(
+      PublisherOperationType.deletePublisherById,
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       await _publisherServices.deletePublisherById(id);
       await getPublishers();
+
+      _updateOperationState(
+        PublisherOperationType.deletePublisherById,
+        isLoading: false,
+        errorMessage: null,
+      );
     } catch (e) {
-      _updateOperationState(PublisherOperationType.deletePublisherById,
-          errorMessage: 'Error deleting genre: $e');
+      _updateOperationState(
+        PublisherOperationType.deletePublisherById,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
       debugPrint('Error updating publisher: $e');
-    } finally {
-      _updateOperationState(PublisherOperationType.deletePublisherById,
-          isLoading: false);
-      notifyListeners();
     }
+  }
+
+  void resetSearch() {
+    _publishersByScreen[PublisherScreenType.search] = [];
+    _paginationByScreen[PublisherScreenType.search] = null;
+    notifyListeners();
   }
 }

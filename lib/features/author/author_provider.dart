@@ -13,23 +13,25 @@ import 'package:flutter/material.dart';
 class AuthorProvider with ChangeNotifier {
   final AuthorServices _authorServices = AuthorServices();
 
-  // * * State untuk menyimpan authors per screen
+  // * State untuk menyimpan authors per screen
   final Map<AuthorScreenType, List<AuthorModel>> _authorsByScreen = {};
-  // * * State untuk menyimpan pagination per screen
+  // * State untuk menyimpan pagination per screen
   final Map<AuthorScreenType, ApiPagination?> _paginationByScreen = {};
 
-  // * * Getter untuk hasil search (pake map yang sama)
+  // * Getter untuk hasil search (pake map yang sama)
   List<AuthorModel> get searchedAuthors =>
       _authorsByScreen[AuthorScreenType.search] ?? [];
 
   ApiPagination? get searchedAuthorsPagination =>
       _paginationByScreen[AuthorScreenType.search];
 
-  // * * State untuk single author detail
-  AuthorModel? _author;
-  AuthorModel? get author => _author;
+  // * Cache untuk author berdasarkan ID
+  final Map<String, AuthorModel> _authorCache = {};
 
-  // * * State untuk menyimpan filter tiap screen
+  // * Getter untuk single author dari cache
+  AuthorModel? getAuthorByIdFromCache(String id) => _authorCache[id];
+
+  // * State untuk menyimpan filter tiap screen
   final Map<AuthorScreenType, AuthorFilterModel> _filterByScreen = {
     AuthorScreenType.authors: AuthorFilterModel(),
     AuthorScreenType.authorDetail: AuthorFilterModel(),
@@ -37,35 +39,35 @@ class AuthorProvider with ChangeNotifier {
     AuthorScreenType.search: AuthorFilterModel(),
   };
 
-  // * * Getter untuk authors berdasarkan screen
+  // * Getter untuk authors berdasarkan screen
   List<AuthorModel> getAuthorsForSpecificScreen(AuthorScreenType screen) {
     return _authorsByScreen[screen] ?? [];
   }
 
-  // * * Getter untuk pagination berdasarkan screen
+  // * Getter untuk pagination berdasarkan screen
   ApiPagination? getPaginationForSpecificScreen(AuthorScreenType screen) {
     return _paginationByScreen[screen];
   }
 
-  // * * Getter untuk filter berdasarkan screen
+  // * Getter untuk filter berdasarkan screen
   AuthorFilterModel getFilterForSpecificScreen(AuthorScreenType screen) {
     return _filterByScreen[screen] ?? AuthorFilterModel();
   }
 
-  // * * Method untuk update filter
+  // * Method untuk update filter
   void updateFilterForSpecificScreen(
       AuthorScreenType screen, AuthorFilterModel newFilter) {
     _filterByScreen[screen] = newFilter;
     notifyListeners();
   }
 
-  // * * Map untuk store operation state
+  // * Map untuk store operation state
   final Map<AuthorOperationType, OperationState> _operationStates = {
     for (var operation in AuthorOperationType.values)
       operation: (isLoading: false, errorMessage: null)
   };
 
-  // * * Getter untuk state
+  // * Getter untuk state
   bool isLoading(AuthorOperationType operation) =>
       _operationStates[operation]!.isLoading;
   String? getError(AuthorOperationType operation) =>
@@ -139,7 +141,10 @@ class AuthorProvider with ChangeNotifier {
   }
 
   Future<void> getAuthorById(String id) async {
-    _author = null;
+    // * Cek cache terlebih dahulu
+    if (_authorCache.containsKey(id)) {
+      return; // * Tidak perlu fetch jika sudah ada di cache dan refresh false
+    }
 
     _updateOperationState(
       AuthorOperationType.getAuthorById,
@@ -150,7 +155,7 @@ class AuthorProvider with ChangeNotifier {
     try {
       final response = await _authorServices.getAuthorById(id);
 
-      _author = response.data!;
+      _authorCache[id] = response.data!;
 
       _updateOperationState(
         AuthorOperationType.getAuthorById,
@@ -258,7 +263,7 @@ class AuthorProvider with ChangeNotifier {
     }
   }
 
-  // * * Beda routes tapi disatuin aja
+  // * Beda routes tapi disatuin aja
   Future<void> followAuthorById(String id) async {
     _updateOperationState(
       AuthorOperationType.followAuthorById,
@@ -339,24 +344,24 @@ class AuthorProvider with ChangeNotifier {
     }
   }
 
-  // * * Method generic untuk load more data
+  // * Method generic untuk load more data
   Future<void> loadMoreAuthors(AuthorScreenType screen) async {
     final currentFilter = _filterByScreen[screen]!;
     final currentPagination = _paginationByScreen[screen];
 
-    // * * Cek apakah masih ada halaman selanjutnya
+    // * Cek apakah masih ada halaman selanjutnya
     if (currentPagination != null &&
         currentPagination.currentPage >= currentPagination.totalPages) {
       return;
     }
 
-    // * * Update filter dengan page selanjutnya
+    // * Update filter dengan page selanjutnya
     final newFilter = currentFilter.copyWith(
       page: (currentPagination?.currentPage ?? 0) + 1,
     );
     _filterByScreen[screen] = newFilter;
 
-    // * * Tentukan operation type berdasarkan screen
+    // * Tentukan operation type berdasarkan screen
     final operationType = _getOperationTypeForScreen(screen);
 
     _updateOperationState(
@@ -368,7 +373,7 @@ class AuthorProvider with ChangeNotifier {
     try {
       final response = await _getDataForScreen(screen, newFilter);
 
-      // * * Tambahkan data baru ke list yang sudah ada
+      // * Tambahkan data baru ke list yang sudah ada
       _authorsByScreen[screen] = [
         ...(_authorsByScreen[screen] ?? []),
         ...response.data!
@@ -390,8 +395,8 @@ class AuthorProvider with ChangeNotifier {
     }
   }
 
-  // * *============*function yang gak langsung fetch api*============*
-  // * * Helper method untuk mendapatkan operation type berdasarkan screen
+  // *============*function yang gak langsung fetch api*============*
+  // * Helper method untuk mendapatkan operation type berdasarkan screen
   AuthorOperationType _getOperationTypeForScreen(AuthorScreenType screen) {
     switch (screen) {
       case AuthorScreenType.authors:
@@ -405,7 +410,7 @@ class AuthorProvider with ChangeNotifier {
     }
   }
 
-  // * * Helper method untuk mendapatkan data berdasarkan screen
+  // * Helper method untuk mendapatkan data berdasarkan screen
   Future<ApiSuccessResponse<List<AuthorModel>>> _getDataForScreen(
     AuthorScreenType screen,
     AuthorFilterModel filter,
@@ -433,7 +438,7 @@ class AuthorProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // * * Optimistik update
+  // * Optimistik update
   // * Map untuk menyimpan timer debounce per author
   final Map<String, Timer> _followDebounceTimers = {};
   // * Duration untuk debounce
@@ -457,12 +462,12 @@ class AuthorProvider with ChangeNotifier {
     });
 
     // * Update untuk single author detail
-    if (_author?.id == authorId) {
-      _author = _author!.copyWith(
+    if (_authorCache[authorId]?.id == authorId) {
+      _authorCache[authorId] = _authorCache[authorId]!.copyWith(
         isFollowedAuthor: isFollowed,
         followerCount: isFollowed
-            ? _author!.followerCount + 1
-            : _author!.followerCount - 1,
+            ? _authorCache[authorId]!.followerCount + 1
+            : _authorCache[authorId]!.followerCount - 1,
       );
     }
 
@@ -487,12 +492,12 @@ class AuthorProvider with ChangeNotifier {
     });
 
     // * Rollback untuk single author detail
-    if (_author?.id == authorId) {
-      _author = _author!.copyWith(
-        isFollowedAuthor: _author!.originalFollowStatus,
-        followerCount: _author!.originalFollowStatus
-            ? _author!.followerCount + 1
-            : _author!.followerCount - 1,
+    if (_authorCache[authorId]?.id == authorId) {
+      _authorCache[authorId] = _authorCache[authorId]!.copyWith(
+        isFollowedAuthor: _authorCache[authorId]!.originalFollowStatus,
+        followerCount: _authorCache[authorId]!.originalFollowStatus
+            ? _authorCache[authorId]!.followerCount + 1
+            : _authorCache[authorId]!.followerCount - 1,
       );
     }
 
@@ -506,7 +511,7 @@ class AuthorProvider with ChangeNotifier {
     for (var authors in _authorsByScreen.values) {
       targetAuthor = authors.firstWhere(
         (author) => author.id == authorId,
-        orElse: () => targetAuthor ?? _author!,
+        orElse: () => targetAuthor ?? _authorCache[authorId]!,
       );
       break;
     }
@@ -553,7 +558,9 @@ class AuthorProvider with ChangeNotifier {
           authors.where((author) => author.id == authorId).firstOrNull;
       if (author != null) return author;
     }
-    return _author?.id == authorId ? _author : null;
+    return _authorCache[authorId]?.id == authorId
+        ? _authorCache[authorId]
+        : null;
   }
 
   // * Helper method untuk update original follow status
@@ -569,8 +576,9 @@ class AuthorProvider with ChangeNotifier {
       }
     });
 
-    if (_author?.id == authorId) {
-      _author = _author!.copyWith(originalFollowStatus: newStatus);
+    if (_authorCache[authorId]?.id == authorId) {
+      _authorCache[authorId] =
+          _authorCache[authorId]!.copyWith(originalFollowStatus: newStatus);
     }
 
     notifyListeners();

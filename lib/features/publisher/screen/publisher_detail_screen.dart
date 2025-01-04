@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class PublisherDetailScreen extends StatelessWidget {
+class PublisherDetailScreen extends StatefulWidget {
   final String publisherId;
 
   const PublisherDetailScreen({
@@ -27,137 +27,159 @@ class PublisherDetailScreen extends StatelessWidget {
     required this.publisherId,
   });
 
-  Future<void> _initializeData(BuildContext context) async {
+  @override
+  State<PublisherDetailScreen> createState() => _PublisherDetailScreenState();
+}
+
+class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
+  Future<void> _fetchData() async {
     final publisherProvider = context.read<PublisherProvider>();
     final bookProvider = context.read<BookProvider>();
 
-    await publisherProvider.getPublisherById(publisherId);
+    await publisherProvider.getPublisherById(widget.publisherId);
     await publisherProvider.getPublishers(
-      screen: PublisherScreenType.publisherDetail,
-    );
+        screen: PublisherScreenType.publisherDetail);
 
     final currentFilter = bookProvider.getFilterForSpecificScreen(
       BookScreenType.publisherDetail,
     );
 
-    if (currentFilter.publisherId != publisherId) {
-      bookProvider.updateFilterForSpecificScreen(
-        BookScreenType.publisherDetail,
-        currentFilter.copyWith(publisherId: publisherId, page: 1),
-      );
+    bookProvider.updateFilterForSpecificScreen(
+      BookScreenType.publisherDetail,
+      currentFilter.copyWith(publisherId: widget.publisherId, page: 1),
+    );
 
-      await bookProvider.getBooks(screen: BookScreenType.publisherDetail);
+    await bookProvider.getBooks(screen: BookScreenType.publisherDetail);
+  }
+
+  @override
+  void didUpdateWidget(covariant PublisherDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.publisherId != widget.publisherId) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          _fetchData();
+        },
+      );
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeData(context);
+      _fetchData();
     });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return BaseScaffold(
-      body: StyledScreenLayoutBuilder(
-        sliverAppBar: StyledSliverAppBar(
-          title: StyledSearchBarPlaceholder(
-            hintText: "Hinted search text",
+      body: RefreshIndicator(
+        onRefresh: () => _fetchData(),
+        child: StyledScreenLayoutBuilder(
+          sliverAppBar: StyledSliverAppBar(
+            title: StyledSearchBarPlaceholder(
+              hintText: "Hinted search text",
+            ),
           ),
-        ),
-        builder: (builder, controller) {
-          return [
-            SliverToBoxAdapter(
-              child: Consumer<PublisherProvider>(
-                builder: (context, provider, _) {
-                  final isLoadingPublisher = provider
-                      .isLoading(PublisherOperationType.getPublisherById);
-                  final errorMessagePublisher = provider
-                      .getError(PublisherOperationType.getPublisherById);
-                  final publisher = provider.publisher;
+          builder: (builder, controller) {
+            return [
+              SliverToBoxAdapter(
+                child: Consumer<PublisherProvider>(
+                  builder: (context, provider, _) {
+                    final isLoadingPublisher = provider
+                        .isLoading(PublisherOperationType.getPublisherById);
+                    final errorMessagePublisher = provider
+                        .getError(PublisherOperationType.getPublisherById);
+                    final publisher =
+                        provider.getPublisherByIdFromCache(widget.publisherId);
 
-                  final isLoadingPublishers =
-                      provider.isLoading(PublisherOperationType.getPublishers);
-                  final errorMessagePublishers =
-                      provider.getError(PublisherOperationType.getPublishers);
-                  final publishers = provider.getPublishersForSpecificScreen(
-                      PublisherScreenType.publisherDetail);
+                    final isLoadingPublishers = provider
+                        .isLoading(PublisherOperationType.getPublishers);
+                    final errorMessagePublishers =
+                        provider.getError(PublisherOperationType.getPublishers);
+                    final publishers = provider.getPublishersForSpecificScreen(
+                        PublisherScreenType.publisherDetail);
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildPublisherCard(
-                        context,
-                        isLoadingPublisher,
-                        errorMessagePublisher,
-                        publisher,
-                      ),
-                      SizedBox(height: 24),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          "Similar Publishers",
-                          style: Theme.of(context).textTheme.bodyLarge,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildPublisherCard(
+                          context,
+                          isLoadingPublisher,
+                          errorMessagePublisher,
+                          publisher,
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      PublisherListHorizontal(
-                        isLoading: isLoadingPublishers,
-                        errorMessage: errorMessagePublishers,
-                        publishers: publishers,
-                        onRetry: () => provider.getPublishers(
-                            screen: PublisherScreenType.publisherDetail),
-                        onPublisherSelected: (publisherId) => context.push(
-                          '/publishers/$publisherId',
+                        SizedBox(height: 24),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            "Similar Publishers",
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
                         ),
+                        SizedBox(height: 16),
+                        PublisherListHorizontal(
+                          isLoading: isLoadingPublishers,
+                          errorMessage: errorMessagePublishers,
+                          publishers: publishers,
+                          onRetry: () => provider.getPublishers(
+                              screen: PublisherScreenType.publisherDetail),
+                          onPublisherSelected: (publisherId) => context.push(
+                            '/publishers/$publisherId',
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              SliverPadding(
+                padding: EdgeInsets.only(
+                  top: 32,
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    "Our Books",
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ),
+              ),
+              Consumer<BookProvider>(
+                builder: (context, bookProvider, _) {
+                  final isLoading =
+                      bookProvider.isLoading(BookOperationType.getBooks);
+                  final errorMessage =
+                      bookProvider.getError(BookOperationType.getBooks);
+                  final books = bookProvider.getBooksForSpecificScreen(
+                      BookScreenType.publisherDetail);
+
+                  return SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    sliver: InfiniteScrollBookGrid(
+                      books: books,
+                      isLoading: isLoading,
+                      errorMessage: errorMessage,
+                      onLoadMore: () async => await bookProvider
+                          .loadMoreBooks(BookScreenType.publisherDetail),
+                      onBookSelected: (book) {
+                        context.push('/books/${book.id}');
+                      },
+                      scrollController: controller,
+                      onRetry: () async => await bookProvider.getBooks(
+                        screen: BookScreenType.publisherDetail,
                       ),
-                    ],
+                    ),
                   );
                 },
               ),
-            ),
-            SliverPadding(
-              padding: EdgeInsets.only(
-                top: 32,
-                bottom: 16,
-                left: 16,
-                right: 16,
-              ),
-              sliver: SliverToBoxAdapter(
-                child: Text(
-                  "Our Books",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
-            ),
-            Consumer<BookProvider>(
-              builder: (context, bookProvider, _) {
-                final isLoading =
-                    bookProvider.isLoading(BookOperationType.getBooks);
-                final errorMessage =
-                    bookProvider.getError(BookOperationType.getBooks);
-                final books = bookProvider
-                    .getBooksForSpecificScreen(BookScreenType.publisherDetail);
-
-                return SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  sliver: InfiniteScrollBookGrid(
-                    books: books,
-                    isLoading: isLoading,
-                    errorMessage: errorMessage,
-                    onLoadMore: () async => await bookProvider
-                        .loadMoreBooks(BookScreenType.publisherDetail),
-                    onBookSelected: (book) {
-                      context.push('/books/${book.id}');
-                    },
-                    scrollController: controller,
-                    onRetry: () async => await bookProvider.getBooks(
-                      screen: BookScreenType.authorDetail,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ];
-        },
+            ];
+          },
+        ),
       ),
     );
   }
@@ -184,7 +206,9 @@ class PublisherDetailScreen extends StatelessWidget {
           child: StyledErrorMessage(
             errorMessage: errorMessage,
             onRetry: () {
-              context.read<PublisherProvider>().getPublisherById(publisherId);
+              context
+                  .read<PublisherProvider>()
+                  .getPublisherById(widget.publisherId);
             },
           ),
         ),

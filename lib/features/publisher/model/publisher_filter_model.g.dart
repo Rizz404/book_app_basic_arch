@@ -11,6 +11,7 @@ _$PublisherFilterModelImpl _$$PublisherFilterModelImplFromJson(
     _$PublisherFilterModelImpl(
       page: (json['page'] as num?)?.toInt() ?? 1,
       limit: (json['limit'] as num?)?.toInt() ?? 10,
+      searchQuery: json['searchQuery'] as String?,
     );
 
 Map<String, dynamic> _$$PublisherFilterModelImplToJson(
@@ -18,4 +19,5 @@ Map<String, dynamic> _$$PublisherFilterModelImplToJson(
     <String, dynamic>{
       'page': instance.page,
       'limit': instance.limit,
+      'searchQuery': instance.searchQuery,
     };

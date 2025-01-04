@@ -66,14 +66,33 @@ class GenreListHorizontal extends StatelessWidget {
             onTap: () => onGenreSelected(genre.id),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: NetworkImage(genre.picture),
+                ClipOval(
+                  child: Image.network(
+                    genre.picture,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 60,
+                        height: 60,
+                        color: Colors.grey[300],
+                        child: Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey[600],
+                          size: 30,
+                        ),
+                      );
+                    },
+                  ),
                 ),
                 SizedBox(height: 8),
                 Text(
                   genre.name,
                   style: Theme.of(context).textTheme.bodyLarge,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ],
             ),

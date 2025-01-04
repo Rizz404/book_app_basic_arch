@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class AuthorDetailScreen extends StatelessWidget {
+class AuthorDetailScreen extends StatefulWidget {
   final String authorId;
 
   const AuthorDetailScreen({
@@ -27,45 +27,55 @@ class AuthorDetailScreen extends StatelessWidget {
     required this.authorId,
   });
 
-  Future<void> _initializeData(BuildContext context) async {
+  @override
+  State<AuthorDetailScreen> createState() => _AuthorDetailScreenState();
+}
+
+class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
+  Future<void> _fetchData() async {
     final authorProvider = context.read<AuthorProvider>();
     final bookProvider = context.read<BookProvider>();
 
-    await authorProvider.getAuthorById(authorId);
+    await authorProvider.getAuthorById(widget.authorId);
     await authorProvider.getAuthors(screen: AuthorScreenType.authorDetail);
 
     final currentFilter = bookProvider.getFilterForSpecificScreen(
       BookScreenType.authorDetail,
     );
 
-    if (currentFilter.authorId != authorId) {
-      bookProvider.updateFilterForSpecificScreen(
-        BookScreenType.authorDetail,
-        currentFilter.copyWith(authorId: authorId, page: 1),
-      );
+    bookProvider.updateFilterForSpecificScreen(
+      BookScreenType.authorDetail,
+      currentFilter.copyWith(authorId: widget.authorId, page: 1),
+    );
 
-      await bookProvider.getBooks(screen: BookScreenType.authorDetail);
+    await bookProvider.getBooks(screen: BookScreenType.authorDetail);
+  }
+
+  @override
+  void didUpdateWidget(covariant AuthorDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.authorId != widget.authorId) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          _fetchData();
+        },
+      );
     }
   }
 
-  Future<void> _handleRefresh(BuildContext context) async {
-    await Future.wait([
-      context.read<AuthorProvider>().getAuthorById(authorId),
-      context.read<BookProvider>().getBooks(
-            screen: BookScreenType.authorDetail,
-          ),
-    ]);
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchData();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeData(context);
-    });
-
     return BaseScaffold(
       body: RefreshIndicator(
-        onRefresh: () => _handleRefresh(context),
+        onRefresh: () => _fetchData(),
         child: StyledScreenLayoutBuilder(
           sliverAppBar: StyledSliverAppBar(
             title: StyledSearchBarPlaceholder(
@@ -81,7 +91,8 @@ class AuthorDetailScreen extends StatelessWidget {
                         .isLoading(AuthorOperationType.getAuthorById);
                     final errorMessageAuthor = authorProvider
                         .getError(AuthorOperationType.getAuthorById);
-                    final author = authorProvider.author;
+                    final author =
+                        authorProvider.getAuthorByIdFromCache(widget.authorId);
 
                     final isLoadingAuthors = authorProvider
                         .isLoading(AuthorOperationType.getAuthors);
@@ -194,7 +205,7 @@ class AuthorDetailScreen extends StatelessWidget {
           child: StyledErrorMessage(
             errorMessage: errorMessage,
             onRetry: () {
-              context.read<AuthorProvider>().getAuthorById(authorId);
+              context.read<AuthorProvider>().getAuthorById(widget.authorId);
             },
           ),
         ),
@@ -279,7 +290,9 @@ class AuthorDetailScreen extends StatelessWidget {
               ),
               StyledButton(
                 onPressed: () {
-                  context.read<AuthorProvider>().toggleFollowAuthor(authorId);
+                  context
+                      .read<AuthorProvider>()
+                      .toggleFollowAuthor(widget.authorId);
                 },
                 child: Text(author.isFollowedAuthor ? 'unfollow' : 'follow'),
               )
