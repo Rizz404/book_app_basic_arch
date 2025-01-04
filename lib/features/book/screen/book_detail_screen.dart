@@ -7,12 +7,12 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.da
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
-import 'package:book_app_basic_arch/features/book/widgets/book_card.dart';
+import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class BookDetailScreen extends StatelessWidget {
+class BookDetailScreen extends StatefulWidget {
   final String bookId;
 
   const BookDetailScreen({
@@ -21,201 +21,198 @@ class BookDetailScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final bookProvider = context.read<BookProvider>();
+  State<BookDetailScreen> createState() => _BookDetailScreenState();
+}
 
-      bookProvider.getBookById(bookId);
+class _BookDetailScreenState extends State<BookDetailScreen> {
+  Future<void> _fetchData() async {
+    final bookProvider = context.read<BookProvider>();
 
-      // todo: Nanti tambahin get books random di api
-      bookProvider.updateFilterForSpecificScreen(
-        BookScreenType.bookDetail,
-        bookProvider
-            .getFilterForSpecificScreen(BookScreenType.bookDetail)
-            .copyWith(limit: 20),
-      );
+    await bookProvider.getBookById(widget.bookId);
+    await bookProvider.getBooks(screen: BookScreenType.bookDetail);
+  }
 
-      bookProvider.getBooks(screen: BookScreenType.bookDetail);
-    });
-
-    return BaseScaffold(
-      body: StyledScreenLayoutBuilder(
-        sliverAppBar: StyledSliverAppBar(
-          title: Text('Detail'),
-        ),
-        builder: (builder, controller) {
-          return [
-            SliverToBoxAdapter(
-              child: Consumer<BookProvider>(
-                builder: (context, provider, _) {
-                  final book = provider.book;
-                  final isLoading =
-                      provider.isLoading(BookOperationType.getBookById);
-                  final errorMessage =
-                      provider.getError(BookOperationType.getBookById);
-
-                  if (isLoading) {
-                    return const StyledLoadingState();
-                  }
-
-                  if (errorMessage != null) {
-                    return StyledErrorMessage(
-                      errorMessage: errorMessage,
-                      onRetry: () =>
-                          context.read<BookProvider>().getBookById(bookId),
-                    );
-                  }
-
-                  if (book == null) {
-                    return const StyledEmptyData(message: 'No books found');
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // * Picture
-                      ClipRRect(
-                        child: Image.network(
-                          book.bookPictures![0].url,
-                          fit: BoxFit.contain,
-                          width: double.infinity,
-                          height: 250,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.network(
-                              'https://i.pinimg.com/236x/64/2e/96/642e9610c5c587767430bf6a9deeff7c.jpg',
-                              fit: BoxFit.contain,
-                            );
-                          },
-                          cacheWidth: 300,
-                          cacheHeight: 300,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // * Title
-                            Text(
-                              book.title,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 4),
-
-                            // * Author
-                            GestureDetector(
-                              onTap: () => context.push(
-                                '/authors/${book.author.id}',
-                              ),
-                              child: Text(
-                                'By: ${book.author.name}',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-
-                            // * Publisher
-                            GestureDetector(
-                              onTap: () => context.push(
-                                '/publishers/${book.publisher.id}',
-                              ),
-                              child: Text(
-                                'Publish by: ${book.publisher.name}',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-
-                            // * Description title
-                            Text(
-                              'About this book',
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                            const SizedBox(height: 8),
-
-                            // * Description content
-                            Text(
-                              book.description,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            const SizedBox(height: 24),
-
-                            // * Suggestion title
-                            Text(
-                              'Suggestion',
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                            const SizedBox(height: 16),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-            // * Suggestions Grid dalam Sliver terpisah
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: Consumer<BookProvider>(
-                builder: (context, bookProvider, _) {
-                  final books = bookProvider
-                      .getBooksForSpecificScreen(BookScreenType.bookDetail);
-                  final isLoading =
-                      bookProvider.isLoading(BookOperationType.getBooks);
-                  final errorMessage =
-                      bookProvider.getError(BookOperationType.getBooks);
-
-                  return SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.7,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        if (isLoading) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                        if (errorMessage != null) {
-                          return Center(
-                            child: TextButton(
-                              onPressed: () => bookProvider.getBooks(
-                                screen: BookScreenType.bookDetail,
-                              ),
-                              child: const Text('Retry'),
-                            ),
-                          );
-                        }
-                        if (books.isEmpty) {
-                          return const Center(
-                              child: Text('No suggestions available'));
-                        }
-                        return BookCard(
-                          bookModel: books[index],
-                          onTap: () =>
-                              context.push('/books/${books[index].id}'),
-                        );
-                      },
-                      childCount: books.isEmpty ? 1 : books.length,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ];
+  @override
+  void didUpdateWidget(covariant BookDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.bookId != widget.bookId) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          _fetchData();
         },
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchData();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: () => _fetchData(),
+      child: BaseScaffold(
+        body: StyledScreenLayoutBuilder(
+          sliverAppBar: StyledSliverAppBar(
+            title: Text('Detail'),
+          ),
+          builder: (builder, controller) {
+            return [
+              SliverToBoxAdapter(
+                child: Consumer<BookProvider>(
+                  builder: (context, provider, _) {
+                    final book = provider.getBookByIdFromCache(widget.bookId);
+                    final isLoading =
+                        provider.isLoading(BookOperationType.getBookById);
+                    final errorMessage =
+                        provider.getError(BookOperationType.getBookById);
+
+                    if (isLoading) {
+                      return const StyledLoadingState();
+                    }
+
+                    if (errorMessage != null) {
+                      return StyledErrorMessage(
+                        errorMessage: errorMessage,
+                        onRetry: () => context
+                            .read<BookProvider>()
+                            .getBookById(widget.bookId),
+                      );
+                    }
+
+                    if (book == null) {
+                      return const StyledEmptyData(message: 'No books found');
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // * Picture
+                        ClipRRect(
+                          child: Image.network(
+                            book.bookPictures![0].url,
+                            fit: BoxFit.contain,
+                            width: double.infinity,
+                            height: 250,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.network(
+                                'https://i.pinimg.com/236x/64/2e/96/642e9610c5c587767430bf6a9deeff7c.jpg',
+                                fit: BoxFit.contain,
+                              );
+                            },
+                            cacheWidth: 300,
+                            cacheHeight: 300,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // * Title
+                              Text(
+                                book.title,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 4),
+
+                              // * Author
+                              GestureDetector(
+                                onTap: () => context.push(
+                                  '/authors/${book.author.id}',
+                                ),
+                                child: Text(
+                                  'By: ${book.author.name}',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+
+                              // * Publisher
+                              GestureDetector(
+                                onTap: () => context.push(
+                                  '/publishers/${book.publisher.id}',
+                                ),
+                                child: Text(
+                                  'Publish by: ${book.publisher.name}',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+
+                              // * Description title
+                              Text(
+                                'About this book',
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                              const SizedBox(height: 8),
+
+                              // * Description content
+                              Text(
+                                book.description,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const SizedBox(height: 24),
+
+                              // * Suggestion title
+                              Text(
+                                'Suggestion',
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              // * Suggestions Grid dalam Sliver terpisah
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: Consumer<BookProvider>(
+                  builder: (context, bookProvider, _) {
+                    final books = bookProvider
+                        .getBooksForSpecificScreen(BookScreenType.bookDetail);
+                    final isLoading =
+                        bookProvider.isLoading(BookOperationType.getBooks);
+                    final errorMessage =
+                        bookProvider.getError(BookOperationType.getBooks);
+
+                    return InfiniteScrollBookGrid(
+                      books: books,
+                      isLoading: isLoading,
+                      errorMessage: errorMessage,
+                      onLoadMore: () =>
+                          bookProvider.loadMoreBooks(BookScreenType.books),
+                      onBookSelected: (book) {
+                        context.push('/books/${book.id}');
+                      },
+                      scrollController: controller,
+                      onRetry: () => bookProvider.getBooks(
+                        screen: BookScreenType.books,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ];
+          },
+        ),
       ),
     );
   }

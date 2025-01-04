@@ -25,9 +25,11 @@ class BookProvider with ChangeNotifier {
   ApiPagination? get searchedBooksPagination =>
       _paginationByScreen[BookScreenType.search];
 
-  // * State untuk single book detail
-  BookModel? _book;
-  BookModel? get book => _book;
+  // * Cache untuk book berdasarkan ID
+  final Map<String, BookModel> _bookCache = {};
+
+  // * Getter untuk single book dari cache
+  BookModel? getBookByIdFromCache(String id) => _bookCache[id];
 
   // * State untuk menyimpan filter tiap screen
   final Map<BookScreenType, BookFilterModel> _filterByScreen = {
@@ -143,6 +145,11 @@ class BookProvider with ChangeNotifier {
   }
 
   Future<void> getBookById(String id) async {
+    // * Cek cache terlebih dahulu
+    if (_bookCache.containsKey(id)) {
+      return; // * Tidak perlu fetch jika sudah ada di cache dan refresh false
+    }
+
     _updateOperationState(
       BookOperationType.getBookById,
       isLoading: true,
@@ -152,7 +159,7 @@ class BookProvider with ChangeNotifier {
     try {
       final response = await _bookServices.getBookById(id);
 
-      _book = response.data!;
+      _bookCache[id] = response.data!;
 
       _updateOperationState(
         BookOperationType.getBookById,
@@ -416,9 +423,9 @@ class BookProvider with ChangeNotifier {
         return BookOperationType.getBooks;
       case BookScreenType.genreDetail:
         return BookOperationType.getBooks;
-      case BookScreenType.authorDetail:
-        return BookOperationType.getBooks;
       case BookScreenType.publisherDetail:
+        return BookOperationType.getBooks;
+      case BookScreenType.authorDetail:
         return BookOperationType.getBooks;
     }
   }
@@ -444,11 +451,11 @@ class BookProvider with ChangeNotifier {
         return await _bookServices.searchBooksByTitle(title: searchQuery);
       case BookScreenType.genreDetail:
         return await _bookServices.getBooks(filter);
-      case BookScreenType.authorDetail:
+      case BookScreenType.bookDetail:
         return await _bookServices.getBooks(filter);
       case BookScreenType.publisherDetail:
         return await _bookServices.getBooks(filter);
-      case BookScreenType.bookDetail:
+      case BookScreenType.authorDetail:
         return await _bookServices.getBooks(filter);
     }
   }
@@ -466,15 +473,15 @@ class BookProvider with ChangeNotifier {
   static const _debounceDuration = Duration(milliseconds: 500);
 
   // * Method untuk update status follow secara optimistic
-  void updateBookFollowStatus(String bookId, bool isFollowed) {
+  void updateBookWishlistStatus(String bookId, bool isWishlisted) {
     // * Update di semua screen yang menyimpan book
     _booksByScreen.forEach((screen, books) {
       final bookIndex = books.indexWhere((book) => book.id == bookId);
       if (bookIndex != -1) {
         final updatedBooks = List<BookModel>.from(books);
         updatedBooks[bookIndex] = books[bookIndex].copyWith(
-          isWishlisted: isFollowed,
-          wishlistCount: isFollowed
+          isWishlisted: isWishlisted,
+          wishlistCount: isWishlisted
               ? books[bookIndex].wishlistCount + 1
               : books[bookIndex].wishlistCount - 1,
         );
@@ -483,11 +490,12 @@ class BookProvider with ChangeNotifier {
     });
 
     // * Update untuk single book detail
-    if (_book?.id == bookId) {
-      _book = _book!.copyWith(
-        isWishlisted: isFollowed,
-        wishlistCount:
-            isFollowed ? _book!.wishlistCount + 1 : _book!.wishlistCount - 1,
+    if (_bookCache[bookId]?.id == bookId) {
+      _bookCache[bookId] = _bookCache[bookId]!.copyWith(
+        isWishlisted: isWishlisted,
+        wishlistCount: isWishlisted
+            ? _bookCache[bookId]!.wishlistCount + 1
+            : _bookCache[bookId]!.wishlistCount - 1,
       );
     }
 
@@ -495,7 +503,7 @@ class BookProvider with ChangeNotifier {
   }
 
   // * Method untuk rollback status follow
-  void rollbackBookFollowStatus(String bookId) {
+  void rollbackBookWishlistStatus(String bookId) {
     // * Rollback di semua screen
     _booksByScreen.forEach((screen, books) {
       final bookIndex = books.indexWhere((book) => book.id == bookId);
@@ -512,12 +520,12 @@ class BookProvider with ChangeNotifier {
     });
 
     // * Rollback untuk single book detail
-    if (_book?.id == bookId) {
-      _book = _book!.copyWith(
-        isWishlisted: _book!.originalWishlistStatus,
-        wishlistCount: _book!.originalWishlistStatus
-            ? _book!.wishlistCount + 1
-            : _book!.wishlistCount - 1,
+    if (_bookCache[bookId]?.id == bookId) {
+      _bookCache[bookId] = _bookCache[bookId]!.copyWith(
+        isWishlisted: _bookCache[bookId]!.originalWishlistStatus,
+        wishlistCount: _bookCache[bookId]!.originalWishlistStatus
+            ? _bookCache[bookId]!.wishlistCount + 1
+            : _bookCache[bookId]!.wishlistCount - 1,
       );
     }
 
@@ -528,11 +536,11 @@ class BookProvider with ChangeNotifier {
     // * Cari book di semua screen
     BookModel? targetBook;
 
-    // Cek di _book dulu
-    if (_book?.id == bookId) {
-      targetBook = _book;
+    // Cek di _bookCache[bookId] dulu
+    if (_bookCache[bookId]?.id == bookId) {
+      targetBook = _bookCache[bookId];
     } else {
-      // Kalau tidak ketemu di _book, cari di _booksByScreen
+      // Kalau tidak ketemu di _bookCache[bookId], cari di _booksByScreen
       for (var books in _booksByScreen.values) {
         final foundBook = books.where((book) => book.id == bookId).firstOrNull;
         if (foundBook != null) {
@@ -549,8 +557,8 @@ class BookProvider with ChangeNotifier {
     _followDebounceTimers[bookId]?.cancel();
 
     // * Update UI secara optimistic
-    final newFollowStatus = !targetBook.isWishlisted;
-    updateBookFollowStatus(bookId, newFollowStatus);
+    final newWishlistStatus = !targetBook.isWishlisted;
+    updateBookWishlistStatus(bookId, newWishlistStatus);
 
     // * Set timer baru untuk debounce
     _followDebounceTimers[bookId] = Timer(_debounceDuration, () async {
@@ -568,10 +576,10 @@ class BookProvider with ChangeNotifier {
           }
 
           // * Update original status setelah berhasil
-          _updateOriginalFollowStatus(bookId, currentBook.isWishlisted);
+          _updateOriginalWishlistStatus(bookId, currentBook.isWishlisted);
         } catch (e) {
           // * Rollback jika gagal
-          rollbackBookFollowStatus(bookId);
+          rollbackBookWishlistStatus(bookId);
           debugPrint('Error toggling follow status: $e');
         }
       }
@@ -584,11 +592,11 @@ class BookProvider with ChangeNotifier {
       final book = books.where((book) => book.id == bookId).firstOrNull;
       if (book != null) return book;
     }
-    return _book?.id == bookId ? _book : null;
+    return _bookCache[bookId]?.id == bookId ? _bookCache[bookId] : null;
   }
 
   // * Helper method untuk update original follow status
-  void _updateOriginalFollowStatus(String bookId, bool newStatus) {
+  void _updateOriginalWishlistStatus(String bookId, bool newStatus) {
     _booksByScreen.forEach((screen, books) {
       final bookIndex = books.indexWhere((book) => book.id == bookId);
       if (bookIndex != -1) {
@@ -600,8 +608,9 @@ class BookProvider with ChangeNotifier {
       }
     });
 
-    if (_book?.id == bookId) {
-      _book = _book!.copyWith(originalWishlistStatus: newStatus);
+    if (_bookCache[bookId]?.id == bookId) {
+      _bookCache[bookId] =
+          _bookCache[bookId]!.copyWith(originalWishlistStatus: newStatus);
     }
 
     notifyListeners();
