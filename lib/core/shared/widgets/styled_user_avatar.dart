@@ -11,7 +11,7 @@ class StyledUserAvatar extends StatelessWidget {
     return CircleAvatar(
       radius: 24,
       backgroundImage: NetworkImage(
-        userCredential.profilePicture ??
+        userCredential.credentials?.profilePicture ??
             "https://i.pinimg.com/236x/0e/f3/6f/0ef36fb12fec6342b5f0116cf613c0ab.jpg",
       ),
     );

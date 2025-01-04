@@ -3,14 +3,17 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
-import 'package:book_app_basic_arch/features/book/book_provider.dart';
-import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
-import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
-import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
-import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
+import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
+import 'package:book_app_basic_arch/features/genre/widgets/genre_list_horizontal.dart';
+import 'package:book_app_basic_arch/features/book/book_provider.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
+import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +31,7 @@ class GenreDetailScreen extends StatelessWidget {
     final bookProvider = context.read<BookProvider>();
 
     await genreProvider.getGenreById(genreId);
+    await genreProvider.getGenres(screen: GenreScreenType.genreDetail);
 
     final currentFilter = bookProvider.getFilterForSpecificScreen(
       BookScreenType.genreDetail,
@@ -43,90 +47,206 @@ class GenreDetailScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _handleRefresh(BuildContext context) async {
+    await Future.wait([
+      context.read<GenreProvider>().getGenreById(genreId),
+      context.read<BookProvider>().getBooks(
+            screen: BookScreenType.genreDetail,
+          ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // * Kalo stateles itu pakenya read aja
       _initializeData(context);
     });
 
     return BaseScaffold(
-      body: StyledScreenLayoutBuilder(
+      body: RefreshIndicator(
+        onRefresh: () => _handleRefresh(context),
+        child: StyledScreenLayoutBuilder(
           sliverAppBar: StyledSliverAppBar(
-            title: Text('Genre'),
+            title: StyledSearchBarPlaceholder(
+              hintText: "Hinted search text",
+            ),
           ),
-          builder: (context, controller) {
+          builder: (builder, controller) {
             return [
-              StyledStickySliverContainer(
-                backgroundColor: Colors.grey.shade500,
-                height: 72,
+              SliverToBoxAdapter(
                 child: Consumer<GenreProvider>(
-                  builder: (builder, provider, _) {
-                    final isLoadingGenre =
-                        provider.isLoading(GenreOperationType.getGenreById);
+                  builder: (context, genreProvider, _) {
+                    final isLoadingGenre = genreProvider
+                        .isLoading(GenreOperationType.getGenreById);
                     final errorMessageGenre =
-                        provider.getError(GenreOperationType.getGenreById);
-                    final genre = provider.genre;
+                        genreProvider.getError(GenreOperationType.getGenreById);
+                    final genre = genreProvider.genre;
 
-                    if (isLoadingGenre) {
-                      return StyledLoadingState();
-                    }
+                    final isLoadingGenres =
+                        genreProvider.isLoading(GenreOperationType.getGenres);
+                    final errorMessageGenres =
+                        genreProvider.getError(GenreOperationType.getGenres);
+                    final genres = genreProvider.getGenresForSpecificScreen(
+                        GenreScreenType.genreDetail);
 
-                    if (errorMessageGenre != null) {
-                      return StyledErrorMessage(
-                          errorMessage: errorMessageGenre);
-                    }
-
-                    if (genre == null) {
-                      return StyledEmptyData(message: 'Genre not found');
-                    }
-
-                    return ListTile(
-                      title: Text(genre.name),
-                      subtitle: Text(
-                        genre.description,
-                        style: TextStyle(
-                          overflow: TextOverflow.ellipsis,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildGenreCard(
+                          context,
+                          isLoadingGenre,
+                          errorMessageGenre,
+                          genre,
                         ),
-                      ),
+                        SizedBox(height: 24),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            "Similar Genres",
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        GenreListHorizontal(
+                          isLoading: isLoadingGenres,
+                          errorMessage: errorMessageGenres,
+                          genres: genres,
+                          onRetry: () => genreProvider.getGenres(
+                              screen: GenreScreenType.genreDetail),
+                          onGenreSelected: (genreId) => context.push(
+                            '/genres/$genreId',
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
               ),
               SliverPadding(
-                padding: EdgeInsets.all(16),
-                sliver: Consumer<BookProvider>(
-                  builder: (context, bookProvider, _) {
-                    final isLoadingBooks =
-                        bookProvider.isLoading(BookOperationType.getBooks);
-                    final errorMessageBooks =
-                        bookProvider.getError(BookOperationType.getBooks);
-                    final books = bookProvider.getBooksForSpecificScreen(
-                      BookScreenType.genreDetail,
-                    );
+                padding: EdgeInsets.only(
+                  top: 32,
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    "Our Books",
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ),
+              ),
+              Consumer<BookProvider>(
+                builder: (context, bookProvider, _) {
+                  final isLoading =
+                      bookProvider.isLoading(BookOperationType.getBooks);
+                  final errorMessage =
+                      bookProvider.getError(BookOperationType.getBooks);
+                  final books = bookProvider
+                      .getBooksForSpecificScreen(BookScreenType.genreDetail);
 
-                    return InfiniteScrollBookGrid(
+                  return SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    sliver: InfiniteScrollBookGrid(
                       books: books,
-                      isLoading: isLoadingBooks,
-                      errorMessage: errorMessageBooks,
-                      onRetry: () async => await bookProvider.getBooks(
-                        screen: BookScreenType.genreDetail,
-                      ),
-                      onLoadMore: () async {
-                        await bookProvider.loadMoreBooks(
-                          BookScreenType.genreDetail,
-                        );
-                      },
+                      isLoading: isLoading,
+                      errorMessage: errorMessage,
+                      onLoadMore: () async => await bookProvider
+                          .loadMoreBooks(BookScreenType.genreDetail),
                       onBookSelected: (book) {
                         context.push('/books/${book.id}');
                       },
                       scrollController: controller,
-                    );
-                  },
-                ),
+                      onRetry: () async => await bookProvider.getBooks(
+                        screen: BookScreenType.genreDetail,
+                      ),
+                    ),
+                  );
+                },
               ),
             ];
-          }),
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenreCard(
+    BuildContext context,
+    bool isLoading,
+    String? errorMessage,
+    GenreModel? genre,
+  ) {
+    if (isLoading) {
+      return const SizedBox(
+        height: 300,
+        child: Center(
+          child: StyledLoadingState(),
+        ),
+      );
+    }
+
+    if (errorMessage != null) {
+      return SizedBox(
+        height: 300,
+        child: Center(
+          child: StyledErrorMessage(
+            errorMessage: errorMessage,
+            onRetry: () {
+              context.read<GenreProvider>().getGenreById(genreId);
+            },
+          ),
+        ),
+      );
+    }
+
+    if (genre == null) {
+      return const SizedBox(
+        height: 300,
+        child: Center(
+          child: StyledEmptyData(message: 'Genre not found'),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  genre.picture,
+                  fit: BoxFit.cover,
+                  width: 120,
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      genre.name,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      genre.description,
+                      style: Theme.of(context).textTheme.bodySmall,
+                      softWrap: true,
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+        ],
+      ),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:book_app_basic_arch/core/config/app_themes.dart';
 import 'package:book_app_basic_arch/core/config/app_router.dart';
 import 'package:book_app_basic_arch/core/constants/app_pallete.dart';
+import 'package:book_app_basic_arch/core/helpers/user_credential_manager.dart';
+import 'package:book_app_basic_arch/core/network/dio_client.dart';
 import 'package:book_app_basic_arch/core/shared/provider/theme_provider.dart';
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
@@ -16,6 +18,13 @@ import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // * Initialize credential manager
+  final credManager = UserCredentialManager();
+  await credManager.init();
+
+  // * Initialize Dio client
+  DioClient();
+
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
 
   await Hive.initFlutter(appDocumentDirectory.path);

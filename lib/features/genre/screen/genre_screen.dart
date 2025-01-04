@@ -1,10 +1,12 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/genre/widgets/genre_card.dart';
 import 'package:book_app_basic_arch/features/genre/widgets/genre_form.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class GenreScreen extends StatefulWidget {
@@ -51,7 +53,7 @@ class _GenreScreenState extends State<GenreScreen> {
             );
 
             if (isLoadingGenres) {
-              return Center(child: CircularProgressIndicator());
+              return StyledLoadingState();
             }
 
             // * Menampilkan pesan error jika ada kesalahan
@@ -63,8 +65,10 @@ class _GenreScreenState extends State<GenreScreen> {
 
             if (genres.isEmpty) {
               return Center(child: Text('No genres available.'));
-            } else {
-              return GridView.builder(
+            }
+
+            return SliverToBoxAdapter(
+              child: GridView.builder(
                 padding: const EdgeInsets.all(16),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -73,11 +77,16 @@ class _GenreScreenState extends State<GenreScreen> {
                 ),
                 itemBuilder: (context, index) {
                   final genre = genres[index];
-                  return GenreCard(genre: genre);
+                  return GenreCard(
+                    genreModel: genre,
+                    onTap: () {
+                      context.push('/genres/${genre.id}');
+                    },
+                  );
                 },
                 itemCount: genres.length,
-              );
-            }
+              ),
+            );
           },
         ),
       ),

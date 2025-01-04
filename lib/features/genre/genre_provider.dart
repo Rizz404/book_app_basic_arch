@@ -15,11 +15,12 @@ class GenreProvider with ChangeNotifier {
   // * State untuk menyimpan pagination per screen
   final Map<GenreScreenType, ApiPagination?> _paginationByScreen = {};
 
-  // * Beda buat search
-  List<GenreModel> _searchedGenres = [];
-  List<GenreModel> get searchedGenres => _searchedGenres;
-  ApiPagination? _searchedGenresPagination;
-  ApiPagination? get searchedGenresPagination => _searchedGenresPagination;
+  // * Getter untuk hasil search (pake map yang sama)
+  List<GenreModel> get searchedGenres =>
+      _genresByScreen[GenreScreenType.search] ?? [];
+
+  ApiPagination? get searchedGenresPagination =>
+      _paginationByScreen[GenreScreenType.search];
 
   // * State untuk single genre detail
   GenreModel? _genre;
@@ -29,6 +30,8 @@ class GenreProvider with ChangeNotifier {
   final Map<GenreScreenType, GenreFilterModel> _filterByScreen = {
     GenreScreenType.home: GenreFilterModel(),
     GenreScreenType.genres: GenreFilterModel(),
+    GenreScreenType.genreDetail: GenreFilterModel(),
+    GenreScreenType.search: GenreFilterModel(),
   };
 
   // * Getter untuk genres berdasarkan screen
@@ -162,6 +165,43 @@ class GenreProvider with ChangeNotifier {
         errorMessage: e.toString(),
       );
       debugPrint('Error fetching genres: $e');
+    }
+  }
+
+  Future<void> searchGenresByName({
+    required String name,
+  }) async {
+    // * Reset filter search ke page 1 dengan query baru
+    final newFilter = GenreFilterModel(
+      page: 1,
+      searchQuery: name,
+    );
+    _filterByScreen[GenreScreenType.search] = newFilter;
+
+    _updateOperationState(
+      GenreOperationType.searchGenres,
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response = await _genreServices.searchGenresByName(name: name);
+
+      _genresByScreen[GenreScreenType.search] = response.data!;
+      _paginationByScreen[GenreScreenType.search] = response.meta.pagination;
+
+      _updateOperationState(
+        GenreOperationType.searchGenres,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        GenreOperationType.searchGenres,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error searching genres: $e');
     }
   }
 

@@ -6,21 +6,15 @@ import 'package:book_app_basic_arch/core/network/models/api_error_response.dart'
 import 'package:book_app_basic_arch/core/network/models/api_meta.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
-import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
-import 'package:path_provider/path_provider.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
   late final Dio dio;
-  late final CacheStore cacheStore;
-  late final CacheOptions defaultCacheOptions;
-  final UserCredentialManager _credentialManager = UserCredentialManager();
 
   factory DioClient() => _instance;
 
   DioClient._internal() {
-    // Inisialisasi langsung, bukan async
+    // * Inisialisasi langsung, bukan async
     dio = Dio(
       BaseOptions(
         baseUrl: ApiConstant.baseUrl,
@@ -31,38 +25,20 @@ class DioClient {
       ),
     );
 
-    // Setup cache dan interceptor secara async
-    _setupCache();
+    // * Setup cache dan interceptor secara async
+    _setupInterceptors();
   }
 
-  Future<void> _setupCache() async {
-    var cacheDir = await getTemporaryDirectory();
-    cacheStore = HiveCacheStore(
-      cacheDir.path,
-      hiveBoxName: "dio_cache",
-    );
-
-    defaultCacheOptions = CacheOptions(
-      store: cacheStore,
-      policy: CachePolicy.forceCache,
-      priority: CachePriority.high,
-      maxStale: const Duration(minutes: 1),
-      hitCacheOnErrorExcept: [401, 404],
-      keyBuilder: (request) => request.uri.toString(),
-      allowPostMethod: false,
+  Future<void> _setupInterceptors() async {
+    final authInterceptor = AuthInterceptor(
+      dio: dio,
+      credentialManager: UserCredentialManager(),
     );
 
     dio.interceptors.addAll([
-      // ! cache belum bener
-      // DioCacheInterceptor(options: defaultCacheOptions),
-      AuthInterceptor(dio: dio, credentialManager: _credentialManager),
+      authInterceptor,
       LoggerInterceptor(),
     ]);
-  }
-
-  // Method method untuk clear cache
-  Future<void> clearCache() async {
-    await cacheStore.clean();
   }
 
   // * Generic request methods
@@ -76,33 +52,15 @@ class DioClient {
     bool forceRefresh = false, // * Buat force refresh
   }) async {
     try {
-      // Jika forceRefresh true, gunakan policy CachePolicy.refresh
-      final cacheOptions = forceRefresh
-          ? defaultCacheOptions.copyWith(
-              policy: CachePolicy.refresh,
-            )
-          : defaultCacheOptions;
-
       final response = await dio.get(
         path,
         queryParameters: queryParameters,
-        options: options?.copyWith(
-              extra: {
-                ...options.extra ?? {},
-                'cache_options': cacheOptions,
-              },
-            ) ??
-            Options(
-              extra: {
-                'cache_options': cacheOptions,
-              },
-            ),
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
       return ApiSuccessResponse<T>.fromJson(response.data, fromJsonT);
     } on DioException catch (e) {
-      // todo: Error handle benerin biar bisa throw
+      // * todo: Error handle benerin biar bisa throw
       throw _handleDioException(e);
     }
   }
@@ -183,16 +141,16 @@ class DioClient {
 
   ApiErrorResponse _handleDioException(DioException e) {
     if (e.response?.data != null) {
-      // If we have response data, try to parse it as ApiErrorResponse
+      // * If we have response data, try to parse it as ApiErrorResponse
       try {
         final errorResponse = ApiErrorResponse.fromJson(e.response?.data);
         return errorResponse;
       } catch (_) {
-        // If parsing fails, fall through to default error handling
+        // * If parsing fails, fall through to default error handling
       }
     }
 
-    // Default error handling for other types of errors
+    // * Default error handling for other types of errors
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:

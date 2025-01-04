@@ -38,7 +38,7 @@ class GenreList extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         border: Border.symmetric(
-          horizontal: BorderSide(width: 1),
+          horizontal: BorderSide(width: 1, color: Color(0xE9BBB280)),
         ),
       ),
       height: 40,
@@ -49,7 +49,12 @@ class GenreList extends StatelessWidget {
           return Align(
             alignment: Alignment.center,
             child: TextButton(
-              child: Text(genres[index].name),
+              child: Text(
+                genres[index].name,
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                ),
+              ),
               onPressed: () => onGenreSelected(genres[index].id),
             ),
           );

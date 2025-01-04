@@ -1,8 +1,10 @@
 import 'package:book_app_basic_arch/core/shared/screens/error_screen.dart';
 import 'package:book_app_basic_arch/core/shared/screens/splash_screen.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/auth_wrapper.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/scaffold_with_bottom_app_bar.dart';
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
 import 'package:book_app_basic_arch/features/auth/screen/login_screen.dart';
+import 'package:book_app_basic_arch/core/shared/screens/menu_screen.dart';
 import 'package:book_app_basic_arch/features/auth/screen/register_screen.dart';
 import 'package:book_app_basic_arch/features/author/screen/author_detail_screen.dart';
 import 'package:book_app_basic_arch/features/author/screen/author_screen.dart';
@@ -43,6 +45,12 @@ class AppRouter {
           child: SplashScreen(),
         ),
       ),
+      GoRoute(
+        path: '/menu',
+        pageBuilder: (context, state) => MaterialPage(
+          child: MenuScreen(),
+        ),
+      ),
 
       // * Main app routes dengan bottom navigation
       StatefulShellRoute.indexedStack(
@@ -70,7 +78,7 @@ class AppRouter {
               GoRoute(
                 path: '/wishlist',
                 pageBuilder: (context, state) => MaterialPage(
-                  child: WishlistScreen(),
+                  child: AuthWrapper(child: WishlistScreen()),
                 ),
               )
             ],
@@ -81,7 +89,7 @@ class AppRouter {
               GoRoute(
                 path: '/profile',
                 pageBuilder: (context, state) => MaterialPage(
-                  child: ProfileScreen(),
+                  child: AuthWrapper(child: ProfileScreen()),
                 ),
               )
             ],
@@ -141,13 +149,13 @@ class AppRouter {
           child: GenreScreen(),
         ),
         routes: [
-          // GoRoute(
-          //   path: 'search',
-          //   builder: (context, state) {
-          //     final query = state.uri.queryParameters['q'] ?? '';
-          //     return GenreSearchResultScreen(query: query);
-          //   },
-          // ),
+          // * GoRoute(
+          // *   path: 'search',
+          // *   builder: (context, state) {
+          // *     final query = state.uri.queryParameters['q'] ?? '';
+          // *     return GenreSearchResultScreen(query: query);
+          // *   },
+          // * ),
           GoRoute(
             path: ':id',
             pageBuilder: (context, state) {
@@ -212,24 +220,29 @@ class AppRouter {
     ],
 
     // * Redirect logic
-    redirect: (context, state) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final isAuthenticated = authProvider.isAuthenticated;
+    // redirect: (context, state) {
+    //   final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    //   final isAuthenticated = authProvider.isAuthenticated;
 
-      final isLoginRoute = state.uri.toString() == "/sign-in";
-      final isRegisterRoute = state.uri.toString() == "/sign-up";
-      final isAuthRoute = isLoginRoute || isRegisterRoute;
+    //   // * Cek apakah sedang di splash screen
+    //   final isSplash = state.uri.toString() == '/';
+    //   if (isSplash) return null;
 
-      if (!isAuthenticated && !isAuthRoute) {
-        return "/";
-      }
+    //   // * Daftar route autentikasi
+    //   final authRoutes = ['/sign-in', '/sign-up'];
 
-      if (isAuthenticated && isAuthRoute) {
-        return "/";
-      }
+    //   // * Cek apakah sedang di halaman auth
+    //   final isAuthRoute = authRoutes.contains(state.uri.toString());
 
-      return null;
-    },
+    //   if (isAuthenticated && isAuthRoute) {
+    //     // * Cek apakah ada redirect location setelah login
+    //     final fromLocation = state.uri.queryParameters['from'];
+    //     return fromLocation ?? '/home';
+    //   }
+
+    //   // * Tidak perlu redirect
+    //   return null;
+    // },
     errorBuilder: (context, state) => ErrorScreen(),
   );
 }

@@ -2,7 +2,6 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_bui
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_user_avatar.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
@@ -19,7 +18,6 @@ import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  // Fungsi untuk refresh data
   Future<void> _handleRefresh(BuildContext context) async {
     final bookProvider = context.read<BookProvider>();
     final genreProvider = context.read<GenreProvider>();
@@ -43,9 +41,9 @@ class HomeScreen extends StatelessWidget {
     });
 
     final images = [
-      "https://i.pinimg.com/236x/30/c2/10/30c210344bbbcde4d5542c02a0cb908b.jpg",
-      "https://i.pinimg.com/236x/55/c3/b9/55c3b96dc1cc14a02f698796ed1dac7e.jpg",
-      "https://i.pinimg.com/236x/9e/7c/46/9e7c469cdd4842b408ce3a09230b9b29.jpg"
+      "https://i.pinimg.com/236x/0f/a9/5a/0fa95a25260140bdfad97b20768ce254.jpg",
+      "https://i.pinimg.com/236x/b7/69/a1/b769a1ee09bcc2343277bb6d76b6c328.jpg",
+      "https://i.pinimg.com/736x/72/20/d7/7220d7d532cbf4cc3d6f3c71d3e34c2a.jpg"
     ];
 
     return RefreshIndicator(
@@ -55,9 +53,6 @@ class HomeScreen extends StatelessWidget {
             title: StyledSearchBarPlaceholder(
               hintText: "Hinted search text",
             ),
-            actions: [
-              StyledUserAvatar(),
-            ],
           ),
           builder: (context, controller) {
             return [

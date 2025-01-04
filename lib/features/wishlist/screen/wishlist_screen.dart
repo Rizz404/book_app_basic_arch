@@ -13,9 +13,16 @@ class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
 
   Future<void> _handleRefresh(BuildContext context) async {
-    // Reset data dan memuat ulang
+    final bookProvider = context.read<BookProvider>();
+
+    bookProvider.updateFilterForSpecificScreen(
+      BookScreenType.wishlist,
+      bookProvider
+          .getFilterForSpecificScreen(BookScreenType.wishlist)
+          .copyWith(page: 1),
+    );
     await Future.wait([
-      context.read<BookProvider>().getBooksInWishlist(),
+      bookProvider.getBooksInWishlist(),
     ]);
   }
 

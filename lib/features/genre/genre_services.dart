@@ -62,17 +62,17 @@ class GenreServices {
     }
   }
 
-  Future<ApiSuccessResponse<List<GenreModel>>> searchGenreByTitle({
+  Future<ApiSuccessResponse<List<GenreModel>>> searchGenresByName({
     int page = 1,
     int limit = 10,
-    required String title,
+    required String name,
     bool forceRefresh = false,
   }) async {
     try {
       final queryParameters = {
         'page': page,
         'limit': limit,
-        'title': title,
+        'name': name,
       };
 
       return await _dioClient.get(

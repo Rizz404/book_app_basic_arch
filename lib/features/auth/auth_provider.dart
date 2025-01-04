@@ -1,4 +1,3 @@
-import 'package:book_app_basic_arch/core/helpers/user_credential_manager.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/auth/auth_services.dart';
 import 'package:book_app_basic_arch/features/auth/model/auth_model.dart';
@@ -7,19 +6,17 @@ import 'package:book_app_basic_arch/features/auth/enums/auth_operation_type.dart
 
 class AuthProvider with ChangeNotifier {
   final AuthServices _authServices = AuthServices();
-  final UserCredentialManager _credentialManager = UserCredentialManager();
-
-  // * Langsung init jadinya
-  AuthProvider() {
-    _initUserCredentialManager();
-  }
-
   UserCredentialModel? _userCredential;
   UserCredentialModel? get userCredential => _userCredential;
 
-  // * Getters untuk tokens melalui UserCredentialManager
-  String? get accessToken => _credentialManager.accessToken;
-  String? get refreshToken => _credentialManager.refreshToken;
+  AuthProvider() {
+    _initializeCredentials();
+  }
+
+  Future<void> _initializeCredentials() async {
+    _userCredential = await _authServices.getCurrentCredentials();
+    notifyListeners();
+  }
 
   // * Map untuk store operation state
   final Map<AuthOperationType, OperationState> _operationStates = {
@@ -40,38 +37,6 @@ class AuthProvider with ChangeNotifier {
       isLoading: isLoading ?? _operationStates[operation]!.isLoading,
       errorMessage: errorMessage
     );
-    notifyListeners();
-  }
-
-  Future<void> _initUserCredentialManager() async {
-    await _credentialManager.init();
-    // * Cek apakah ada token yang tersimpan
-    await _loadUserCredentialsFromCache();
-  }
-
-  Future<void> _loadUserCredentialsFromCache() async {
-    final String? cachedUsername = _credentialManager.username;
-    final String? cachedEmail = _credentialManager.email;
-    final String? cachedProfilePicture = _credentialManager.profilePicture;
-    final String? cachedId = _credentialManager.id;
-    final String? cachedAccessToken = _credentialManager.accessToken;
-    final String? cachedRefreshToken = _credentialManager.refreshToken;
-
-    if (cachedAccessToken != null && cachedRefreshToken != null) {
-      _userCredential = UserCredentialModel(
-        id: cachedId!,
-        username: cachedUsername!,
-        email: cachedEmail!,
-        profilePicture: cachedProfilePicture!,
-        accessToken: cachedAccessToken,
-        refreshToken: cachedRefreshToken,
-        role: '',
-        isVerified: true,
-        isEmailVerified: true,
-        createdAt: DateTime(2017, 9, 7, 17, 30),
-        updatedAt: DateTime(2017, 9, 7, 17, 30),
-      );
-    }
     notifyListeners();
   }
 
@@ -109,19 +74,7 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final response = await _authServices.signIn(payload);
-
       _userCredential = response.data;
-
-      if (_userCredential != null) {
-        await _credentialManager.saveCredentials(
-          id: _userCredential?.id,
-          username: userCredential?.username,
-          email: _userCredential?.email,
-          profilePicture: _userCredential?.profilePicture,
-          accessToken: _userCredential?.accessToken,
-          refreshToken: _userCredential?.refreshToken,
-        );
-      }
 
       _updateOperationState(
         AuthOperationType.signIn,
@@ -146,7 +99,7 @@ class AuthProvider with ChangeNotifier {
     );
 
     try {
-      await _credentialManager.clearTokens();
+      await _authServices.signOut();
       _userCredential = null;
 
       _updateOperationState(

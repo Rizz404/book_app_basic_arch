@@ -18,8 +18,8 @@ class AuthorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context
           .read<AuthorProvider>()
           .getAuthors(screen: AuthorScreenType.authors);
     });

@@ -139,6 +139,8 @@ class AuthorProvider with ChangeNotifier {
   }
 
   Future<void> getAuthorById(String id) async {
+    _author = null;
+
     _updateOperationState(
       AuthorOperationType.getAuthorById,
       isLoading: true,

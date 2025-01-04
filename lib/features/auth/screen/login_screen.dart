@@ -136,7 +136,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         // * Periksa apakah berhasil login
                         if (errorMessageSignIn == null && context.mounted) {
-                          context.go("/home");
+                          final fromLocation = GoRouterState.of(context)
+                              .uri
+                              .queryParameters['from'];
+                          if (fromLocation != null) {
+                            context.go(fromLocation);
+                          } else {
+                            context.go('/home');
+                          }
                         }
                       },
                       child: Text('Sign In'),

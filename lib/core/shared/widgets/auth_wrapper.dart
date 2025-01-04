@@ -24,6 +24,7 @@ class AuthWrapper extends StatelessWidget {
         context.push(
           '/sign-in',
         );
+        return;
       });
 
       return const Scaffold(

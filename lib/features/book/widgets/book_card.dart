@@ -54,11 +54,13 @@ class BookCard extends StatelessWidget {
 
                   // Wishlist Button
                   Positioned(
-                    top: 8,
-                    right: 8,
+                    top: 5,
+                    right: 5,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.5),
+                        color: Theme.of(context).primaryColorLight.withValues(
+                              alpha: 0.5,
+                            ),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
@@ -66,9 +68,7 @@ class BookCard extends StatelessWidget {
                           bookModel.isWishlisted
                               ? Icons.bookmark
                               : Icons.bookmark_outline,
-                          color: bookModel.isWishlisted
-                              ? Colors.lightGreenAccent
-                              : Colors.white,
+                          color: Colors.white,
                         ),
                         onPressed: () {
                           if (context.read<AuthProvider>().isAuthenticated) {

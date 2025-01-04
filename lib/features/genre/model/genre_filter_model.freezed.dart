@@ -22,6 +22,7 @@ GenreFilterModel _$GenreFilterModelFromJson(Map<String, dynamic> json) {
 mixin _$GenreFilterModel {
   int get page => throw _privateConstructorUsedError;
   int get limit => throw _privateConstructorUsedError;
+  String? get searchQuery => throw _privateConstructorUsedError;
 
   /// Serializes this GenreFilterModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,7 +40,7 @@ abstract class $GenreFilterModelCopyWith<$Res> {
           GenreFilterModel value, $Res Function(GenreFilterModel) then) =
       _$GenreFilterModelCopyWithImpl<$Res, GenreFilterModel>;
   @useResult
-  $Res call({int page, int limit});
+  $Res call({int page, int limit, String? searchQuery});
 }
 
 /// @nodoc
@@ -59,6 +60,7 @@ class _$GenreFilterModelCopyWithImpl<$Res, $Val extends GenreFilterModel>
   $Res call({
     Object? page = null,
     Object? limit = null,
+    Object? searchQuery = freezed,
   }) {
     return _then(_value.copyWith(
       page: null == page
@@ -69,6 +71,10 @@ class _$GenreFilterModelCopyWithImpl<$Res, $Val extends GenreFilterModel>
           ? _value.limit
           : limit // ignore: cast_nullable_to_non_nullable
               as int,
+      searchQuery: freezed == searchQuery
+          ? _value.searchQuery
+          : searchQuery // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -81,7 +87,7 @@ abstract class _$$GenreFilterModelImplCopyWith<$Res>
       __$$GenreFilterModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int page, int limit});
+  $Res call({int page, int limit, String? searchQuery});
 }
 
 /// @nodoc
@@ -99,6 +105,7 @@ class __$$GenreFilterModelImplCopyWithImpl<$Res>
   $Res call({
     Object? page = null,
     Object? limit = null,
+    Object? searchQuery = freezed,
   }) {
     return _then(_$GenreFilterModelImpl(
       page: null == page
@@ -109,6 +116,10 @@ class __$$GenreFilterModelImplCopyWithImpl<$Res>
           ? _value.limit
           : limit // ignore: cast_nullable_to_non_nullable
               as int,
+      searchQuery: freezed == searchQuery
+          ? _value.searchQuery
+          : searchQuery // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -116,7 +127,8 @@ class __$$GenreFilterModelImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$GenreFilterModelImpl implements _GenreFilterModel {
-  const _$GenreFilterModelImpl({this.page = 1, this.limit = 10});
+  const _$GenreFilterModelImpl(
+      {this.page = 1, this.limit = 10, this.searchQuery});
 
   factory _$GenreFilterModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$GenreFilterModelImplFromJson(json);
@@ -127,10 +139,12 @@ class _$GenreFilterModelImpl implements _GenreFilterModel {
   @override
   @JsonKey()
   final int limit;
+  @override
+  final String? searchQuery;
 
   @override
   String toString() {
-    return 'GenreFilterModel(page: $page, limit: $limit)';
+    return 'GenreFilterModel(page: $page, limit: $limit, searchQuery: $searchQuery)';
   }
 
   @override
@@ -139,12 +153,14 @@ class _$GenreFilterModelImpl implements _GenreFilterModel {
         (other.runtimeType == runtimeType &&
             other is _$GenreFilterModelImpl &&
             (identical(other.page, page) || other.page == page) &&
-            (identical(other.limit, limit) || other.limit == limit));
+            (identical(other.limit, limit) || other.limit == limit) &&
+            (identical(other.searchQuery, searchQuery) ||
+                other.searchQuery == searchQuery));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, page, limit);
+  int get hashCode => Object.hash(runtimeType, page, limit, searchQuery);
 
   /// Create a copy of GenreFilterModel
   /// with the given fields replaced by the non-null parameter values.
@@ -164,8 +180,10 @@ class _$GenreFilterModelImpl implements _GenreFilterModel {
 }
 
 abstract class _GenreFilterModel implements GenreFilterModel {
-  const factory _GenreFilterModel({final int page, final int limit}) =
-      _$GenreFilterModelImpl;
+  const factory _GenreFilterModel(
+      {final int page,
+      final int limit,
+      final String? searchQuery}) = _$GenreFilterModelImpl;
 
   factory _GenreFilterModel.fromJson(Map<String, dynamic> json) =
       _$GenreFilterModelImpl.fromJson;
@@ -174,6 +192,8 @@ abstract class _GenreFilterModel implements GenreFilterModel {
   int get page;
   @override
   int get limit;
+  @override
+  String? get searchQuery;
 
   /// Create a copy of GenreFilterModel
   /// with the given fields replaced by the non-null parameter values.

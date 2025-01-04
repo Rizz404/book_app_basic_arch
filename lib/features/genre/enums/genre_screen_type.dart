@@ -1,1 +1,1 @@
-enum GenreScreenType { home, genres }
+enum GenreScreenType { home, genres, genreDetail, search }

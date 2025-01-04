@@ -12,7 +12,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UserCredentialManager currentUser = UserCredentialManager();
+    final UserCredentialManager userCredential = UserCredentialManager();
 
     return StyledScreenLayoutBuilder(
         sliverAppBar: StyledSliverAppBar(
@@ -29,7 +29,7 @@ class ProfileScreen extends StatelessWidget {
                   CircleAvatar(
                     radius: 60,
                     backgroundImage: NetworkImage(
-                      currentUser.profilePicture ?? 'kintil',
+                      userCredential.credentials?.profilePicture ?? 'kintil',
                     ),
                   ),
                   SizedBox(height: 16),
@@ -37,14 +37,14 @@ class ProfileScreen extends StatelessWidget {
                   Column(
                     children: [
                       Text(
-                        currentUser.username ?? 'kintil',
+                        userCredential.credentials?.username ?? 'kintil',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),
                       ),
                       Text(
-                        currentUser.email ?? 'kintil',
+                        userCredential.credentials?.email ?? 'kintil',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
