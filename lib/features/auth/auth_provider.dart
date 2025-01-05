@@ -9,7 +9,7 @@ class AuthProvider with ChangeNotifier {
   UserCredentialModel? _userCredential;
   UserCredentialModel? get userCredential => _userCredential;
 
-  // Tambahkan state untuk tracking inisialisasi
+  // * Tambahkan state untuk tracking inisialisasi
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
 
@@ -29,9 +29,9 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Modifikasi getter isAuthenticated
+  // * Modifikasi getter isAuthenticated
   bool get isAuthenticated {
-    // Hanya return true jika sudah diinisialisasi dan ada credential
+    // * Hanya return true jika sudah diinisialisasi dan ada credential
     return _isInitialized && _userCredential != null;
   }
 

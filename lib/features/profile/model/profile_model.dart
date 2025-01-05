@@ -44,6 +44,7 @@ class UpdateUserWithProfileModel with _$UpdateUserWithProfileModel {
     String? email,
     String? profilePicture,
     String? bio,
+    int? age,
   }) = _UpdateUserWithProfileModel;
 
   factory UpdateUserWithProfileModel.fromJson(Map<String, dynamic> json) =>

@@ -654,6 +654,7 @@ mixin _$UpdateUserWithProfileModel {
   String? get email => throw _privateConstructorUsedError;
   String? get profilePicture => throw _privateConstructorUsedError;
   String? get bio => throw _privateConstructorUsedError;
+  int? get age => throw _privateConstructorUsedError;
 
   /// Serializes this UpdateUserWithProfileModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -673,7 +674,11 @@ abstract class $UpdateUserWithProfileModelCopyWith<$Res> {
           UpdateUserWithProfileModel>;
   @useResult
   $Res call(
-      {String? username, String? email, String? profilePicture, String? bio});
+      {String? username,
+      String? email,
+      String? profilePicture,
+      String? bio,
+      int? age});
 }
 
 /// @nodoc
@@ -696,6 +701,7 @@ class _$UpdateUserWithProfileModelCopyWithImpl<$Res,
     Object? email = freezed,
     Object? profilePicture = freezed,
     Object? bio = freezed,
+    Object? age = freezed,
   }) {
     return _then(_value.copyWith(
       username: freezed == username
@@ -714,6 +720,10 @@ class _$UpdateUserWithProfileModelCopyWithImpl<$Res,
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
               as String?,
+      age: freezed == age
+          ? _value.age
+          : age // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
@@ -728,7 +738,11 @@ abstract class _$$UpdateUserWithProfileModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String? username, String? email, String? profilePicture, String? bio});
+      {String? username,
+      String? email,
+      String? profilePicture,
+      String? bio,
+      int? age});
 }
 
 /// @nodoc
@@ -750,6 +764,7 @@ class __$$UpdateUserWithProfileModelImplCopyWithImpl<$Res>
     Object? email = freezed,
     Object? profilePicture = freezed,
     Object? bio = freezed,
+    Object? age = freezed,
   }) {
     return _then(_$UpdateUserWithProfileModelImpl(
       username: freezed == username
@@ -768,6 +783,10 @@ class __$$UpdateUserWithProfileModelImplCopyWithImpl<$Res>
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
               as String?,
+      age: freezed == age
+          ? _value.age
+          : age // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -776,7 +795,7 @@ class __$$UpdateUserWithProfileModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UpdateUserWithProfileModelImpl implements _UpdateUserWithProfileModel {
   const _$UpdateUserWithProfileModelImpl(
-      {this.username, this.email, this.profilePicture, this.bio});
+      {this.username, this.email, this.profilePicture, this.bio, this.age});
 
   factory _$UpdateUserWithProfileModelImpl.fromJson(
           Map<String, dynamic> json) =>
@@ -790,10 +809,12 @@ class _$UpdateUserWithProfileModelImpl implements _UpdateUserWithProfileModel {
   final String? profilePicture;
   @override
   final String? bio;
+  @override
+  final int? age;
 
   @override
   String toString() {
-    return 'UpdateUserWithProfileModel(username: $username, email: $email, profilePicture: $profilePicture, bio: $bio)';
+    return 'UpdateUserWithProfileModel(username: $username, email: $email, profilePicture: $profilePicture, bio: $bio, age: $age)';
   }
 
   @override
@@ -806,13 +827,14 @@ class _$UpdateUserWithProfileModelImpl implements _UpdateUserWithProfileModel {
             (identical(other.email, email) || other.email == email) &&
             (identical(other.profilePicture, profilePicture) ||
                 other.profilePicture == profilePicture) &&
-            (identical(other.bio, bio) || other.bio == bio));
+            (identical(other.bio, bio) || other.bio == bio) &&
+            (identical(other.age, age) || other.age == age));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, username, email, profilePicture, bio);
+      Object.hash(runtimeType, username, email, profilePicture, bio, age);
 
   /// Create a copy of UpdateUserWithProfileModel
   /// with the given fields replaced by the non-null parameter values.
@@ -837,7 +859,8 @@ abstract class _UpdateUserWithProfileModel
       {final String? username,
       final String? email,
       final String? profilePicture,
-      final String? bio}) = _$UpdateUserWithProfileModelImpl;
+      final String? bio,
+      final int? age}) = _$UpdateUserWithProfileModelImpl;
 
   factory _UpdateUserWithProfileModel.fromJson(Map<String, dynamic> json) =
       _$UpdateUserWithProfileModelImpl.fromJson;
@@ -850,6 +873,8 @@ abstract class _UpdateUserWithProfileModel
   String? get profilePicture;
   @override
   String? get bio;
+  @override
+  int? get age;
 
   /// Create a copy of UpdateUserWithProfileModel
   /// with the given fields replaced by the non-null parameter values.

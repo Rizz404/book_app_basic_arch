@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/profile/profile_services.dart';
 import 'package:book_app_basic_arch/features/profile/enums/profile_operation_type.dart';
@@ -10,26 +12,26 @@ class ProfileProvider with ChangeNotifier {
   UserWithProfileModel? _userProfile;
   UserWithProfileModel? get userProfile => _userProfile;
 
-  // * Map untuk store operation state
+  // * * Map untuk store operation state
   final Map<ProfileOperationType, OperationState> _operationStates = {
     for (var operation in ProfileOperationType.values)
       operation: (isLoading: false, errorMessage: null)
   };
 
-  // * Getter untuk state
+  // * * Getter untuk state
   bool isLoading(ProfileOperationType operation) =>
       _operationStates[operation]!.isLoading;
   String? getError(ProfileOperationType operation) =>
       _operationStates[operation]!.errorMessage;
 
-  // Helper to update operation state
+  // * Helper to update operation state
   void _updateOperationState(ProfileOperationType operation,
       {bool? isLoading, String? errorMessage}) {
     _operationStates[operation] = (
       isLoading: isLoading ?? _operationStates[operation]!.isLoading,
       errorMessage: errorMessage
     );
-    notifyListeners(); // ! sekali aja bang
+    notifyListeners(); // * ! sekali aja bang
   }
 
   Future<void> getUserProfile() async {
@@ -37,7 +39,7 @@ class ProfileProvider with ChangeNotifier {
       _updateOperationState(
         ProfileOperationType.getUserProfile,
         isLoading: true,
-        errorMessage: null, // * Reset error message saat mulai loading
+        errorMessage: null, // * * Reset error message saat mulai loading
       );
 
       final response = await _userProfileServices.getUserProfile();
@@ -46,7 +48,7 @@ class ProfileProvider with ChangeNotifier {
       _updateOperationState(
         ProfileOperationType.getUserProfile,
         isLoading: false,
-        errorMessage: null, // * Clear error message on success
+        errorMessage: null, // * * Clear error message on success
       );
     } catch (e) {
       _updateOperationState(
@@ -58,7 +60,10 @@ class ProfileProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateUserProfile(UpdateUserWithProfileModel profile) async {
+  Future<void> updateUserProfile(
+    UpdateUserWithProfileModel profile, {
+    File? profilePictureFile,
+  }) async {
     _updateOperationState(
       ProfileOperationType.updateUserProfile,
       isLoading: true,
@@ -66,8 +71,11 @@ class ProfileProvider with ChangeNotifier {
     );
 
     try {
-      await _userProfileServices.updateUserProfile(profile);
-      await getUserProfile();
+      await _userProfileServices.updateUserProfile(
+        profile,
+        profilePictureFile: profilePictureFile,
+      );
+      await getUserProfile(); // Refresh data profil
 
       _updateOperationState(
         ProfileOperationType.updateUserProfile,

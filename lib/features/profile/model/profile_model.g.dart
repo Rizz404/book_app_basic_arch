@@ -65,6 +65,7 @@ _$UpdateUserWithProfileModelImpl _$$UpdateUserWithProfileModelImplFromJson(
       email: json['email'] as String?,
       profilePicture: json['profilePicture'] as String?,
       bio: json['bio'] as String?,
+      age: (json['age'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$UpdateUserWithProfileModelImplToJson(
@@ -74,4 +75,5 @@ Map<String, dynamic> _$$UpdateUserWithProfileModelImplToJson(
       'email': instance.email,
       'profilePicture': instance.profilePicture,
       'bio': instance.bio,
+      'age': instance.age,
     };
