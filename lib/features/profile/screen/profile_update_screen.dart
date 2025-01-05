@@ -122,7 +122,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
         email: _emailController.text,
         bio: _bioController.text,
         age: int.tryParse(_ageController.text),
-        // Hanya kirim URL jika menggunakan mode URL
+        // * Hanya kirim URL jika menggunakan mode URL
         profilePicture: _isUrlImage ? _profilePictureController.text : null,
       );
 

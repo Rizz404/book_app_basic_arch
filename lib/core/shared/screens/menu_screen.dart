@@ -59,7 +59,7 @@ class MenuScreen extends StatelessWidget {
                       ],
                     ),
                     IconButton(
-                      onPressed: () => context.push('/profile'),
+                      onPressed: () => context.go('/profile'),
                       icon: Icon(
                         Icons.edit,
                       ),
@@ -86,22 +86,22 @@ class MenuScreen extends StatelessWidget {
                   ListTile(
                     leading: Icon(Icons.book),
                     title: Text("Books"),
-                    onTap: () => context.push('/books'),
+                    onTap: () => context.pushReplacement('/books'),
                   ),
                   ListTile(
                     leading: Icon(Icons.category),
                     title: Text("Genres"),
-                    onTap: () => context.push('/genres'),
+                    onTap: () => context.pushReplacement('/genres'),
                   ),
                   ListTile(
                     leading: Icon(Icons.person),
                     title: Text("Authors"),
-                    onTap: () => context.push('/authors'),
+                    onTap: () => context.pushReplacement('/authors'),
                   ),
                   ListTile(
                     leading: Icon(Icons.publish),
                     title: Text("Publishers"),
-                    onTap: () => context.push('/publishers'),
+                    onTap: () => context.pushReplacement('/publishers'),
                   ),
                 ],
               ),
