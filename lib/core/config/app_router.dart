@@ -14,8 +14,10 @@ import 'package:book_app_basic_arch/features/book/screen/book_screen.dart';
 import 'package:book_app_basic_arch/features/book/screen/book_search_result_screen.dart';
 import 'package:book_app_basic_arch/features/genre/screen/genre_detail_screen.dart';
 import 'package:book_app_basic_arch/features/genre/screen/genre_screen.dart';
+import 'package:book_app_basic_arch/features/genre/screen/genre_search_result_screen.dart';
 import 'package:book_app_basic_arch/features/home/screen/home_screen.dart';
 import 'package:book_app_basic_arch/features/profile/screen/profile_screen.dart';
+import 'package:book_app_basic_arch/features/profile/screen/profile_update_screen.dart';
 import 'package:book_app_basic_arch/features/publisher/screen/publisher_detail_screen.dart';
 import 'package:book_app_basic_arch/features/publisher/screen/publisher_screen.dart';
 import 'package:book_app_basic_arch/features/publisher/screen/publisher_search_result_screen.dart';
@@ -87,11 +89,18 @@ class AppRouter {
             navigatorKey: _navigatorProfileKey,
             routes: [
               GoRoute(
-                path: '/profile',
-                pageBuilder: (context, state) => MaterialPage(
-                  child: AuthWrapper(child: ProfileScreen()),
-                ),
-              )
+                  path: '/profile',
+                  pageBuilder: (context, state) => MaterialPage(
+                        child: AuthWrapper(child: ProfileScreen()),
+                      ),
+                  routes: [
+                    GoRoute(
+                      path: 'update',
+                      pageBuilder: (context, state) => MaterialPage(
+                        child: ProfileUpdateScreen(),
+                      ),
+                    ),
+                  ])
             ],
           ),
         ],
@@ -149,13 +158,13 @@ class AppRouter {
           child: GenreScreen(),
         ),
         routes: [
-          // * GoRoute(
-          // *   path: 'search',
-          // *   builder: (context, state) {
-          // *     final query = state.uri.queryParameters['q'] ?? '';
-          // *     return GenreSearchResultScreen(query: query);
-          // *   },
-          // * ),
+          GoRoute(
+            path: 'search',
+            builder: (context, state) {
+              final query = state.uri.queryParameters['q'] ?? '';
+              return GenreSearchResultScreen(query: query);
+            },
+          ),
           GoRoute(
             path: ':id',
             pageBuilder: (context, state) {

@@ -257,4 +257,10 @@ class GenreProvider with ChangeNotifier {
       debugPrint('Error updating genre: $e');
     }
   }
+
+  void resetSearch() {
+    _genresByScreen[GenreScreenType.search] = [];
+    _paginationByScreen[GenreScreenType.search] = null;
+    notifyListeners();
+  }
 }

@@ -18,16 +18,17 @@ import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final appDocumentDirectory = await getApplicationDocumentsDirectory();
+
+  await Hive.initFlutter(appDocumentDirectory.path);
+
   // * Initialize credential manager
   final credManager = UserCredentialManager();
+
   await credManager.init();
 
   // * Initialize Dio client
   DioClient();
-
-  final appDocumentDirectory = await getApplicationDocumentsDirectory();
-
-  await Hive.initFlutter(appDocumentDirectory.path);
 
   runApp(
     MultiProvider(providers: [

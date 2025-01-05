@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (fromLocation != null) {
                             context.go(fromLocation);
                           } else {
-                            context.go('/home');
+                            context.pushReplacement('/');
                           }
                         }
                       },

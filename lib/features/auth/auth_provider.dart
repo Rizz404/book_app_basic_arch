@@ -9,13 +9,30 @@ class AuthProvider with ChangeNotifier {
   UserCredentialModel? _userCredential;
   UserCredentialModel? get userCredential => _userCredential;
 
+  // Tambahkan state untuk tracking inisialisasi
+  bool _isInitialized = false;
+  bool get isInitialized => _isInitialized;
+
   AuthProvider() {
     _initializeCredentials();
   }
 
   Future<void> _initializeCredentials() async {
-    _userCredential = await _authServices.getCurrentCredentials();
-    notifyListeners();
+    try {
+      _userCredential = await _authServices.getCurrentCredentials();
+      _isInitialized = true;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error initializing credentials: $e');
+      _isInitialized = true;
+      notifyListeners();
+    }
+  }
+
+  // Modifikasi getter isAuthenticated
+  bool get isAuthenticated {
+    // Hanya return true jika sudah diinisialisasi dan ada credential
+    return _isInitialized && _userCredential != null;
   }
 
   // * Map untuk store operation state
@@ -116,7 +133,4 @@ class AuthProvider with ChangeNotifier {
       debugPrint(e.toString());
     }
   }
-
-  // * Cek apakah user sudah login
-  bool get isAuthenticated => _userCredential != null;
 }

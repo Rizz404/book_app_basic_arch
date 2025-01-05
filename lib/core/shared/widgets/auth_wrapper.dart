@@ -14,24 +14,25 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
+    final authProvider = context.watch<AuthProvider>();
 
     final String currentPath = GoRouterState.of(context).fullPath ?? '';
     final bool isRegisterPage = currentPath == '/sign-up';
 
-    if (!isAuthenticated && !isRegisterPage) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.push(
-          '/sign-in',
-        );
-        return;
-      });
-
+    // * Tampilkan loading selama inisialisasi
+    if (!authProvider.isInitialized) {
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
+    }
+
+    // * Setelah inisialisasi selesai, cek autentikasi
+    if (!authProvider.isAuthenticated && !isRegisterPage) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.push('/sign-in');
+      });
     }
 
     return child;

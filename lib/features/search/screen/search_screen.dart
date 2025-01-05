@@ -1,10 +1,12 @@
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/author/enums/author_operation_type.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
+import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/enums/publisher_operation_type.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +14,8 @@ import 'package:provider/provider.dart';
 
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
+
+enum SearchType { book, genre, author, publisher }
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -23,54 +27,64 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  void _handleSearch(String value) {
+  Future<void> _handleSearch(String value) async {
     if (value.isEmpty) return;
 
     final bookProvider = context.read<BookProvider>();
+    final genreProvider = context.read<GenreProvider>();
     final authorProvider = context.read<AuthorProvider>();
     final publisherProvider = context.read<PublisherProvider>();
 
-    bookProvider.searchBooksByTitle(title: value.trim());
-    authorProvider.searchAuthorsByName(name: value.trim());
-    publisherProvider.searchPublishersByName(name: value.trim());
+    await bookProvider.searchBooksByTitle(title: value.trim());
+    await genreProvider.searchGenresByName(name: value.trim());
+    await authorProvider.searchAuthorsByName(name: value.trim());
+    await publisherProvider.searchPublishersByName(name: value.trim());
   }
 
   void _handleIconPress() {
     _searchController.clear();
 
-    // Reset semua hasil pencarian
+    // * Reset semua hasil pencarian
     final bookProvider = context.read<BookProvider>();
+    final genreProvider = context.read<GenreProvider>();
     final authorProvider = context.read<AuthorProvider>();
     final publisherProvider = context.read<PublisherProvider>();
 
     bookProvider.resetSearch();
+    genreProvider.resetSearch();
     authorProvider.resetSearch();
     publisherProvider.resetSearch();
   }
 
-  void _navigateToSearchResult(String query, String type) {
+  void _navigateToSearchResult(String query, SearchType type) {
     switch (type) {
-      case 'book':
+      case SearchType.book:
         context.push('/books/search?q=$query');
         break;
-      case 'author':
+      case SearchType.genre:
+        context.push('/genres/search?q=$query');
+        break;
+      case SearchType.author:
         context.push('/authors/search?q=$query');
         break;
-      case 'publisher':
+      case SearchType.publisher:
         context.push('/publishers/search?q=$query');
         break;
     }
   }
 
-  void _navigateToDetailSceen(String id, String type) {
+  void _navigateToDetailSceen(String id, SearchType type) {
     switch (type) {
-      case 'book':
+      case SearchType.book:
         context.push('/books/$id');
         break;
-      case 'author':
+      case SearchType.genre:
+        context.push('/genres/$id');
+        break;
+      case SearchType.author:
         context.push('/authors/$id');
         break;
-      case 'publisher':
+      case SearchType.publisher:
         context.push('/publishers/$id');
         break;
     }
@@ -92,8 +106,9 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         builder: (builder, controller) {
           return [
-            Consumer3<BookProvider, AuthorProvider, PublisherProvider>(
-              builder: (context, bookProvider, authorProvider,
+            Consumer4<BookProvider, GenreProvider, AuthorProvider,
+                PublisherProvider>(
+              builder: (context, bookProvider, genreProvider, authorProvider,
                   publisherProvider, _) {
                 final isLoading =
                     bookProvider.isLoading(BookOperationType.searchBooks) ||
@@ -104,7 +119,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
                 if (isLoading) {
                   return const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
+                    child: StyledLoadingState(),
                   );
                 }
 
@@ -128,7 +143,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         trailing: TextButton(
                           onPressed: () => _navigateToSearchResult(
                             _searchController.text,
-                            'book',
+                            SearchType.book,
                           ),
                           child: const Text('Lihat Semua'),
                         ),
@@ -152,7 +167,47 @@ class _SearchScreenState extends State<SearchScreen> {
                               subtitle: const Text('Buku'),
                               onTap: () => _navigateToDetailSceen(
                                 book.id,
-                                'book',
+                                SearchType.book,
+                              ),
+                            ),
+                          ),
+                    ],
+
+                    // * Genres Section
+                    if (genreProvider.searchedGenres.isNotEmpty) ...[
+                      ListTile(
+                        title: Text(
+                          'Genre',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        trailing: TextButton(
+                          onPressed: () => _navigateToSearchResult(
+                            _searchController.text,
+                            SearchType.genre,
+                          ),
+                          child: const Text('Lihat Semua'),
+                        ),
+                      ),
+                      ...genreProvider.searchedGenres.take(3).map(
+                            (genre) => ListTile(
+                              leading: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .primaryColor
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.category,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                              title: Text(genre.name),
+                              subtitle: const Text('Genre'),
+                              onTap: () => _navigateToDetailSceen(
+                                genre.id,
+                                SearchType.genre,
                               ),
                             ),
                           ),
@@ -168,7 +223,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         trailing: TextButton(
                           onPressed: () => _navigateToSearchResult(
                             _searchController.text,
-                            'author',
+                            SearchType.author,
                           ),
                           child: const Text('Lihat Semua'),
                         ),
@@ -190,7 +245,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               subtitle: const Text('Penulis'),
                               onTap: () => _navigateToDetailSceen(
                                 author.id,
-                                'author',
+                                SearchType.author,
                               ),
                             ),
                           ),
@@ -206,7 +261,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         trailing: TextButton(
                           onPressed: () => _navigateToSearchResult(
                             _searchController.text,
-                            'publisher',
+                            SearchType.publisher,
                           ),
                           child: const Text('Lihat Semua'),
                         ),
@@ -228,7 +283,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               subtitle: const Text('Penerbit'),
                               onTap: () => _navigateToDetailSceen(
                                 publisher.id,
-                                'publisher',
+                                SearchType.publisher,
                               ),
                             ),
                           ),
