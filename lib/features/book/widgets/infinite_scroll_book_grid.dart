@@ -1,7 +1,7 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_card.dart';
+import 'package:book_app_basic_arch/features/book/widgets/book_grid_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 
@@ -46,7 +46,6 @@ class _InfiniteScrollBookGridState extends State<InfiniteScrollBookGrid> {
     if (!widget.scrollController.hasClients) return false;
     final maxScroll = widget.scrollController.position.maxScrollExtent;
     final currentScroll = widget.scrollController.offset;
-    // Load more when user reaches 80% of the list
     return currentScroll >= (maxScroll * 0.8);
   }
 
@@ -54,9 +53,7 @@ class _InfiniteScrollBookGridState extends State<InfiniteScrollBookGrid> {
   Widget build(BuildContext context) {
     if (widget.books.isEmpty) {
       if (widget.isLoading) {
-        return const SliverFillRemaining(
-          child: StyledLoadingState(),
-        );
+        return const BookGridSkeleton();
       }
 
       if (widget.errorMessage != null) {
@@ -73,30 +70,31 @@ class _InfiniteScrollBookGridState extends State<InfiniteScrollBookGrid> {
       );
     }
 
-    return SliverGrid(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-        childAspectRatio: 0.75,
-      ),
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          // Tampilkan loading indicator di akhir list
-          if (index == widget.books.length) {
-            return widget.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : const SizedBox();
-          }
+    return SliverMainAxisGroup(
+      slivers: [
+        // Grid utama dengan data buku
+        SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 0.75,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final book = widget.books[index];
+              return BookCard(
+                bookModel: book,
+                onTap: () => widget.onBookSelected(book),
+              );
+            },
+            childCount: widget.books.length,
+          ),
+        ),
 
-          final book = widget.books[index];
-          return BookCard(
-            bookModel: book,
-            onTap: () => widget.onBookSelected(book),
-          );
-        },
-        childCount: widget.books.length + (widget.isLoading ? 1 : 0),
-      ),
+        // Skeleton loader untuk pagination
+        if (widget.isLoading) const BookGridSkeleton(),
+      ],
     );
   }
 

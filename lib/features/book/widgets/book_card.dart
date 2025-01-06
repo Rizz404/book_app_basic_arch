@@ -4,6 +4,7 @@ import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class BookCard extends StatelessWidget {
   final BookModel bookModel;
@@ -36,12 +37,6 @@ class BookCard extends StatelessWidget {
                     bookModel.bookPictures![0].url,
                     fit: BoxFit.cover,
                     width: double.infinity,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    },
                     errorBuilder: (context, error, stackTrace) {
                       return Image.network(
                         'https://i.pinimg.com/236x/64/2e/96/642e9610c5c587767430bf6a9deeff7c.jpg',
