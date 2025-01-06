@@ -1,36 +1,37 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/features/genre/widgets/genre_card.dart';
-import 'package:book_app_basic_arch/features/genre/widgets/genre_grid_skeleton.dart';
+import 'package:book_app_basic_arch/features/publisher/widgets/publisher_list_skeleton.dart';
+import 'package:book_app_basic_arch/features/publisher/widgets/publisher_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
+import 'package:book_app_basic_arch/features/publisher/model/publisher_model.dart';
 
-class InfiniteScrollGenreGrid extends StatefulWidget {
-  final List<GenreModel> genres;
+class InfiniteScrollPublisherList extends StatefulWidget {
+  final List<PublisherModel> publishers;
   final bool isLoading;
   final String? errorMessage;
   final Function()? onRetry;
   final Function() onLoadMore;
-  final Function(GenreModel) onGenreSelected;
+  final Function(PublisherModel) onPublisherSelected;
   final ScrollController scrollController;
 
-  const InfiniteScrollGenreGrid({
+  const InfiniteScrollPublisherList({
     super.key,
-    required this.genres,
+    required this.publishers,
     required this.isLoading,
     required this.errorMessage,
     required this.onRetry,
     required this.onLoadMore,
-    required this.onGenreSelected,
+    required this.onPublisherSelected,
     required this.scrollController,
   });
 
   @override
-  State<InfiniteScrollGenreGrid> createState() =>
-      _InfiniteScrollGenreGridState();
+  State<InfiniteScrollPublisherList> createState() =>
+      _InfiniteScrollPublisherListState();
 }
 
-class _InfiniteScrollGenreGridState extends State<InfiniteScrollGenreGrid> {
+class _InfiniteScrollPublisherListState
+    extends State<InfiniteScrollPublisherList> {
   @override
   void initState() {
     super.initState();
@@ -52,9 +53,9 @@ class _InfiniteScrollGenreGridState extends State<InfiniteScrollGenreGrid> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.genres.isEmpty) {
+    if (widget.publishers.isEmpty) {
       if (widget.isLoading) {
-        return const GenreGridSkeleton();
+        return const PublisherListSkeleton();
       }
 
       if (widget.errorMessage != null) {
@@ -67,34 +68,31 @@ class _InfiniteScrollGenreGridState extends State<InfiniteScrollGenreGrid> {
       }
 
       return const SliverFillRemaining(
-        child: StyledEmptyData(message: 'No genres found'),
+        child: StyledEmptyData(message: 'No publishers found'),
       );
     }
 
     return SliverMainAxisGroup(
       slivers: [
         // Grid utama dengan data buku
-        SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 0.75,
-          ),
+        SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              final genre = widget.genres[index];
-              return GenreCard(
-                genreModel: genre,
-                onTap: () => widget.onGenreSelected(genre),
+              final publisher = widget.publishers[index];
+              return PublisherTile(
+                publisherModel: publisher,
+                onTap: () => widget.onPublisherSelected(publisher),
               );
             },
-            childCount: widget.genres.length,
+            childCount: widget.publishers.length,
           ),
         ),
 
         // Skeleton loader untuk pagination
-        if (widget.isLoading) const GenreGridSkeleton(),
+        if (widget.isLoading)
+          const PublisherListSkeleton(
+            isSliver: true,
+          ),
       ],
     );
   }

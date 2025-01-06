@@ -7,6 +7,7 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.da
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
 import 'package:book_app_basic_arch/features/profile/enums/profile_operation_type.dart';
 import 'package:book_app_basic_arch/features/profile/profile_provider.dart';
+import 'package:book_app_basic_arch/features/profile/widgets/profile_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +34,7 @@ class ProfileScreen extends StatelessWidget {
                 final userProfile = profileProvider.userProfile;
 
                 if (isLoadingProfile) {
-                  return SliverFillRemaining(child: StyledLoadingState());
+                  return SliverToBoxAdapter(child: ProfileSkeleton());
                 }
 
                 if (errorMessageProfile != null) {

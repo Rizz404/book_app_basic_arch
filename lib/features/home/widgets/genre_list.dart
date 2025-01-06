@@ -1,5 +1,6 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
+import 'package:book_app_basic_arch/features/home/widgets/genre_list_skeleton.dart';
 import 'package:flutter/material.dart';
 
 class GenreList extends StatelessWidget {
@@ -21,7 +22,7 @@ class GenreList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return GenreListSkeleton();
     }
 
     if (errorMessage != null) {

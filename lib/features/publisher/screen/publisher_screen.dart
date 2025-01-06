@@ -1,7 +1,6 @@
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
@@ -9,8 +8,9 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_con
 import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/enums/publisher_operation_type.dart';
 import 'package:book_app_basic_arch/features/publisher/enums/publisher_screen_type.dart';
-import 'package:book_app_basic_arch/features/publisher/widgets/publisher_tile.dart';
+import 'package:book_app_basic_arch/features/publisher/widgets/infinite_scroll_publisher_list.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class PublisherScreen extends StatelessWidget {
@@ -36,7 +36,7 @@ class PublisherScreen extends StatelessWidget {
               sliver: StyledStickySliverContainer(
                 height: 24,
                 child: Text(
-                  "Recommended",
+                  "Publishers",
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium
@@ -46,19 +46,16 @@ class PublisherScreen extends StatelessWidget {
             ),
             SliverPadding(
               padding: EdgeInsets.all(16),
-              sliver:
-                  Consumer<PublisherProvider>(builder: (context, provider, _) {
-                final publishers = provider.getPublishersForSpecificScreen(
+              sliver: Consumer<PublisherProvider>(
+                  builder: (context, publisherProvider, _) {
+                final publishers =
+                    publisherProvider.getPublishersForSpecificScreen(
                   PublisherScreenType.publishers,
                 );
-                final isLoading =
-                    provider.isLoading(PublisherOperationType.getPublishers);
-                final errorMessage =
-                    provider.getError(PublisherOperationType.getPublishers);
-
-                if (isLoading) {
-                  return SliverToBoxAdapter(child: const StyledLoadingState());
-                }
+                final isLoadingPublisher = publisherProvider
+                    .isLoading(PublisherOperationType.getPublishers);
+                final errorMessage = publisherProvider
+                    .getError(PublisherOperationType.getPublishers);
 
                 if (errorMessage != null) {
                   return SliverToBoxAdapter(
@@ -75,13 +72,19 @@ class PublisherScreen extends StatelessWidget {
                       child: const StyledEmptyData(message: 'No books found'));
                 }
 
-                return SliverList.builder(
-                  itemCount: publishers.length,
-                  itemBuilder: (context, index) {
-                    final publisher = publishers[index];
-
-                    return PublisherTile(publisherModel: publisher);
+                return InfiniteScrollPublisherList(
+                  publishers: publishers,
+                  isLoading: isLoadingPublisher,
+                  errorMessage: errorMessage,
+                  onLoadMore: () => publisherProvider
+                      .loadMorePublishers(PublisherScreenType.publishers),
+                  onPublisherSelected: (publisher) {
+                    context.push('/publishers/${publisher.id}');
                   },
+                  scrollController: controller,
+                  onRetry: () => publisherProvider.getPublishers(
+                    screen: PublisherScreenType.publishers,
+                  ),
                 );
               }),
             )

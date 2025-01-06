@@ -1,4 +1,5 @@
 import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
+import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
@@ -255,6 +256,94 @@ class GenreProvider with ChangeNotifier {
         errorMessage: e.toString(),
       );
       debugPrint('Error updating genre: $e');
+    }
+  }
+
+  // * Method generic untuk load more data
+  Future<void> loadMoreGenres(GenreScreenType screen) async {
+    final currentFilter = _filterByScreen[screen]!;
+    final currentPagination = _paginationByScreen[screen];
+
+    // * Cek apakah masih ada halaman selanjutnya
+    if (currentPagination != null &&
+        currentPagination.currentPage >= currentPagination.totalPages) {
+      return;
+    }
+
+    // * Update filter dengan page selanjutnya
+    final newFilter = currentFilter.copyWith(
+      page: (currentPagination?.currentPage ?? 0) + 1,
+    );
+    _filterByScreen[screen] = newFilter;
+
+    // * Tentukan operation type berdasarkan screen
+    final operationType = _getOperationTypeForScreen(screen);
+
+    _updateOperationState(
+      operationType,
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response = await _getDataForScreen(screen, newFilter);
+
+      // * Tambahkan data baru ke list yang sudah ada
+      _genresByScreen[screen] = [
+        ...(_genresByScreen[screen] ?? []),
+        ...response.data!
+      ];
+      _paginationByScreen[screen] = response.meta.pagination;
+
+      _updateOperationState(
+        operationType,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        operationType,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error loading more data: $e');
+    }
+  }
+
+  // * *============*function yang gak langsung fetch api*============*
+  // * Helper method untuk mendapatkan operation type berdasarkan screen
+  GenreOperationType _getOperationTypeForScreen(GenreScreenType screen) {
+    switch (screen) {
+      case GenreScreenType.home:
+        return GenreOperationType.getGenres;
+      case GenreScreenType.genres:
+        return GenreOperationType.getGenres;
+      case GenreScreenType.search:
+        return GenreOperationType.searchGenres;
+      case GenreScreenType.genreDetail:
+        return GenreOperationType.getGenres;
+    }
+  }
+
+  // * Helper method untuk mendapatkan data berdasarkan screen
+  Future<ApiSuccessResponse<List<GenreModel>>> _getDataForScreen(
+    GenreScreenType screen,
+    GenreFilterModel filter,
+  ) async {
+    switch (screen) {
+      case GenreScreenType.home:
+        return await _genreServices.getGenres(filter);
+      case GenreScreenType.genres:
+        return await _genreServices.getGenres(filter);
+      case GenreScreenType.search:
+        // * Asumsikan ada searchQuery yang disimpan
+        final searchQuery = filter.searchQuery;
+        if (searchQuery == null) {
+          throw Exception('Search query is required for search screen');
+        }
+        return await _genreServices.searchGenresByName(name: searchQuery);
+      case GenreScreenType.genreDetail:
+        return await _genreServices.getGenres(filter);
     }
   }
 

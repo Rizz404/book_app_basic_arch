@@ -1,92 +1,66 @@
-import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
-import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
-import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
-import 'package:book_app_basic_arch/features/genre/widgets/genre_card.dart';
-import 'package:book_app_basic_arch/features/genre/widgets/genre_form.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
+import 'package:book_app_basic_arch/features/genre/widgets/infinite_scroll_genre_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class GenreScreen extends StatefulWidget {
+class GenreScreen extends StatelessWidget {
   const GenreScreen({super.key});
 
-  @override
-  State<GenreScreen> createState() => _GenreScreenState();
-}
-
-class _GenreScreenState extends State<GenreScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<GenreProvider>().getGenres(screen: GenreScreenType.genres);
-    });
+  Future<void> _fetchData(BuildContext context) async {
+    context.read<GenreProvider>().getGenres(screen: GenreScreenType.genres);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => const GenreForm(),
-          );
-        },
-        child: Icon(Icons.add),
-      ),
-      appBar: AppBar(
-        title: const Text('Genres'),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => context.read<GenreProvider>().getGenres(),
-        child: Consumer<GenreProvider>(
-          builder: (context, provider, _) {
-            final isLoadingGenres =
-                provider.isLoading(GenreOperationType.getGenres);
-            final errorMessageGenres =
-                provider.getError(GenreOperationType.getGenres);
-            final genres = provider.getGenresForSpecificScreen(
-              GenreScreenType.genres,
-            );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchData(context);
+    });
 
-            if (isLoadingGenres) {
-              return StyledLoadingState();
-            }
+    return RefreshIndicator(
+      onRefresh: () => _fetchData(context),
+      child: BaseScaffold(
+        body: StyledScreenLayoutBuilder(
+          sliverAppBar: StyledSliverAppBar(
+            title: StyledSearchBarPlaceholder(),
+          ),
+          builder: (builder, controller) {
+            return [
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: Consumer<GenreProvider>(
+                  builder: (context, genreProvider, _) {
+                    final genres = genreProvider
+                        .getGenresForSpecificScreen(GenreScreenType.genres);
+                    final isLoading =
+                        genreProvider.isLoading(GenreOperationType.getGenres);
+                    final errorMessage =
+                        genreProvider.getError(GenreOperationType.getGenres);
 
-            // * Menampilkan pesan error jika ada kesalahan
-            if (errorMessageGenres != null) {
-              return StyledErrorMessage(errorMessage: errorMessageGenres);
-            }
-
-            // * Menampilkan data genres jika berhasil di-fetch
-
-            if (genres.isEmpty) {
-              return Center(child: Text('No genres available.'));
-            }
-
-            return SliverToBoxAdapter(
-              child: GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
+                    return InfiniteScrollGenreGrid(
+                      genres: genres,
+                      isLoading: isLoading,
+                      errorMessage: errorMessage,
+                      onLoadMore: () =>
+                          genreProvider.loadMoreGenres(GenreScreenType.genres),
+                      onGenreSelected: (genre) {
+                        context.push('/genres/${genre.id}');
+                      },
+                      scrollController: controller,
+                      onRetry: () => genreProvider.getGenres(
+                        screen: GenreScreenType.genres,
+                      ),
+                    );
+                  },
                 ),
-                itemBuilder: (context, index) {
-                  final genre = genres[index];
-                  return GenreCard(
-                    genreModel: genre,
-                    onTap: () {
-                      context.push('/genres/${genre.id}');
-                    },
-                  );
-                },
-                itemCount: genres.length,
               ),
-            );
+            ];
           },
         ),
       ),

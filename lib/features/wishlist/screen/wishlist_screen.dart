@@ -12,6 +12,12 @@ import 'package:go_router/go_router.dart';
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
 
+  Future<void> _fetchData(BuildContext context) async {
+    final bookProvider = context.read<BookProvider>();
+
+    await bookProvider.getBooksInWishlist(screen: BookScreenType.wishlist);
+  }
+
   Future<void> _handleRefresh(BuildContext context) async {
     final bookProvider = context.read<BookProvider>();
 
@@ -21,17 +27,13 @@ class WishlistScreen extends StatelessWidget {
           .getFilterForSpecificScreen(BookScreenType.wishlist)
           .copyWith(page: 1),
     );
-    await Future.wait([
-      bookProvider.getBooksInWishlist(),
-    ]);
+    await bookProvider.getBooksInWishlist(screen: BookScreenType.wishlist);
   }
 
   @override
   Widget build(BuildContext context) {
-    final wishlistProvider = Provider.of<BookProvider>(context, listen: false);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      wishlistProvider.getBooksInWishlist();
+      _fetchData(context);
     });
 
     return BaseScaffold(

@@ -1,4 +1,5 @@
 import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
+import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/publisher/enums/publisher_screen_type.dart';
 import 'package:book_app_basic_arch/features/publisher/model/publisher_filter_model.dart';
@@ -259,6 +260,92 @@ class PublisherProvider with ChangeNotifier {
         errorMessage: e.toString(),
       );
       debugPrint('Error updating publisher: $e');
+    }
+  }
+
+  // * Method generic untuk load more data
+  Future<void> loadMorePublishers(PublisherScreenType screen) async {
+    final currentFilter = _filterByScreen[screen]!;
+    final currentPagination = _paginationByScreen[screen];
+
+    // * Cek apakah masih ada halaman selanjutnya
+    if (currentPagination != null &&
+        currentPagination.currentPage >= currentPagination.totalPages) {
+      return;
+    }
+
+    // * Update filter dengan page selanjutnya
+    final newFilter = currentFilter.copyWith(
+      page: (currentPagination?.currentPage ?? 0) + 1,
+    );
+    _filterByScreen[screen] = newFilter;
+
+    // * Tentukan operation type berdasarkan screen
+    final operationType = _getOperationTypeForScreen(screen);
+
+    _updateOperationState(
+      operationType,
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response = await _getDataForScreen(screen, newFilter);
+
+      // * Tambahkan data baru ke list yang sudah ada
+      _publishersByScreen[screen] = [
+        ...(_publishersByScreen[screen] ?? []),
+        ...response.data!
+      ];
+      _paginationByScreen[screen] = response.meta.pagination;
+
+      _updateOperationState(
+        operationType,
+        isLoading: false,
+        errorMessage: null,
+      );
+    } catch (e) {
+      _updateOperationState(
+        operationType,
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      debugPrint('Error loading more data: $e');
+    }
+  }
+
+  // *============*function yang gak langsung fetch api*============*
+  // * Helper method untuk mendapatkan operation type berdasarkan screen
+  PublisherOperationType _getOperationTypeForScreen(
+      PublisherScreenType screen) {
+    switch (screen) {
+      case PublisherScreenType.publishers:
+        return PublisherOperationType.getPublishers;
+      case PublisherScreenType.publisherDetail:
+        return PublisherOperationType.getPublishers;
+      case PublisherScreenType.search:
+        return PublisherOperationType.searchPublishers;
+    }
+  }
+
+  // * Helper method untuk mendapatkan data berdasarkan screen
+  Future<ApiSuccessResponse<List<PublisherModel>>> _getDataForScreen(
+    PublisherScreenType screen,
+    PublisherFilterModel filter,
+  ) async {
+    switch (screen) {
+      case PublisherScreenType.publishers:
+        return await _publisherServices.getPublishers(filter);
+      case PublisherScreenType.publisherDetail:
+        return await _publisherServices.getPublishers(filter);
+      case PublisherScreenType.search:
+        // * Asumsikan ada searchQuery yang disimpan
+        final searchQuery = filter.searchQuery;
+        if (searchQuery == null) {
+          throw Exception('Search query is required for search screen');
+        }
+        return await _publisherServices.searchPublishersByName(
+            name: searchQuery);
     }
   }
 

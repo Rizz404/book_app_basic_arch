@@ -24,7 +24,6 @@ class GenreCard extends StatelessWidget {
         clipBehavior: Clip.hardEdge,
         child: Stack(
           children: [
-            // Background image with dark overlay
             Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -36,7 +35,7 @@ class GenreCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.5),
                       Colors.transparent,
                     ],
                     begin: Alignment.bottomCenter,

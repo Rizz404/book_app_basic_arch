@@ -1,7 +1,6 @@
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
@@ -9,8 +8,9 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_con
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
 import 'package:book_app_basic_arch/features/author/enums/author_operation_type.dart';
 import 'package:book_app_basic_arch/features/author/enums/author_screen_type.dart';
-import 'package:book_app_basic_arch/features/author/widgets/author_tile.dart';
+import 'package:book_app_basic_arch/features/author/widgets/infinite_scroll_author_list.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class AuthorScreen extends StatelessWidget {
@@ -36,7 +36,7 @@ class AuthorScreen extends StatelessWidget {
               sliver: StyledStickySliverContainer(
                 height: 24,
                 child: Text(
-                  "Recommended",
+                  "Authors",
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium
@@ -46,18 +46,15 @@ class AuthorScreen extends StatelessWidget {
             ),
             SliverPadding(
               padding: EdgeInsets.all(16),
-              sliver: Consumer<AuthorProvider>(builder: (context, provider, _) {
-                final authors = provider.getAuthorsForSpecificScreen(
+              sliver: Consumer<AuthorProvider>(
+                  builder: (context, authorProvider, _) {
+                final authors = authorProvider.getAuthorsForSpecificScreen(
                   AuthorScreenType.authors,
                 );
-                final isLoading =
-                    provider.isLoading(AuthorOperationType.getAuthors);
+                final isLoadingAuthor =
+                    authorProvider.isLoading(AuthorOperationType.getAuthors);
                 final errorMessage =
-                    provider.getError(AuthorOperationType.getAuthors);
-
-                if (isLoading) {
-                  return SliverToBoxAdapter(child: const StyledLoadingState());
-                }
+                    authorProvider.getError(AuthorOperationType.getAuthors);
 
                 if (errorMessage != null) {
                   return SliverToBoxAdapter(
@@ -74,13 +71,19 @@ class AuthorScreen extends StatelessWidget {
                       child: const StyledEmptyData(message: 'No books found'));
                 }
 
-                return SliverList.builder(
-                  itemCount: authors.length,
-                  itemBuilder: (context, index) {
-                    final author = authors[index];
-
-                    return AuthorTile(authorModel: author);
+                return InfiniteScrollAuthorList(
+                  authors: authors,
+                  isLoading: isLoadingAuthor,
+                  errorMessage: errorMessage,
+                  onLoadMore: () =>
+                      authorProvider.loadMoreAuthors(AuthorScreenType.authors),
+                  onAuthorSelected: (author) {
+                    context.push('/authors/${author.id}');
                   },
+                  scrollController: controller,
+                  onRetry: () => authorProvider.getAuthors(
+                    screen: AuthorScreenType.authors,
+                  ),
                 );
               }),
             )
