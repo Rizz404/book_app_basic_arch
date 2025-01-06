@@ -1,6 +1,9 @@
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/auth/auth_services.dart';
 import 'package:book_app_basic_arch/features/auth/model/auth_model.dart';
+import 'package:book_app_basic_arch/features/book/book_provider.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
+import 'package:book_app_basic_arch/features/profile/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:book_app_basic_arch/features/auth/enums/auth_operation_type.dart';
 
@@ -8,6 +11,9 @@ class AuthProvider with ChangeNotifier {
   final AuthServices _authServices = AuthServices();
   UserCredentialModel? _userCredential;
   UserCredentialModel? get userCredential => _userCredential;
+
+  final BookProvider _bookProvider = BookProvider();
+  final ProfileProvider _profileProvider = ProfileProvider();
 
   // * Tambahkan state untuk tracking inisialisasi
   bool _isInitialized = false;
@@ -98,6 +104,9 @@ class AuthProvider with ChangeNotifier {
         isLoading: false,
         errorMessage: null,
       );
+
+      _bookProvider.getBooksInWishlist(screen: BookScreenType.wishlist);
+      _profileProvider.getUserProfile();
     } catch (e) {
       _updateOperationState(
         AuthOperationType.signIn,
