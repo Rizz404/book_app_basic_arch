@@ -52,20 +52,20 @@ class _InfiniteScrollAuthorListState extends State<InfiniteScrollAuthorList> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isLoading) {
+      return const AuthorListSkeleton();
+    }
+
+    if (widget.errorMessage != null) {
+      return SliverFillRemaining(
+        child: StyledErrorMessage(
+          errorMessage: widget.errorMessage!,
+          onRetry: widget.onRetry,
+        ),
+      );
+    }
+
     if (widget.authors.isEmpty) {
-      if (widget.isLoading) {
-        return const AuthorListSkeleton();
-      }
-
-      if (widget.errorMessage != null) {
-        return SliverFillRemaining(
-          child: StyledErrorMessage(
-            errorMessage: widget.errorMessage!,
-            onRetry: widget.onRetry,
-          ),
-        );
-      }
-
       return const SliverFillRemaining(
         child: StyledEmptyData(message: 'No authors found'),
       );

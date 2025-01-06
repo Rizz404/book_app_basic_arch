@@ -1,7 +1,6 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
@@ -22,42 +21,45 @@ class ProfileScreen extends StatelessWidget {
     });
 
     return StyledScreenLayoutBuilder(
-        sliverAppBar: StyledSliverAppBar(title: Text('Profile')),
-        builder: (builder, controller) {
-          return [
-            Consumer<ProfileProvider>(
-              builder: (context, profileProvider, _) {
-                final isLoadingProfile = profileProvider
-                    .isLoading(ProfileOperationType.getUserProfile);
-                final errorMessageProfile = profileProvider
-                    .getError(ProfileOperationType.getUserProfile);
-                final userProfile = profileProvider.userProfile;
+      sliverAppBar: StyledSliverAppBar(title: Text('Profile')),
+      builder: (builder, controller) {
+        return [
+          Consumer<ProfileProvider>(
+            builder: (context, profileProvider, _) {
+              final isLoadingProfile = profileProvider
+                  .isLoading(ProfileOperationType.getUserProfile);
+              final errorMessageProfile =
+                  profileProvider.getError(ProfileOperationType.getUserProfile);
+              final userProfile = profileProvider.userProfile;
 
-                if (isLoadingProfile) {
-                  return SliverToBoxAdapter(child: ProfileSkeleton());
-                }
+              if (isLoadingProfile) {
+                return SliverToBoxAdapter(child: ProfileSkeleton());
+              }
 
-                if (errorMessageProfile != null) {
-                  return SliverFillRemaining(
-                    child: StyledErrorMessage(
-                      errorMessage: errorMessageProfile,
-                      onRetry: () {
-                        context.read<ProfileProvider>().getUserProfile();
-                      },
-                    ),
-                  );
-                }
+              if (errorMessageProfile != null) {
+                return SliverFillRemaining(
+                  child: StyledErrorMessage(
+                    errorMessage: errorMessageProfile,
+                    onRetry: () {
+                      context.read<ProfileProvider>().getUserProfile();
+                    },
+                  ),
+                );
+              }
 
-                if (userProfile == null) {
-                  return SliverFillRemaining(
-                    child: StyledEmptyData(message: 'Profile not found'),
-                  );
-                }
+              if (userProfile == null) {
+                return SliverFillRemaining(
+                  child: StyledEmptyData(message: 'Profile not found'),
+                );
+              }
 
-                return SliverToBoxAdapter(
+              return SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // * Pakenya itu background image kalo circle avatar
+                      // * Avatar
                       CircleAvatar(
                         radius: 60,
                         backgroundImage: NetworkImage(
@@ -66,30 +68,76 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 16),
 
-                      Column(
-                        children: [
-                          Text(
-                            userProfile.username,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                          ),
-                          Text(
-                            userProfile.email,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                          ),
-                        ],
+                      // * Name and Email
+                      Text(
+                        userProfile.username,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        userProfile.email,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Colors.grey[600],
+                            ),
                       ),
                       SizedBox(height: 32),
 
+                      // * Age and Bio Section
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Age
+                            Row(
+                              children: [
+                                Icon(Icons.cake, color: Colors.grey[700]),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Age: ${userProfile.userProfile?.age ?? 'unknown'}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16),
+
+                            // Bio
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.info, color: Colors.grey[700]),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    userProfile.userProfile?.bio ??
+                                        'add your bio',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          height: 1.5,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 32),
+
+                      // * Buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -102,23 +150,22 @@ class ProfileScreen extends StatelessWidget {
                               child: Text('Update'),
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 16),
-                            child: StyledButton(
-                              onPressed: () {
-                                context.read<AuthProvider>().signOut();
-                              },
-                              child: Text('Logout'),
-                            ),
+                          StyledButton(
+                            onPressed: () {
+                              context.read<AuthProvider>().signOut();
+                            },
+                            child: Text('Logout'),
                           ),
                         ],
                       ),
                     ],
                   ),
-                );
-              },
-            ),
-          ];
-        });
+                ),
+              );
+            },
+          ),
+        ];
+      },
+    );
   }
 }

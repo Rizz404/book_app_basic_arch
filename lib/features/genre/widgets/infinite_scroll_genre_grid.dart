@@ -52,20 +52,20 @@ class _InfiniteScrollGenreGridState extends State<InfiniteScrollGenreGrid> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isLoading) {
+      return const GenreGridSkeleton();
+    }
+
+    if (widget.errorMessage != null) {
+      return SliverFillRemaining(
+        child: StyledErrorMessage(
+          errorMessage: widget.errorMessage!,
+          onRetry: widget.onRetry,
+        ),
+      );
+    }
+
     if (widget.genres.isEmpty) {
-      if (widget.isLoading) {
-        return const GenreGridSkeleton();
-      }
-
-      if (widget.errorMessage != null) {
-        return SliverFillRemaining(
-          child: StyledErrorMessage(
-            errorMessage: widget.errorMessage!,
-            onRetry: widget.onRetry,
-          ),
-        );
-      }
-
       return const SliverFillRemaining(
         child: StyledEmptyData(message: 'No genres found'),
       );

@@ -9,52 +9,103 @@ class ProfileSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Skeletonizer(
       enabled: true,
-      child: Column(
-        children: [
-          // * Pakenya itu background image kalo circle avatar
-          CircleAvatar(
-            radius: 60,
-          ),
-          SizedBox(height: 16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          children: [
+            // * Pakenya itu background image kalo circle avatar
+            CircleAvatar(
+              radius: 60,
+            ),
+            SizedBox(height: 16),
 
-          Column(
-            children: [
-              Text(
-                BoneMock.time,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-              Text(
-                BoneMock.time,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-            ],
-          ),
-          SizedBox(height: 32),
+            Column(
+              children: [
+                Text(
+                  BoneMock.time,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+                Text(
+                  BoneMock.time,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+              ],
+            ),
+            SizedBox(height: 32),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: StyledButton(
-                  onPressed: () {},
-                  child: Text(BoneMock.title),
-                ),
+            // * Age and Bio Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: StyledButton(
-                  onPressed: () {},
-                  child: Text(BoneMock.title),
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Age
+                  Row(
+                    children: [
+                      Icon(Icons.cake, color: Colors.grey[700]),
+                      SizedBox(width: 8),
+                      Text(
+                        BoneMock.title,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+
+                  // Bio
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info, color: Colors.grey[700]),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          BoneMock.paragraph,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    height: 1.5,
+                                  ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
-        ],
+            ),
+
+            SizedBox(height: 32),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: StyledButton(
+                    onPressed: () {},
+                    child: Text(BoneMock.title),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: StyledButton(
+                    onPressed: () {},
+                    child: Text(BoneMock.title),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

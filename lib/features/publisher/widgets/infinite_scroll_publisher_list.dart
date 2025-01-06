@@ -53,20 +53,20 @@ class _InfiniteScrollPublisherListState
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isLoading) {
+      return const PublisherListSkeleton();
+    }
+
+    if (widget.errorMessage != null) {
+      return SliverFillRemaining(
+        child: StyledErrorMessage(
+          errorMessage: widget.errorMessage!,
+          onRetry: widget.onRetry,
+        ),
+      );
+    }
+
     if (widget.publishers.isEmpty) {
-      if (widget.isLoading) {
-        return const PublisherListSkeleton();
-      }
-
-      if (widget.errorMessage != null) {
-        return SliverFillRemaining(
-          child: StyledErrorMessage(
-            errorMessage: widget.errorMessage!,
-            onRetry: widget.onRetry,
-          ),
-        );
-      }
-
       return const SliverFillRemaining(
         child: StyledEmptyData(message: 'No publishers found'),
       );
