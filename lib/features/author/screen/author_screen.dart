@@ -43,29 +43,27 @@ class AuthorScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: Consumer<AuthorProvider>(
-                  builder: (context, authorProvider, _) {
-                final authors = authorProvider.getAuthorsForSpecificScreen(
-                  AuthorScreenType.authors,
+            Consumer<AuthorProvider>(builder: (context, authorProvider, _) {
+              final authors = authorProvider.getAuthorsForSpecificScreen(
+                AuthorScreenType.authors,
+              );
+              final isLoadingAuthor =
+                  authorProvider.isLoading(AuthorOperationType.getAuthors);
+              final errorMessage =
+                  authorProvider.getError(AuthorOperationType.getAuthors);
+
+              if (errorMessage != null) {
+                return SliverToBoxAdapter(
+                  child: StyledErrorMessage(
+                    errorMessage: errorMessage,
+                    onRetry: () => context.read<AuthorProvider>().getAuthors(),
+                  ),
                 );
-                final isLoadingAuthor =
-                    authorProvider.isLoading(AuthorOperationType.getAuthors);
-                final errorMessage =
-                    authorProvider.getError(AuthorOperationType.getAuthors);
+              }
 
-                if (errorMessage != null) {
-                  return SliverToBoxAdapter(
-                    child: StyledErrorMessage(
-                      errorMessage: errorMessage,
-                      onRetry: () =>
-                          context.read<AuthorProvider>().getAuthors(),
-                    ),
-                  );
-                }
-
-                return InfiniteScrollAuthorList(
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: InfiniteScrollAuthorList(
                   authors: authors,
                   isLoading: isLoadingAuthor,
                   errorMessage: errorMessage,
@@ -81,9 +79,9 @@ class AuthorScreen extends StatelessWidget {
                   onRetry: () => authorProvider.getAuthors(
                     screen: AuthorScreenType.authors,
                   ),
-                );
-              }),
-            )
+                ),
+              );
+            })
           ];
         },
       ),

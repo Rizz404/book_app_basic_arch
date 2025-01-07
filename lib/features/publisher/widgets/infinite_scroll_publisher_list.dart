@@ -8,21 +8,32 @@ import 'package:flutter/material.dart';
 class InfiniteScrollPublisherList extends StatefulWidget {
   final List<PublisherModel> publishers;
   final bool isLoading;
+  final bool isInitialLoading;
   final String? errorMessage;
+  final String emptyMessage;
   final Function()? onRetry;
   final Function() onLoadMore;
   final Function(PublisherModel) onPublisherSelected;
   final ScrollController scrollController;
+  final SliverGridDelegate gridDelegate;
 
   const InfiniteScrollPublisherList({
     super.key,
     required this.publishers,
     required this.isLoading,
+    required this.isInitialLoading,
     required this.errorMessage,
+    required this.emptyMessage,
     required this.onRetry,
     required this.onLoadMore,
     required this.onPublisherSelected,
     required this.scrollController,
+    this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      childAspectRatio: 0.75,
+    ),
   });
 
   @override
@@ -55,8 +66,10 @@ class _InfiniteScrollPublisherListState
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading) {
-      return const PublisherListSkeleton();
+    if (widget.isInitialLoading) {
+      return const PublisherListSkeleton(
+        isSliver: true,
+      );
     }
 
     if (widget.errorMessage != null) {
@@ -69,20 +82,19 @@ class _InfiniteScrollPublisherListState
     }
 
     if (widget.publishers.isEmpty) {
-      return const SliverFillRemaining(
-        child: StyledEmptyData(message: 'No publishers found'),
+      return SliverFillRemaining(
+        child: StyledEmptyData(message: widget.emptyMessage),
       );
     }
 
     return SliverMainAxisGroup(
       slivers: [
-        // Grid utama dengan data buku
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               final publisher = widget.publishers[index];
               return PublisherTile(
-                key: Key(publisher.id),
+                key: ValueKey(publisher.id),
                 publisherModel: publisher,
                 onTap: () => widget.onPublisherSelected(publisher),
               );
@@ -90,10 +102,9 @@ class _InfiniteScrollPublisherListState
             childCount: widget.publishers.length,
           ),
         ),
-
-        // Skeleton loader untuk pagination
         if (widget.isLoading)
           const PublisherListSkeleton(
+            itemCount: 3,
             isSliver: true,
           ),
       ],

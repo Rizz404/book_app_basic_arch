@@ -1,5 +1,4 @@
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
@@ -44,50 +43,48 @@ class PublisherScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: Consumer<PublisherProvider>(
-                  builder: (context, publisherProvider, _) {
-                final publishers =
-                    publisherProvider.getPublishersForSpecificScreen(
-                  PublisherScreenType.publishers,
+            Consumer<PublisherProvider>(
+                builder: (context, publisherProvider, _) {
+              final publishers =
+                  publisherProvider.getPublishersForSpecificScreen(
+                PublisherScreenType.publishers,
+              );
+              final isLoadingPublisher = publisherProvider
+                  .isLoading(PublisherOperationType.getPublishers);
+              final errorMessage = publisherProvider
+                  .getError(PublisherOperationType.getPublishers);
+
+              if (errorMessage != null) {
+                return SliverToBoxAdapter(
+                  child: StyledErrorMessage(
+                    errorMessage: errorMessage,
+                    onRetry: () =>
+                        context.read<PublisherProvider>().getPublishers(),
+                  ),
                 );
-                final isLoadingPublisher = publisherProvider
-                    .isLoading(PublisherOperationType.getPublishers);
-                final errorMessage = publisherProvider
-                    .getError(PublisherOperationType.getPublishers);
+              }
 
-                if (errorMessage != null) {
-                  return SliverToBoxAdapter(
-                    child: StyledErrorMessage(
-                      errorMessage: errorMessage,
-                      onRetry: () =>
-                          context.read<PublisherProvider>().getPublishers(),
-                    ),
-                  );
-                }
-
-                if (publishers.isEmpty) {
-                  return const SliverToBoxAdapter(
-                      child: StyledEmptyData(message: 'No books found'));
-                }
-
-                return InfiniteScrollPublisherList(
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: InfiniteScrollPublisherList(
                   publishers: publishers,
                   isLoading: isLoadingPublisher,
                   errorMessage: errorMessage,
-                  onLoadMore: () => publisherProvider
-                      .loadMorePublishers(PublisherScreenType.publishers),
+                  emptyMessage: 'No publishers found, add some admin!!',
+                  scrollController: controller,
                   onPublisherSelected: (publisher) {
                     context.push('/publishers/${publisher.id}');
                   },
-                  scrollController: controller,
+                  isInitialLoading: publisherProvider
+                      .isInitialLoad(PublisherScreenType.publishers),
+                  onLoadMore: () => publisherProvider
+                      .loadMorePublishers(PublisherScreenType.publishers),
                   onRetry: () => publisherProvider.getPublishers(
                     screen: PublisherScreenType.publishers,
                   ),
-                );
-              }),
-            )
+                ),
+              );
+            })
           ];
         },
       ),

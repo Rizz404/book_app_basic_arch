@@ -19,6 +19,18 @@ class PublisherModel with _$PublisherModel {
     @Default(false) bool originalFollowStatus,
   }) = _PublisherModel;
 
+  factory PublisherModel.dummy() => PublisherModel(
+        id: '',
+        name: 'Dummy name',
+        email: 'Dummy email',
+        description: 'Dummy description',
+        website: ['Dummy website'],
+        picture: 'Dummy picture',
+        createdAt: DateTime(2025),
+        updatedAt: DateTime(2025),
+        followerCount: 0,
+      );
+
   factory PublisherModel.fromJson(Map<String, dynamic> json) =>
       _$PublisherModelFromJson(json);
 }

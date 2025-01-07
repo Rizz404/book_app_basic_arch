@@ -5,48 +5,36 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 class PublisherListSkeleton extends StatelessWidget {
   final bool isSliver;
+  final int itemCount;
 
-  const PublisherListSkeleton({super.key, this.isSliver = true});
+  const PublisherListSkeleton({
+    super.key,
+    this.isSliver = false,
+    this.itemCount = 10,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final dummyPublisher = PublisherModel(
-      id: '',
-      name: BoneMock.name,
-      email: BoneMock.email,
-      description: BoneMock.paragraph,
-      website: [BoneMock.name],
-      picture: BoneMock.time,
-      createdAt: DateTime(2025),
-      updatedAt: DateTime(2025),
-      followerCount: 0,
+    final dummyPublisher = PublisherModel.dummy();
+
+    final listView = ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) => PublisherTile(
+        publisherModel: dummyPublisher,
+      ),
+      itemCount: itemCount,
+    );
+
+    final skeletonWidget = Skeletonizer(
+      enabled: true,
+      child: listView,
     );
 
     if (isSliver) {
-      return SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            return Skeletonizer(
-              enabled: true,
-              child: PublisherTile(publisherModel: dummyPublisher),
-            );
-          },
-          childCount: 10, // Jumlah item dummy
-        ),
-      );
+      return SliverToBoxAdapter(child: skeletonWidget);
     }
 
-    return SizedBox(
-      height: 300, // Sesuaikan tinggi maksimal
-      child: ListView.builder(
-        itemBuilder: (context, index) {
-          return Skeletonizer(
-            enabled: true,
-            child: PublisherTile(publisherModel: dummyPublisher),
-          );
-        },
-        itemCount: 10,
-      ),
-    );
+    return skeletonWidget;
   }
 }

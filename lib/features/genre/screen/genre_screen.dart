@@ -32,33 +32,37 @@ class GenreScreen extends StatelessWidget {
           ),
           builder: (builder, controller) {
             return [
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: Consumer<GenreProvider>(
-                  builder: (context, genreProvider, _) {
-                    final genres = genreProvider
-                        .getGenresForSpecificScreen(GenreScreenType.genres);
-                    final isLoading =
-                        genreProvider.isLoading(GenreOperationType.getGenres);
-                    final errorMessage =
-                        genreProvider.getError(GenreOperationType.getGenres);
+              Consumer<GenreProvider>(
+                builder: (context, genreProvider, _) {
+                  final genres = genreProvider
+                      .getGenresForSpecificScreen(GenreScreenType.genres);
+                  final isLoadingGenres =
+                      genreProvider.isLoading(GenreOperationType.getGenres);
+                  final errorMessageGenres =
+                      genreProvider.getError(GenreOperationType.getGenres);
 
-                    return InfiniteScrollGenreGrid(
+                  return SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: InfiniteScrollGenreGrid(
                       genres: genres,
-                      isLoading: isLoading,
-                      errorMessage: errorMessage,
-                      onLoadMore: () =>
-                          genreProvider.loadMoreGenres(GenreScreenType.genres),
+                      isLoading: isLoadingGenres,
+                      errorMessage: errorMessageGenres,
+                      emptyMessage: 'Genre is empty, try to add one admin!!',
+                      scrollController: controller,
                       onGenreSelected: (genre) {
                         context.push('/genres/${genre.id}');
                       },
-                      scrollController: controller,
+                      isInitialLoading: genreProvider.isInitialLoad(
+                        GenreScreenType.genres,
+                      ),
+                      onLoadMore: () =>
+                          genreProvider.loadMoreGenres(GenreScreenType.genres),
                       onRetry: () => genreProvider.getGenres(
                         screen: GenreScreenType.genres,
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ];
           },

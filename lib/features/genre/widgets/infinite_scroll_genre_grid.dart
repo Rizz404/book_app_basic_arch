@@ -8,21 +8,32 @@ import 'package:flutter/material.dart';
 class InfiniteScrollGenreGrid extends StatefulWidget {
   final List<GenreModel> genres;
   final bool isLoading;
+  final bool isInitialLoading;
   final String? errorMessage;
+  final String emptyMessage;
   final Function()? onRetry;
   final Function() onLoadMore;
   final Function(GenreModel) onGenreSelected;
   final ScrollController scrollController;
+  final SliverGridDelegate gridDelegate;
 
   const InfiniteScrollGenreGrid({
     super.key,
     required this.genres,
     required this.isLoading,
+    required this.isInitialLoading,
     required this.errorMessage,
+    required this.emptyMessage,
     required this.onRetry,
     required this.onLoadMore,
     required this.onGenreSelected,
     required this.scrollController,
+    this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      childAspectRatio: 0.75,
+    ),
   });
 
   @override
@@ -54,8 +65,10 @@ class _InfiniteScrollGenreGridState extends State<InfiniteScrollGenreGrid> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading) {
-      return const GenreGridSkeleton();
+    if (widget.isInitialLoading) {
+      return const GenreGridSkeleton(
+        isSliver: true,
+      );
     }
 
     if (widget.errorMessage != null) {
@@ -68,26 +81,20 @@ class _InfiniteScrollGenreGridState extends State<InfiniteScrollGenreGrid> {
     }
 
     if (widget.genres.isEmpty) {
-      return const SliverFillRemaining(
-        child: StyledEmptyData(message: 'No genres found'),
+      return SliverFillRemaining(
+        child: StyledEmptyData(message: widget.emptyMessage),
       );
     }
 
     return SliverMainAxisGroup(
       slivers: [
-        // Grid utama dengan data buku
         SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 0.75,
-          ),
+          gridDelegate: widget.gridDelegate,
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               final genre = widget.genres[index];
               return GenreCard(
-                key: Key(genre.id),
+                key: ValueKey(genre.id),
                 genreModel: genre,
                 onTap: () => widget.onGenreSelected(genre),
               );
@@ -95,16 +102,12 @@ class _InfiniteScrollGenreGridState extends State<InfiniteScrollGenreGrid> {
             childCount: widget.genres.length,
           ),
         ),
-
-        // Skeleton loader untuk pagination
-        if (widget.isLoading) const GenreGridSkeleton(),
+        if (widget.isLoading)
+          const GenreGridSkeleton(
+            itemCount: 4,
+            isSliver: true,
+          ),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    widget.scrollController.removeListener(_onScroll);
-    super.dispose();
   }
 }

@@ -17,6 +17,16 @@ class GenreModel with _$GenreModel {
     @Default(false) bool originalFollowStatus,
   }) = _GenreModel;
 
+  factory GenreModel.dummy() => GenreModel(
+        id: '',
+        name: 'dummy name',
+        description: 'dummy description',
+        picture: 'dummy picture',
+        createdAt: DateTime(2025),
+        updatedAt: DateTime(2025),
+        followerCount: 0,
+      );
+
   factory GenreModel.fromJson(Map<String, dynamic> json) =>
       _$GenreModelFromJson(json);
 }

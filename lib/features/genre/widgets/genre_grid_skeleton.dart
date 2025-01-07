@@ -5,19 +5,17 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 class GenreGridSkeleton extends StatelessWidget {
   final bool isSliver;
-  const GenreGridSkeleton({super.key, this.isSliver = true});
+  final int itemCount;
+
+  const GenreGridSkeleton({
+    super.key,
+    this.isSliver = false,
+    this.itemCount = 10,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final dummyGenre = GenreModel(
-      id: '',
-      name: BoneMock.title,
-      description: BoneMock.paragraph,
-      picture: BoneMock.title,
-      createdAt: DateTime(2025),
-      updatedAt: DateTime(2025),
-      followerCount: 0,
-    );
+    final dummyGenre = GenreModel.dummy();
 
     final gridView = GridView.builder(
       shrinkWrap: true,
@@ -28,22 +26,21 @@ class GenreGridSkeleton extends StatelessWidget {
         crossAxisSpacing: 8,
         childAspectRatio: 0.75,
       ),
-      itemBuilder: (context, index) => GenreCard(genreModel: dummyGenre),
-      itemCount: 10, // Hanya menampilkan 2 skeleton untuk pagination
+      itemBuilder: (context, index) => GenreCard(
+        genreModel: dummyGenre,
+      ),
+      itemCount: itemCount,
     );
 
-    if (isSliver) {
-      return SliverToBoxAdapter(
-        child: Skeletonizer(
-          enabled: true,
-          child: gridView,
-        ),
-      );
-    }
-
-    return Skeletonizer(
+    final skeletonWidget = Skeletonizer(
       enabled: true,
       child: gridView,
     );
+
+    if (isSliver) {
+      return SliverToBoxAdapter(child: skeletonWidget);
+    }
+
+    return skeletonWidget;
   }
 }
