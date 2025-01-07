@@ -8,21 +8,32 @@ import 'package:flutter/material.dart';
 class InfiniteScrollBookGrid extends StatefulWidget {
   final List<BookModel> books;
   final bool isLoading;
+  final bool isInitialLoading;
   final String? errorMessage;
+  final String emptyMessage;
   final Function()? onRetry;
   final Function() onLoadMore;
   final Function(BookModel) onBookSelected;
   final ScrollController scrollController;
+  final SliverGridDelegate gridDelegate;
 
   const InfiniteScrollBookGrid({
     super.key,
     required this.books,
     required this.isLoading,
+    required this.isInitialLoading,
     required this.errorMessage,
+    required this.emptyMessage,
     required this.onRetry,
     required this.onLoadMore,
     required this.onBookSelected,
     required this.scrollController,
+    this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      childAspectRatio: 0.75,
+    ),
   });
 
   @override
@@ -53,8 +64,10 @@ class _InfiniteScrollBookGridState extends State<InfiniteScrollBookGrid> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading) {
-      return const BookGridSkeleton();
+    if (widget.isInitialLoading) {
+      return const BookGridSkeleton(
+        isSliver: true,
+      );
     }
 
     if (widget.errorMessage != null) {
@@ -67,26 +80,20 @@ class _InfiniteScrollBookGridState extends State<InfiniteScrollBookGrid> {
     }
 
     if (widget.books.isEmpty) {
-      return const SliverFillRemaining(
-        child: StyledEmptyData(message: 'No books found'),
+      return SliverFillRemaining(
+        child: StyledEmptyData(message: widget.emptyMessage),
       );
     }
 
     return SliverMainAxisGroup(
       slivers: [
-        // Grid utama dengan data buku
         SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 0.75,
-          ),
+          gridDelegate: widget.gridDelegate,
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               final book = widget.books[index];
               return BookCard(
-                key: Key(book.id),
+                key: ValueKey(book.id),
                 bookModel: book,
                 onTap: () => widget.onBookSelected(book),
               );
@@ -94,16 +101,12 @@ class _InfiniteScrollBookGridState extends State<InfiniteScrollBookGrid> {
             childCount: widget.books.length,
           ),
         ),
-
-        // Skeleton loader untuk pagination
-        if (widget.isLoading) const BookGridSkeleton(),
+        if (widget.isLoading)
+          const BookGridSkeleton(
+            itemCount: 4,
+            isSliver: true,
+          ),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    widget.scrollController.removeListener(_onScroll);
-    super.dispose();
   }
 }

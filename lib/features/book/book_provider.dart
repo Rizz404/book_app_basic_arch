@@ -357,23 +357,29 @@ class BookProvider with ChangeNotifier {
   }
 
   // * Method generic untuk load more data
+  bool canLoadMore(BookScreenType screen) {
+    final pagination = _paginationByScreen[screen];
+    return pagination?.hasNextPage ?? false;
+  }
+
   Future<void> loadMoreBooks(BookScreenType screen) async {
     final currentFilter = _filterByScreen[screen]!;
-    final currentPagination = _paginationByScreen[screen];
+    final pagination = _paginationByScreen[screen];
 
-    // * Cek apakah masih ada halaman selanjutnya
-    if (currentPagination != null &&
-        currentPagination.currentPage >= currentPagination.totalPages) {
+    if (isLoading(_getOperationTypeForScreen(screen)) ||
+        pagination == null ||
+        !pagination.hasNextPage ||
+        pagination.nextPage == null) {
       return;
     }
 
-    // * Update filter dengan page selanjutnya
+    // * Update filter dengan next page dari pagination
     final newFilter = currentFilter.copyWith(
-      page: (currentPagination?.currentPage ?? 0) + 1,
+      page:
+          pagination.nextPage!, // * Safe to use ! karena sudah di-check di atas
     );
     _filterByScreen[screen] = newFilter;
 
-    // * Tentukan operation type berdasarkan screen
     final operationType = _getOperationTypeForScreen(screen);
 
     _updateOperationState(
@@ -385,7 +391,7 @@ class BookProvider with ChangeNotifier {
     try {
       final response = await _getDataForScreen(screen, newFilter);
 
-      // * Tambahkan data baru ke list yang sudah ada
+      // * Append new data to existing list
       _booksByScreen[screen] = [
         ...(_booksByScreen[screen] ?? []),
         ...response.data!
@@ -405,6 +411,12 @@ class BookProvider with ChangeNotifier {
       );
       debugPrint('Error loading more data: $e');
     }
+  }
+
+  // * Helper method to check if it's initial load
+  bool isInitialLoad(BookScreenType screen) {
+    return isLoading(_getOperationTypeForScreen(screen)) &&
+        (_booksByScreen[screen]?.isEmpty ?? true);
   }
 
   // * *============*function yang gak langsung fetch api*============*

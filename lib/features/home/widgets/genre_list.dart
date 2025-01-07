@@ -48,6 +48,7 @@ class GenreList extends StatelessWidget {
         itemCount: genres.length,
         itemBuilder: (context, index) {
           return Align(
+            key: Key(genres[index].id),
             alignment: Alignment.center,
             child: TextButton(
               child: Text(

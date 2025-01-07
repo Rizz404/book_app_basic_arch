@@ -151,26 +151,30 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
               ),
               Consumer<BookProvider>(
                 builder: (context, bookProvider, _) {
-                  final isLoading =
-                      bookProvider.isLoading(BookOperationType.getBooks);
-                  final errorMessage =
-                      bookProvider.getError(BookOperationType.getBooks);
                   final books = bookProvider.getBooksForSpecificScreen(
                       BookScreenType.publisherDetail);
+                  final isLoadingBooks =
+                      bookProvider.isLoading(BookOperationType.getBooks);
+                  final errorMessageBooks =
+                      bookProvider.getError(BookOperationType.getBooks);
 
                   return SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     sliver: InfiniteScrollBookGrid(
                       books: books,
-                      isLoading: isLoading,
-                      errorMessage: errorMessage,
-                      onLoadMore: () async => await bookProvider
-                          .loadMoreBooks(BookScreenType.publisherDetail),
+                      isLoading: isLoadingBooks,
+                      errorMessage: errorMessageBooks,
+                      emptyMessage: 'Book is empty, try to add one admin!!',
+                      scrollController: controller,
                       onBookSelected: (book) {
                         context.push('/books/${book.id}');
                       },
-                      scrollController: controller,
-                      onRetry: () async => await bookProvider.getBooks(
+                      isInitialLoading: bookProvider.isInitialLoad(
+                        BookScreenType.publisherDetail,
+                      ),
+                      onLoadMore: () => bookProvider
+                          .loadMoreBooks(BookScreenType.publisherDetail),
+                      onRetry: () => bookProvider.getBooks(
                         screen: BookScreenType.publisherDetail,
                       ),
                     ),

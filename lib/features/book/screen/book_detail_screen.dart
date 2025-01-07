@@ -183,33 +183,37 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               ),
 
               // * Suggestions Grid dalam Sliver terpisah
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: Consumer<BookProvider>(
-                  builder: (context, bookProvider, _) {
-                    final books = bookProvider
-                        .getBooksForSpecificScreen(BookScreenType.bookDetail);
-                    final isLoading =
-                        bookProvider.isLoading(BookOperationType.getBooks);
-                    final errorMessage =
-                        bookProvider.getError(BookOperationType.getBooks);
+              Consumer<BookProvider>(
+                builder: (context, bookProvider, _) {
+                  final books = bookProvider
+                      .getBooksForSpecificScreen(BookScreenType.bookDetail);
+                  final isLoadingBooks =
+                      bookProvider.isLoading(BookOperationType.getBooks);
+                  final errorMessageBooks =
+                      bookProvider.getError(BookOperationType.getBooks);
 
-                    return InfiniteScrollBookGrid(
+                  return SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: InfiniteScrollBookGrid(
                       books: books,
-                      isLoading: isLoading,
-                      errorMessage: errorMessage,
-                      onLoadMore: () =>
-                          bookProvider.loadMoreBooks(BookScreenType.books),
+                      isLoading: isLoadingBooks,
+                      errorMessage: errorMessageBooks,
+                      emptyMessage: 'Book is empty, try to add one admin!!',
+                      scrollController: controller,
                       onBookSelected: (book) {
                         context.push('/books/${book.id}');
                       },
-                      scrollController: controller,
-                      onRetry: () => bookProvider.getBooks(
-                        screen: BookScreenType.books,
+                      isInitialLoading: bookProvider.isInitialLoad(
+                        BookScreenType.bookDetail,
                       ),
-                    );
-                  },
-                ),
+                      onLoadMore: () =>
+                          bookProvider.loadMoreBooks(BookScreenType.bookDetail),
+                      onRetry: () => bookProvider.getBooks(
+                        screen: BookScreenType.bookDetail,
+                      ),
+                    ),
+                  );
+                },
               ),
             ];
           },

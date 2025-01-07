@@ -2,18 +2,18 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_bui
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
-import 'package:book_app_basic_arch/features/book/book_provider.dart';
-import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
-import 'package:book_app_basic_arch/features/home/widgets/book_offer_carousel.dart';
 import 'package:book_app_basic_arch/features/home/widgets/genre_list.dart';
+import 'package:book_app_basic_arch/features/home/widgets/book_offer_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:book_app_basic_arch/features/book/book_provider.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -49,7 +49,7 @@ class HomeScreen extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: () => _handleRefresh(context),
       child: StyledScreenLayoutBuilder(
-          sliverAppBar: const StyledSliverAppBar(
+          sliverAppBar: StyledSliverAppBar(
             title: StyledSearchBarPlaceholder(
               hintText: "Hinted search text",
             ),
@@ -97,33 +97,37 @@ class HomeScreen extends StatelessWidget {
               ),
 
               // * BookGrid
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: Consumer<BookProvider>(
-                  builder: (context, provider, _) {
-                    final books =
-                        provider.getBooksForSpecificScreen(BookScreenType.home);
-                    final isLoading =
-                        provider.isLoading(BookOperationType.getBooks);
-                    final errorMessage =
-                        provider.getError(BookOperationType.getBooks);
+              Consumer<BookProvider>(
+                builder: (context, bookProvider, _) {
+                  final books = bookProvider
+                      .getBooksForSpecificScreen(BookScreenType.home);
+                  final isLoadingBooks =
+                      bookProvider.isLoading(BookOperationType.getBooks);
+                  final errorMessageBooks =
+                      bookProvider.getError(BookOperationType.getBooks);
 
-                    return InfiniteScrollBookGrid(
+                  return SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: InfiniteScrollBookGrid(
                       books: books,
-                      isLoading: isLoading,
-                      errorMessage: errorMessage,
-                      onLoadMore: () =>
-                          provider.loadMoreBooks(BookScreenType.home),
+                      isLoading: isLoadingBooks,
+                      errorMessage: errorMessageBooks,
+                      emptyMessage: 'Book is empty, try to add one admin!!',
+                      scrollController: controller,
                       onBookSelected: (book) {
                         context.push('/books/${book.id}');
                       },
-                      scrollController: controller,
-                      onRetry: () => provider.getBooks(
+                      isInitialLoading: bookProvider.isInitialLoad(
+                        BookScreenType.home,
+                      ),
+                      onLoadMore: () =>
+                          bookProvider.loadMoreBooks(BookScreenType.home),
+                      onRetry: () => bookProvider.getBooks(
                         screen: BookScreenType.home,
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ];
           }),

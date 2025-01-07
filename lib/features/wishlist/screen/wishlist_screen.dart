@@ -46,34 +46,38 @@ class WishlistScreen extends StatelessWidget {
             ),
             builder: (builder, controller) {
               return [
-                SliverPadding(
-                  padding: const EdgeInsets.all(16),
-                  sliver: Consumer<BookProvider>(
-                    builder: (context, bookProvider, _) {
-                      final books = bookProvider
-                          .getBooksForSpecificScreen(BookScreenType.wishlist);
-                      final isLoading = bookProvider
-                          .isLoading(BookOperationType.getBooksInWishlist);
-                      final errorMessage = bookProvider
-                          .getError(BookOperationType.getBooksInWishlist);
+                Consumer<BookProvider>(
+                  builder: (context, bookProvider, _) {
+                    final books = bookProvider
+                        .getBooksForSpecificScreen(BookScreenType.wishlist);
+                    final isLoadingBooks =
+                        bookProvider.isLoading(BookOperationType.getBooks);
+                    final errorMessageBooks =
+                        bookProvider.getError(BookOperationType.getBooks);
 
-                      return InfiniteScrollBookGrid(
+                    return SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: InfiniteScrollBookGrid(
                         books: books,
-                        isLoading: isLoading,
-                        errorMessage: errorMessage,
-                        onLoadMore: () =>
-                            bookProvider.loadMoreBooks(BookScreenType.wishlist),
+                        isLoading: isLoadingBooks,
+                        errorMessage: errorMessageBooks,
+                        emptyMessage: 'Book is empty, try to add one admin!!',
+                        scrollController: controller,
                         onBookSelected: (book) {
                           context.push('/books/${book.id}');
                         },
-                        scrollController: controller,
+                        isInitialLoading: bookProvider.isInitialLoad(
+                          BookScreenType.wishlist,
+                        ),
+                        onLoadMore: () =>
+                            bookProvider.loadMoreBooks(BookScreenType.wishlist),
                         onRetry: () => bookProvider.getBooks(
                           screen: BookScreenType.wishlist,
                         ),
-                      );
-                    },
-                  ),
-                )
+                      ),
+                    );
+                  },
+                ),
               ];
             }),
       ),
