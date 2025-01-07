@@ -26,6 +26,10 @@ class GenreScreen extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: () => _fetchData(context),
       child: BaseScaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => context.push('/genres/create'),
+          child: const Icon(Icons.add),
+        ),
         body: StyledScreenLayoutBuilder(
           sliverAppBar: const StyledSliverAppBar(
             title: StyledSearchBarPlaceholder(),

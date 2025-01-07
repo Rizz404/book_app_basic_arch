@@ -3,6 +3,10 @@ import 'package:book_app_basic_arch/core/shared/screens/menu_screen.dart';
 import 'package:book_app_basic_arch/core/shared/screens/splash_screen.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/auth_wrapper.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/scaffold_with_bottom_app_bar.dart';
+import 'package:book_app_basic_arch/features/admin/screen/author_upsert_screen.dart';
+import 'package:book_app_basic_arch/features/admin/screen/book_upsert_screen.dart';
+import 'package:book_app_basic_arch/features/admin/screen/genre_upsert_screen.dart';
+import 'package:book_app_basic_arch/features/admin/screen/publisher_upsert_screen.dart';
 import 'package:book_app_basic_arch/features/auth/screen/login_screen.dart';
 import 'package:book_app_basic_arch/features/auth/screen/register_screen.dart';
 import 'package:book_app_basic_arch/features/author/screen/author_detail_screen.dart';
@@ -139,6 +143,15 @@ class AppRouter {
             },
           ),
           GoRoute(
+            path: 'upsert',
+            pageBuilder: (context, state) {
+              final bookId = state.pathParameters['id'];
+              return MaterialPage(
+                child: BookUpsertScreen(bookId: bookId),
+              );
+            },
+          ),
+          GoRoute(
             path: ':id',
             pageBuilder: (context, state) {
               final bookId = state.pathParameters['id']!;
@@ -161,6 +174,22 @@ class AppRouter {
             builder: (context, state) {
               final query = state.uri.queryParameters['q'] ?? '';
               return GenreSearchResultScreen(query: query);
+            },
+          ),
+          GoRoute(
+            path: 'create',
+            pageBuilder: (context, state) => const MaterialPage(
+              child: GenreUpsertScreen(),
+            ),
+          ),
+          // Route untuk update
+          GoRoute(
+            path: 'edit/:id',
+            pageBuilder: (context, state) {
+              final genreId = state.pathParameters['id'];
+              return MaterialPage(
+                child: GenreUpsertScreen(genreId: genreId),
+              );
             },
           ),
           GoRoute(
@@ -189,6 +218,15 @@ class AppRouter {
             },
           ),
           GoRoute(
+            path: 'upsert',
+            pageBuilder: (context, state) {
+              final authorId = state.pathParameters['id'];
+              return MaterialPage(
+                child: AuthorUpsertScreen(authorId: authorId),
+              );
+            },
+          ),
+          GoRoute(
             path: ':id',
             pageBuilder: (context, state) {
               final authorId = state.pathParameters['id']!;
@@ -211,6 +249,15 @@ class AppRouter {
             builder: (context, state) {
               final query = state.uri.queryParameters['q'] ?? '';
               return PublisherSearchResultScreen(query: query);
+            },
+          ),
+          GoRoute(
+            path: 'upsert',
+            pageBuilder: (context, state) {
+              final publisherId = state.pathParameters['id'];
+              return MaterialPage(
+                child: PublisherUpsertScreen(publisherId: publisherId),
+              );
             },
           ),
           GoRoute(

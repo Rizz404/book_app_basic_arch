@@ -70,9 +70,76 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
     });
   }
 
+  Future<void> _deleteGenreById() async {
+    try {
+      await context.read<GenreProvider>().deleteGenreById(widget.genreId);
+
+      if (!mounted) return;
+
+      final error = context
+          .read<GenreProvider>()
+          .getError(GenreOperationType.deleteGenreById);
+      if (error == null) {
+        // Sukses hapus, kembali ke halaman sebelumnya
+        context.pop();
+
+        // Optional: Tampilkan snackbar konfirmasi
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Genre berhasil dihapus')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menghapus genre: ${e.toString()}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
+            ),
+            builder: (context) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.edit,
+                          color: Theme.of(context).primaryColor),
+                      title: const Text('Edit Genre'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        context.push('/genres/edit/${widget.genreId}');
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.delete,
+                          color: Theme.of(context).colorScheme.error),
+                      title: const Text('Delete Genre'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showDeleteConfirmation();
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        child: const Icon(Icons.more_vert), // Ikon untuk membuka BottomSheet
+      ),
       body: RefreshIndicator(
         onRefresh: () => _fetchData(),
         child: StyledScreenLayoutBuilder(
@@ -274,5 +341,33 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _showDeleteConfirmation() async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Genre'),
+        content: const Text(
+            'Apakah Anda yakin ingin menghapus genre ini? Aksi ini tidak dapat dibatalkan.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete ?? false) {
+      await _deleteGenreById();
+    }
   }
 }

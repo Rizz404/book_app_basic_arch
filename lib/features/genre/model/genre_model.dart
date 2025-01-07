@@ -36,7 +36,7 @@ class CreateGenreModel with _$CreateGenreModel {
   const factory CreateGenreModel({
     required String name,
     required String description,
-    required String picture,
+    required String? picture,
   }) = _CreateGenreModel;
 
   factory CreateGenreModel.fromJson(Map<String, dynamic> json) =>

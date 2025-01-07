@@ -353,7 +353,7 @@ CreateGenreModel _$CreateGenreModelFromJson(Map<String, dynamic> json) {
 mixin _$CreateGenreModel {
   String get name => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
-  String get picture => throw _privateConstructorUsedError;
+  String? get picture => throw _privateConstructorUsedError;
 
   /// Serializes this CreateGenreModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -371,7 +371,7 @@ abstract class $CreateGenreModelCopyWith<$Res> {
           CreateGenreModel value, $Res Function(CreateGenreModel) then) =
       _$CreateGenreModelCopyWithImpl<$Res, CreateGenreModel>;
   @useResult
-  $Res call({String name, String description, String picture});
+  $Res call({String name, String description, String? picture});
 }
 
 /// @nodoc
@@ -391,7 +391,7 @@ class _$CreateGenreModelCopyWithImpl<$Res, $Val extends CreateGenreModel>
   $Res call({
     Object? name = null,
     Object? description = null,
-    Object? picture = null,
+    Object? picture = freezed,
   }) {
     return _then(_value.copyWith(
       name: null == name
@@ -402,10 +402,10 @@ class _$CreateGenreModelCopyWithImpl<$Res, $Val extends CreateGenreModel>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
-      picture: null == picture
+      picture: freezed == picture
           ? _value.picture
           : picture // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ) as $Val);
   }
 }
@@ -418,7 +418,7 @@ abstract class _$$CreateGenreModelImplCopyWith<$Res>
       __$$CreateGenreModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String name, String description, String picture});
+  $Res call({String name, String description, String? picture});
 }
 
 /// @nodoc
@@ -436,7 +436,7 @@ class __$$CreateGenreModelImplCopyWithImpl<$Res>
   $Res call({
     Object? name = null,
     Object? description = null,
-    Object? picture = null,
+    Object? picture = freezed,
   }) {
     return _then(_$CreateGenreModelImpl(
       name: null == name
@@ -447,10 +447,10 @@ class __$$CreateGenreModelImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
-      picture: null == picture
+      picture: freezed == picture
           ? _value.picture
           : picture // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }
@@ -469,7 +469,7 @@ class _$CreateGenreModelImpl implements _CreateGenreModel {
   @override
   final String description;
   @override
-  final String picture;
+  final String? picture;
 
   @override
   String toString() {
@@ -512,7 +512,7 @@ abstract class _CreateGenreModel implements CreateGenreModel {
   const factory _CreateGenreModel(
       {required final String name,
       required final String description,
-      required final String picture}) = _$CreateGenreModelImpl;
+      required final String? picture}) = _$CreateGenreModelImpl;
 
   factory _CreateGenreModel.fromJson(Map<String, dynamic> json) =
       _$CreateGenreModelImpl.fromJson;
@@ -522,7 +522,7 @@ abstract class _CreateGenreModel implements CreateGenreModel {
   @override
   String get description;
   @override
-  String get picture;
+  String? get picture;
 
   /// Create a copy of CreateGenreModel
   /// with the given fields replaced by the non-null parameter values.

@@ -57,6 +57,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     return RefreshIndicator(
       onRefresh: () => _fetchData(),
       child: BaseScaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => context.push('/book/upsert/${widget.bookId}'),
+          child: const Icon(Icons.add),
+        ),
         body: StyledScreenLayoutBuilder(
           sliverAppBar: const StyledSliverAppBar(
             title: Text('Detail'),

@@ -36,50 +36,49 @@ class WishlistScreen extends StatelessWidget {
       _fetchData(context);
     });
 
-    return BaseScaffold(
-      body: RefreshIndicator(
-        onRefresh: () => _handleRefresh(context),
-        child: StyledScreenLayoutBuilder(
-            sliverAppBar: const StyledSliverAppBar(
-              title: Text('Wishlist'),
-              centerTitle: true,
-            ),
-            builder: (builder, controller) {
-              return [
-                Consumer<BookProvider>(
-                  builder: (context, bookProvider, _) {
-                    final books = bookProvider
-                        .getBooksForSpecificScreen(BookScreenType.wishlist);
-                    final isLoadingBooks =
-                        bookProvider.isLoading(BookOperationType.getBooks);
-                    final errorMessageBooks =
-                        bookProvider.getError(BookOperationType.getBooks);
+    return RefreshIndicator(
+      onRefresh: () => _handleRefresh(context),
+      child: StyledScreenLayoutBuilder(
+        sliverAppBar: const StyledSliverAppBar(
+          title: Text('Wishlist'),
+          centerTitle: true,
+        ),
+        builder: (builder, controller) {
+          return [
+            Consumer<BookProvider>(
+              builder: (context, bookProvider, _) {
+                final books = bookProvider
+                    .getBooksForSpecificScreen(BookScreenType.wishlist);
+                final isLoadingBooks =
+                    bookProvider.isLoading(BookOperationType.getBooks);
+                final errorMessageBooks =
+                    bookProvider.getError(BookOperationType.getBooks);
 
-                    return SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: InfiniteScrollBookGrid(
-                        books: books,
-                        isLoading: isLoadingBooks,
-                        errorMessage: errorMessageBooks,
-                        emptyMessage: 'Book is empty, try to add one admin!!',
-                        scrollController: controller,
-                        onBookSelected: (book) {
-                          context.push('/books/${book.id}');
-                        },
-                        isInitialLoading: bookProvider.isInitialLoad(
-                          BookScreenType.wishlist,
-                        ),
-                        onLoadMore: () =>
-                            bookProvider.loadMoreBooks(BookScreenType.wishlist),
-                        onRetry: () => bookProvider.getBooks(
-                          screen: BookScreenType.wishlist,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ];
-            }),
+                return SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: InfiniteScrollBookGrid(
+                    books: books,
+                    isLoading: isLoadingBooks,
+                    errorMessage: errorMessageBooks,
+                    emptyMessage: 'Book is empty, try to add one admin!!',
+                    scrollController: controller,
+                    onBookSelected: (book) {
+                      context.push('/books/${book.id}');
+                    },
+                    isInitialLoading: bookProvider.isInitialLoad(
+                      BookScreenType.wishlist,
+                    ),
+                    onLoadMore: () =>
+                        bookProvider.loadMoreBooks(BookScreenType.wishlist),
+                    onRetry: () => bookProvider.getBooks(
+                      screen: BookScreenType.wishlist,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ];
+        },
       ),
     );
   }

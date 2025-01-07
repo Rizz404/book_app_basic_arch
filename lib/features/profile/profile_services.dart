@@ -5,6 +5,7 @@ import 'package:book_app_basic_arch/core/network/models/api_error_response.dart'
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:book_app_basic_arch/features/profile/model/profile_model.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 
 class ProfileServices {
   final DioClient _dioClient = DioClient();
@@ -36,12 +37,13 @@ class ProfileServices {
         if (profilePictureFile != null)
           'profilePicture': await MultipartFile.fromFile(
             profilePictureFile.path,
-            filename: 'profile_picture.jpg',
           ),
         // * Jika tidak ada file tapi ada URL, kirim URL-nya
         if (profilePictureFile == null && profile.profilePicture != null)
           'profilePicture': profile.profilePicture,
       });
+
+      debugPrint(formData.toString());
 
       return await _dioClient.patch(
         '/users/profile',

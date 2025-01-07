@@ -37,7 +37,7 @@ _$CreateGenreModelImpl _$$CreateGenreModelImplFromJson(
     _$CreateGenreModelImpl(
       name: json['name'] as String,
       description: json['description'] as String,
-      picture: json['picture'] as String,
+      picture: json['picture'] as String?,
     );
 
 Map<String, dynamic> _$$CreateGenreModelImplToJson(

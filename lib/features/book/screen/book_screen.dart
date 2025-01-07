@@ -20,6 +20,10 @@ class BookScreen extends StatelessWidget {
     });
 
     return BaseScaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/books/upsert'),
+        child: const Icon(Icons.add),
+      ),
       body: StyledScreenLayoutBuilder(
         sliverAppBar: const StyledSliverAppBar(
           title: StyledSearchBarPlaceholder(),

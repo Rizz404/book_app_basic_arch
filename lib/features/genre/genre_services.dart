@@ -1,18 +1,39 @@
+import 'dart:io';
+
 import 'package:book_app_basic_arch/core/network/dio_client.dart';
 import 'package:book_app_basic_arch/core/network/models/api_error_response.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:book_app_basic_arch/features/genre/model/genre_filter_model.dart';
 import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 
 class GenreServices {
   final DioClient _dioClient = DioClient();
 
   Future<ApiSuccessResponse<GenreModel>> createGenre(
-      CreateGenreModel genre) async {
+    CreateGenreModel genre,
+    File? picture,
+  ) async {
     try {
+      final formData = FormData.fromMap({
+        'name': genre.name,
+        'description': genre.description,
+        // * Jika ada file baru, kirim sebagai MultipartFile
+        if (picture != null)
+          'picture': await MultipartFile.fromFile(
+            picture.path,
+            filename: picture.path.split('/').last,
+          ),
+        // * Jika tidak ada file tapi ada URL, kirim URL-nya
+        if (picture == null && genre.picture != null) 'picture': genre.picture,
+      });
+
+      debugPrint(formData.toString());
+
       return await _dioClient.post(
         '/genres',
-        data: genre,
+        data: formData,
         fromJsonT: (json) => GenreModel.fromJson(json as Map<String, dynamic>),
       );
     } on ApiErrorResponse catch (e) {
@@ -84,11 +105,28 @@ class GenreServices {
   }
 
   Future<ApiSuccessResponse<GenreModel>> updateGenreById(
-      UpdateGenreModel genre) async {
+    UpdateGenreModel genre,
+    File? picture,
+  ) async {
     try {
+      final formData = FormData.fromMap({
+        if (genre.name != null) 'name': genre.name,
+        if (genre.description != null) 'description': genre.description,
+        // * Jika ada file baru, kirim sebagai MultipartFile
+        if (picture != null)
+          'picture': await MultipartFile.fromFile(
+            picture.path,
+            filename: picture.path.split('/').last,
+          ),
+        // * Jika tidak ada file tapi ada URL, kirim URL-nya
+        if (picture == null && genre.picture != null) 'picture': genre.picture,
+      });
+
+      debugPrint(formData.toString());
+
       return await _dioClient.patch(
         '/genres/${genre.id}',
-        data: genre,
+        data: formData,
         fromJsonT: (json) => GenreModel.fromJson(json as Map<String, dynamic>),
       );
     } on ApiErrorResponse catch (e) {
