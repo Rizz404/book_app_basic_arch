@@ -1,9 +1,9 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_card.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_grid_skeleton.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 
 class InfiniteScrollBookGrid extends StatefulWidget {
   final List<BookModel> books;
@@ -43,7 +43,9 @@ class _InfiniteScrollBookGridState extends State<InfiniteScrollBookGrid> {
   }
 
   bool get _isBottom {
-    if (!widget.scrollController.hasClients) return false;
+    if (!widget.scrollController.hasClients) {
+      return false;
+    }
     final maxScroll = widget.scrollController.position.maxScrollExtent;
     final currentScroll = widget.scrollController.offset;
     return currentScroll >= (maxScroll * 0.8);
@@ -84,6 +86,7 @@ class _InfiniteScrollBookGridState extends State<InfiniteScrollBookGrid> {
             (context, index) {
               final book = widget.books[index];
               return BookCard(
+                key: Key(book.id),
                 bookModel: book,
                 onTap: () => widget.onBookSelected(book),
               );

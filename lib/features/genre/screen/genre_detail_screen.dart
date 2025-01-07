@@ -5,15 +5,15 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dar
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
-import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
-import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
-import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
-import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
-import 'package:book_app_basic_arch/features/genre/widgets/genre_list_horizontal.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
+import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
+import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
+import 'package:book_app_basic_arch/features/genre/widgets/genre_list_horizontal.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -76,7 +76,7 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
       body: RefreshIndicator(
         onRefresh: () => _fetchData(),
         child: StyledScreenLayoutBuilder(
-          sliverAppBar: StyledSliverAppBar(
+          sliverAppBar: const StyledSliverAppBar(
             title: StyledSearchBarPlaceholder(
               hintText: "Hinted search text",
             ),
@@ -109,15 +109,15 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
                           errorMessageGenre,
                           genre,
                         ),
-                        SizedBox(height: 24),
+                        const SizedBox(height: 24),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             "Similar Genres",
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         GenreListHorizontal(
                           isLoading: isLoadingGenres,
                           errorMessage: errorMessageGenres,
@@ -134,7 +134,7 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
                 ),
               ),
               SliverPadding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   top: 32,
                   bottom: 16,
                   left: 16,
@@ -157,7 +157,7 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
                       .getBooksForSpecificScreen(BookScreenType.genreDetail);
 
                   return SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     sliver: InfiniteScrollBookGrid(
                       books: books,
                       isLoading: isLoading,
@@ -221,7 +221,7 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
     }
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           Row(
@@ -246,7 +246,7 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
                   },
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,7 +255,7 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
                       genre.name,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Text(
                       genre.description,
                       style: Theme.of(context).textTheme.bodySmall,
@@ -266,7 +266,7 @@ class _GenreDetailScreenState extends State<GenreDetailScreen> {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
         ],
       ),
     );

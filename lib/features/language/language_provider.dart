@@ -1,7 +1,7 @@
 import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
-import 'package:book_app_basic_arch/features/language/enums/language_screen_type.dart';
 import 'package:book_app_basic_arch/features/language/enums/language_operation_type.dart';
+import 'package:book_app_basic_arch/features/language/enums/language_screen_type.dart';
 import 'package:book_app_basic_arch/features/language/language_services.dart';
 import 'package:book_app_basic_arch/features/language/model/language_filter_model.dart';
 import 'package:book_app_basic_arch/features/language/model/language_model.dart';
@@ -16,7 +16,7 @@ class LanguageProvider with ChangeNotifier {
   final Map<LanguageScreenType, ApiPagination?> _paginationByScreen = {};
 
   // * Beda buat search
-  List<LanguageModel> _searchedLanguages = [];
+  final List<LanguageModel> _searchedLanguages = [];
   List<LanguageModel> get searchedLanguages => _searchedLanguages;
   ApiPagination? _searchedLanguagesPagination;
   ApiPagination? get searchedLanguagesPagination =>
@@ -28,7 +28,7 @@ class LanguageProvider with ChangeNotifier {
 
   // * State untuk menyimpan filter tiap screen
   final Map<LanguageScreenType, LanguageFilterModel> _filterByScreen = {
-    LanguageScreenType.languages: LanguageFilterModel(),
+    LanguageScreenType.languages: const LanguageFilterModel(),
   };
 
   // * Getter untuk languages berdasarkan screen
@@ -43,7 +43,7 @@ class LanguageProvider with ChangeNotifier {
 
   // * Getter untuk filter berdasarkan screen
   LanguageFilterModel getFilterForSpecificScreen(LanguageScreenType screen) {
-    return _filterByScreen[screen] ?? LanguageFilterModel();
+    return _filterByScreen[screen] ?? const LanguageFilterModel();
   }
 
   // * Method untuk update filter

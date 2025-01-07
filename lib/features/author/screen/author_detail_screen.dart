@@ -77,7 +77,7 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
       body: RefreshIndicator(
         onRefresh: () => _fetchData(),
         child: StyledScreenLayoutBuilder(
-          sliverAppBar: StyledSliverAppBar(
+          sliverAppBar: const StyledSliverAppBar(
             title: StyledSearchBarPlaceholder(
               hintText: "Hinted search text",
             ),
@@ -110,15 +110,15 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                           errorMessageAuthor,
                           author,
                         ),
-                        SizedBox(height: 24),
+                        const SizedBox(height: 24),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             "Similar Authors",
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         AuthorListHorizontal(
                           isLoading: isLoadingAuthors,
                           errorMessage: errorMessageAuthors,
@@ -135,7 +135,7 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                 ),
               ),
               SliverPadding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   top: 32,
                   bottom: 16,
                   left: 16,
@@ -158,7 +158,7 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                       .getBooksForSpecificScreen(BookScreenType.authorDetail);
 
                   return SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     sliver: InfiniteScrollBookGrid(
                       books: books,
                       isLoading: isLoading,
@@ -222,7 +222,7 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
     }
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           Row(
@@ -236,7 +236,7 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                   width: 120,
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,13 +245,13 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                       author.name,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Text(
                       author.biography,
                       style: Theme.of(context).textTheme.bodySmall,
                       softWrap: true,
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Text(
                       'Birthday: ${author.birthDate}',
                       style: Theme.of(context).textTheme.bodySmall,
@@ -265,7 +265,7 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -274,14 +274,14 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.person_outline),
+                      const Icon(Icons.person_outline),
                       Text(
                         '${author.followerCount}',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Followers',
                     style: Theme.of(context).textTheme.bodySmall,

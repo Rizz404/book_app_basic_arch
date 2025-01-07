@@ -4,7 +4,6 @@ import 'package:book_app_basic_arch/features/book/model/book_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 class BookCard extends StatelessWidget {
   final BookModel bookModel;
@@ -84,7 +83,7 @@ class BookCard extends StatelessWidget {
 
             // * Text
             Padding(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 8,
               ),
@@ -94,16 +93,16 @@ class BookCard extends StatelessWidget {
                   Text(
                     bookModel.title,
                     maxLines: 1,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     bookModel.author.name,
                     maxLines: 1,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       overflow: TextOverflow.ellipsis,
                     ),

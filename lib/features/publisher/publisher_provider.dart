@@ -1,11 +1,11 @@
 import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
+import 'package:book_app_basic_arch/features/publisher/enums/publisher_operation_type.dart';
 import 'package:book_app_basic_arch/features/publisher/enums/publisher_screen_type.dart';
 import 'package:book_app_basic_arch/features/publisher/model/publisher_filter_model.dart';
-import 'package:book_app_basic_arch/features/publisher/publisher_services.dart';
-import 'package:book_app_basic_arch/features/publisher/enums/publisher_operation_type.dart';
 import 'package:book_app_basic_arch/features/publisher/model/publisher_model.dart';
+import 'package:book_app_basic_arch/features/publisher/publisher_services.dart';
 import 'package:flutter/material.dart';
 
 class PublisherProvider with ChangeNotifier {
@@ -31,9 +31,9 @@ class PublisherProvider with ChangeNotifier {
 
   // * State untuk menyimpan filter tiap screen
   final Map<PublisherScreenType, PublisherFilterModel> _filterByScreen = {
-    PublisherScreenType.publishers: PublisherFilterModel(),
-    PublisherScreenType.publisherDetail: PublisherFilterModel(),
-    PublisherScreenType.search: PublisherFilterModel(),
+    PublisherScreenType.publishers: const PublisherFilterModel(),
+    PublisherScreenType.publisherDetail: const PublisherFilterModel(),
+    PublisherScreenType.search: const PublisherFilterModel(),
   };
 
   // * Getter untuk publishers berdasarkan screen
@@ -49,7 +49,7 @@ class PublisherProvider with ChangeNotifier {
 
   // * Getter untuk filter berdasarkan screen
   PublisherFilterModel getFilterForSpecificScreen(PublisherScreenType screen) {
-    return _filterByScreen[screen] ?? PublisherFilterModel();
+    return _filterByScreen[screen] ?? const PublisherFilterModel();
   }
 
   // * Method untuk update filter

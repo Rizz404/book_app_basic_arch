@@ -33,14 +33,14 @@ class BookProvider with ChangeNotifier {
 
   // * State untuk menyimpan filter tiap screen
   final Map<BookScreenType, BookFilterModel> _filterByScreen = {
-    BookScreenType.home: BookFilterModel(),
-    BookScreenType.books: BookFilterModel(),
-    BookScreenType.wishlist: BookFilterModel(),
-    BookScreenType.bookDetail: BookFilterModel(),
-    BookScreenType.search: BookFilterModel(),
-    BookScreenType.genreDetail: BookFilterModel(),
-    BookScreenType.authorDetail: BookFilterModel(),
-    BookScreenType.publisherDetail: BookFilterModel(),
+    BookScreenType.home: const BookFilterModel(),
+    BookScreenType.books: const BookFilterModel(),
+    BookScreenType.wishlist: const BookFilterModel(),
+    BookScreenType.bookDetail: const BookFilterModel(),
+    BookScreenType.search: const BookFilterModel(),
+    BookScreenType.genreDetail: const BookFilterModel(),
+    BookScreenType.authorDetail: const BookFilterModel(),
+    BookScreenType.publisherDetail: const BookFilterModel(),
   };
 
   // * Getter untuk books berdasarkan screen
@@ -55,7 +55,7 @@ class BookProvider with ChangeNotifier {
 
   // * Getter untuk filter berdasarkan screen
   BookFilterModel getFilterForSpecificScreen(BookScreenType screen) {
-    return _filterByScreen[screen] ?? BookFilterModel();
+    return _filterByScreen[screen] ?? const BookFilterModel();
   }
 
   // * Method untuk update filter

@@ -50,7 +50,7 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
             );
           }
         },
-        child: Icon(Icons.edit),
+        child: const Icon(Icons.edit),
       ),
       body: Consumer<LanguageProvider>(
         builder: (context, provider, _) {

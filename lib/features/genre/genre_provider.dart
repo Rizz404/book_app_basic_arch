@@ -3,9 +3,9 @@ import 'package:book_app_basic_arch/core/network/models/api_success_response.dar
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
+import 'package:book_app_basic_arch/features/genre/genre_services.dart';
 import 'package:book_app_basic_arch/features/genre/model/genre_filter_model.dart';
 import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
-import 'package:book_app_basic_arch/features/genre/genre_services.dart';
 import 'package:flutter/material.dart';
 
 class GenreProvider with ChangeNotifier {
@@ -31,10 +31,10 @@ class GenreProvider with ChangeNotifier {
 
   // * State untuk menyimpan filter tiap screen
   final Map<GenreScreenType, GenreFilterModel> _filterByScreen = {
-    GenreScreenType.home: GenreFilterModel(),
-    GenreScreenType.genres: GenreFilterModel(),
-    GenreScreenType.genreDetail: GenreFilterModel(),
-    GenreScreenType.search: GenreFilterModel(),
+    GenreScreenType.home: const GenreFilterModel(),
+    GenreScreenType.genres: const GenreFilterModel(),
+    GenreScreenType.genreDetail: const GenreFilterModel(),
+    GenreScreenType.search: const GenreFilterModel(),
   };
 
   // * Getter untuk genres berdasarkan screen
@@ -49,7 +49,7 @@ class GenreProvider with ChangeNotifier {
 
   // * Getter untuk filter berdasarkan screen
   GenreFilterModel getFilterForSpecificScreen(GenreScreenType screen) {
-    return _filterByScreen[screen] ?? GenreFilterModel();
+    return _filterByScreen[screen] ?? const GenreFilterModel();
   }
 
   // * Method untuk update filter

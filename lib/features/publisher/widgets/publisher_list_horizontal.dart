@@ -55,10 +55,10 @@ class PublisherListHorizontal extends StatelessWidget {
     return SizedBox(
       height: 92,
       child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
         itemCount: publishers.length,
-        separatorBuilder: (context, index) => SizedBox(width: 16),
+        separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           final publisher = publishers[index];
 
@@ -70,7 +70,7 @@ class PublisherListHorizontal extends StatelessWidget {
                   radius: 30,
                   backgroundImage: NetworkImage(publisher.picture),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   publisher.name,
                   style: Theme.of(context).textTheme.bodyLarge,

@@ -15,13 +15,13 @@ class MenuScreen extends StatelessWidget {
 
     return BaseScaffold(
       body: StyledScreenLayoutBuilder(
-        sliverAppBar: StyledSliverAppBar(
+        sliverAppBar: const StyledSliverAppBar(
           title: Text("Menu"),
         ),
         builder: (builder, controller) {
           return [
             SliverPadding(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: 16,
               ),
               sliver: SliverToBoxAdapter(
@@ -32,7 +32,7 @@ class MenuScreen extends StatelessWidget {
                     Row(
                       children: [
                         StyledUserAvatar(),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -60,7 +60,7 @@ class MenuScreen extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () => context.go('/profile'),
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.edit,
                       ),
                     ),
@@ -69,7 +69,7 @@ class MenuScreen extends StatelessWidget {
               ),
             ),
             SliverPadding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               sliver: SliverToBoxAdapter(
                 child: Text(
                   "Menu",
@@ -84,23 +84,23 @@ class MenuScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ListTile(
-                    leading: Icon(Icons.book),
-                    title: Text("Books"),
+                    leading: const Icon(Icons.book),
+                    title: const Text("Books"),
                     onTap: () => context.pushReplacement('/books'),
                   ),
                   ListTile(
-                    leading: Icon(Icons.category),
-                    title: Text("Genres"),
+                    leading: const Icon(Icons.category),
+                    title: const Text("Genres"),
                     onTap: () => context.pushReplacement('/genres'),
                   ),
                   ListTile(
-                    leading: Icon(Icons.person),
-                    title: Text("Authors"),
+                    leading: const Icon(Icons.person),
+                    title: const Text("Authors"),
                     onTap: () => context.pushReplacement('/authors'),
                   ),
                   ListTile(
-                    leading: Icon(Icons.publish),
-                    title: Text("Publishers"),
+                    leading: const Icon(Icons.publish),
+                    title: const Text("Publishers"),
                     onTap: () => context.pushReplacement('/publishers'),
                   ),
                 ],

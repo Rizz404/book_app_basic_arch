@@ -13,7 +13,7 @@ class StyledNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
-      destinations: [
+      destinations: const [
         NavigationDestination(
           icon: Icon(Icons.home),
           label: 'Home',

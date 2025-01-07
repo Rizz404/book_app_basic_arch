@@ -1,9 +1,9 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/features/author/model/author_model.dart';
 import 'package:book_app_basic_arch/features/author/widgets/author_list_skeleton.dart';
 import 'package:book_app_basic_arch/features/author/widgets/author_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app_basic_arch/features/author/model/author_model.dart';
 
 class InfiniteScrollAuthorList extends StatefulWidget {
   final List<AuthorModel> authors;
@@ -44,7 +44,9 @@ class _InfiniteScrollAuthorListState extends State<InfiniteScrollAuthorList> {
   }
 
   bool get _isBottom {
-    if (!widget.scrollController.hasClients) return false;
+    if (!widget.scrollController.hasClients) {
+      return false;
+    }
     final maxScroll = widget.scrollController.position.maxScrollExtent;
     final currentScroll = widget.scrollController.offset;
     return currentScroll >= (maxScroll * 0.8);
@@ -79,6 +81,7 @@ class _InfiniteScrollAuthorListState extends State<InfiniteScrollAuthorList> {
             (context, index) {
               final author = widget.authors[index];
               return AuthorTile(
+                key: Key(author.id),
                 authorModel: author,
                 onTap: () => widget.onAuthorSelected(author),
               );

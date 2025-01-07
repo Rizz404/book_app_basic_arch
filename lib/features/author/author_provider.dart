@@ -33,10 +33,10 @@ class AuthorProvider with ChangeNotifier {
 
   // * State untuk menyimpan filter tiap screen
   final Map<AuthorScreenType, AuthorFilterModel> _filterByScreen = {
-    AuthorScreenType.authors: AuthorFilterModel(),
-    AuthorScreenType.authorDetail: AuthorFilterModel(),
-    AuthorScreenType.authorsFollowed: AuthorFilterModel(),
-    AuthorScreenType.search: AuthorFilterModel(),
+    AuthorScreenType.authors: const AuthorFilterModel(),
+    AuthorScreenType.authorDetail: const AuthorFilterModel(),
+    AuthorScreenType.authorsFollowed: const AuthorFilterModel(),
+    AuthorScreenType.search: const AuthorFilterModel(),
   };
 
   // * Getter untuk authors berdasarkan screen
@@ -51,7 +51,7 @@ class AuthorProvider with ChangeNotifier {
 
   // * Getter untuk filter berdasarkan screen
   AuthorFilterModel getFilterForSpecificScreen(AuthorScreenType screen) {
-    return _filterByScreen[screen] ?? AuthorFilterModel();
+    return _filterByScreen[screen] ?? const AuthorFilterModel();
   }
 
   // * Method untuk update filter

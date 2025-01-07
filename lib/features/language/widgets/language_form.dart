@@ -54,9 +54,9 @@ class _LanguageFormState extends State<LanguageForm> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _codeController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Birth Date',
-                  border: const OutlineInputBorder(),
+                  border: OutlineInputBorder(),
                 ),
                 readOnly: true,
               ),

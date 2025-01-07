@@ -1,9 +1,9 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/features/publisher/model/publisher_model.dart';
 import 'package:book_app_basic_arch/features/publisher/widgets/publisher_list_skeleton.dart';
 import 'package:book_app_basic_arch/features/publisher/widgets/publisher_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app_basic_arch/features/publisher/model/publisher_model.dart';
 
 class InfiniteScrollPublisherList extends StatefulWidget {
   final List<PublisherModel> publishers;
@@ -45,7 +45,9 @@ class _InfiniteScrollPublisherListState
   }
 
   bool get _isBottom {
-    if (!widget.scrollController.hasClients) return false;
+    if (!widget.scrollController.hasClients) {
+      return false;
+    }
     final maxScroll = widget.scrollController.position.maxScrollExtent;
     final currentScroll = widget.scrollController.offset;
     return currentScroll >= (maxScroll * 0.8);
@@ -80,6 +82,7 @@ class _InfiniteScrollPublisherListState
             (context, index) {
               final publisher = widget.publishers[index];
               return PublisherTile(
+                key: Key(publisher.id),
                 publisherModel: publisher,
                 onTap: () => widget.onPublisherSelected(publisher),
               );

@@ -1,5 +1,5 @@
-import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
 import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
+import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

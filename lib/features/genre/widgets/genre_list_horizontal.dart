@@ -55,10 +55,10 @@ class GenreListHorizontal extends StatelessWidget {
     return SizedBox(
       height: 92,
       child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
         itemCount: genres.length,
-        separatorBuilder: (context, index) => SizedBox(width: 16),
+        separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           final genre = genres[index];
 
@@ -86,7 +86,7 @@ class GenreListHorizontal extends StatelessWidget {
                     },
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   genre.name,
                   style: Theme.of(context).textTheme.bodyLarge,

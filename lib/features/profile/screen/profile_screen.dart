@@ -21,7 +21,7 @@ class ProfileScreen extends StatelessWidget {
     });
 
     return StyledScreenLayoutBuilder(
-      sliverAppBar: StyledSliverAppBar(title: Text('Profile')),
+      sliverAppBar: const StyledSliverAppBar(title: Text('Profile')),
       builder: (builder, controller) {
         return [
           Consumer<ProfileProvider>(
@@ -33,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
               final userProfile = profileProvider.userProfile;
 
               if (isLoadingProfile) {
-                return SliverToBoxAdapter(child: ProfileSkeleton());
+                return const SliverToBoxAdapter(child: ProfileSkeleton());
               }
 
               if (errorMessageProfile != null) {
@@ -48,7 +48,7 @@ class ProfileScreen extends StatelessWidget {
               }
 
               if (userProfile == null) {
-                return SliverFillRemaining(
+                return const SliverFillRemaining(
                   child: StyledEmptyData(message: 'Profile not found'),
                 );
               }
@@ -66,7 +66,7 @@ class ProfileScreen extends StatelessWidget {
                           userProfile.profilePicture,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // * Name and Email
                       Text(
@@ -75,14 +75,14 @@ class ProfileScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         userProfile.email,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Colors.grey[600],
                             ),
                       ),
-                      SizedBox(height: 32),
+                      const SizedBox(height: 32),
 
                       // * Age and Bio Section
                       Container(
@@ -98,7 +98,7 @@ class ProfileScreen extends StatelessWidget {
                             Row(
                               children: [
                                 Icon(Icons.cake, color: Colors.grey[700]),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
                                   'Age: ${userProfile.userProfile?.age ?? 'unknown'}',
                                   style: Theme.of(context)
@@ -110,14 +110,14 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
 
                             // Bio
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(Icons.info, color: Colors.grey[700]),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     userProfile.userProfile?.bio ??
@@ -135,7 +135,7 @@ class ProfileScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SizedBox(height: 32),
+                      const SizedBox(height: 32),
 
                       // * Buttons
                       Row(
@@ -147,14 +147,14 @@ class ProfileScreen extends StatelessWidget {
                               onPressed: () {
                                 context.push('/profile/update');
                               },
-                              child: Text('Update'),
+                              child: const Text('Update'),
                             ),
                           ),
                           StyledButton(
                             onPressed: () {
                               context.read<AuthProvider>().signOut();
                             },
-                            child: Text('Logout'),
+                            child: const Text('Logout'),
                           ),
                         ],
                       ),

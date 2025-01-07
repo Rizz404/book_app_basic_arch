@@ -3,8 +3,8 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_bui
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
-import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +21,7 @@ class BookScreen extends StatelessWidget {
 
     return BaseScaffold(
       body: StyledScreenLayoutBuilder(
-        sliverAppBar: StyledSliverAppBar(
+        sliverAppBar: const StyledSliverAppBar(
           title: StyledSearchBarPlaceholder(),
         ),
         builder: (builder, controller) {

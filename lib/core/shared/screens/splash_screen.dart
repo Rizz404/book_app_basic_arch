@@ -20,15 +20,15 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(
+      duration: const Duration(
         seconds: 2,
       ),
     );
 
     // * Animasi text
     _textAnimation = Tween<Offset>(
-      begin: Offset(0, 1),
-      end: Offset(0, 0),
+      begin: const Offset(0, 1),
+      end: const Offset(0, 0),
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeOut,
@@ -36,8 +36,8 @@ class _SplashScreenState extends State<SplashScreen>
 
     // * Animasi image
     _imageAnimation = Tween<Offset>(
-      begin: Offset(1, 0),
-      end: Offset(0, 0),
+      begin: const Offset(1, 0),
+      end: const Offset(0, 0),
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeOut,
@@ -47,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     // * Pindah ke halaman berikutnya setelah animasi selesai
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         context.go('/home');
       }
@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: Colors.transparent,
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/bg-splash-screen.png'),
             fit: BoxFit.cover,
@@ -83,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen>
                 width: 200,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             SlideTransition(
               position: _textAnimation,
               child: Text(

@@ -22,7 +22,7 @@ class GenreList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return GenreListSkeleton();
+      return const GenreListSkeleton();
     }
 
     if (errorMessage != null) {

@@ -1,17 +1,18 @@
 import 'dart:io';
+
+import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
+import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_text_form_field.dart';
+import 'package:book_app_basic_arch/features/profile/enums/profile_operation_type.dart';
+import 'package:book_app_basic_arch/features/profile/model/profile_model.dart';
+import 'package:book_app_basic_arch/features/profile/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:book_app_basic_arch/features/profile/profile_provider.dart';
-import 'package:book_app_basic_arch/features/profile/enums/profile_operation_type.dart';
-import 'package:book_app_basic_arch/features/profile/model/profile_model.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 
 class ProfileUpdateScreen extends StatefulWidget {
   const ProfileUpdateScreen({super.key});
@@ -145,7 +146,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
   @override
   Widget build(BuildContext context) {
     return StyledScreenLayoutBuilder(
-      sliverAppBar: StyledSliverAppBar(title: Text('Update Profile')),
+      sliverAppBar: const StyledSliverAppBar(title: Text('Update Profile')),
       builder: (context, controller) {
         return [
           Consumer<ProfileProvider>(
@@ -165,7 +166,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
               final profile = profileProvider.userProfile;
 
               if (isloadingGetProfile) {
-                return SliverFillRemaining(child: StyledLoadingState());
+                return const SliverFillRemaining(child: StyledLoadingState());
               }
 
               if (errorMessageGetProfile != null) {
@@ -180,7 +181,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
               }
 
               if (profile == null) {
-                return SliverFillRemaining(
+                return const SliverFillRemaining(
                   child: StyledEmptyData(message: 'Profile not found'),
                 );
               }
@@ -235,7 +236,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                               right: 0,
                               child: IconButton(
                                 onPressed: !_isUrlImage ? _pickImage : null,
-                                icon: Icon(Icons.camera_alt),
+                                icon: const Icon(Icons.camera_alt),
                                 style: IconButton.styleFrom(
                                   backgroundColor:
                                       Theme.of(context).primaryColor,
@@ -245,7 +246,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         // * Toggle antara URL dan File
                         SwitchListTile(
@@ -266,40 +267,40 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                         if (_isUrlImage) ...[
                           StyledTextFormField(
                             controller: _profilePictureController,
-                            label: Text('URL Foto Profil'),
+                            label: const Text('URL Foto Profil'),
                             validator: _validateProfilePicture,
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                         ],
 
                         StyledTextFormField(
                           controller: _usernameController,
-                          label: Text('Username'),
+                          label: const Text('Username'),
                           validator: _validateUsername,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         StyledTextFormField(
                           controller: _emailController,
-                          label: Text('Email'),
+                          label: const Text('Email'),
                           validator: _validateEmail,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         StyledTextFormField(
                           controller: _bioController,
-                          label: Text('Bio'),
+                          label: const Text('Bio'),
                           maxLines: 3,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         StyledTextFormField(
                           controller: _ageController,
-                          label: Text('Umur'),
+                          label: const Text('Umur'),
                           keyboardType: TextInputType.number,
                           validator: _validateAge,
                         ),
-                        SizedBox(height: 32),
+                        const SizedBox(height: 32),
 
                         if (errorMessageUpdateProfile != null)
                           Text(errorMessageUpdateProfile),
@@ -308,7 +309,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                           onPressed:
                               isloadingUpdateProfile ? null : _handleSubmit,
                           child: isloadingUpdateProfile
-                              ? SizedBox(
+                              ? const SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
@@ -316,7 +317,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                                     color: Colors.white,
                                   ),
                                 )
-                              : Text('Update Profile'),
+                              : const Text('Update Profile'),
                         ),
                       ],
                     ),

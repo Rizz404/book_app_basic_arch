@@ -71,18 +71,18 @@ class _BookFormState extends State<BookForm> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _stockController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Birth Date',
-                  border: const OutlineInputBorder(),
+                  border: OutlineInputBorder(),
                 ),
                 readOnly: true,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _priceController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Death Date (Optional)',
-                  border: const OutlineInputBorder(),
+                  border: OutlineInputBorder(),
                 ),
                 readOnly: true,
               ),

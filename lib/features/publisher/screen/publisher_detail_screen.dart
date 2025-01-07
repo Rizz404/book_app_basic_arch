@@ -6,14 +6,14 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_loading_state.dar
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
-import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
-import 'package:book_app_basic_arch/features/publisher/enums/publisher_operation_type.dart';
-import 'package:book_app_basic_arch/features/publisher/enums/publisher_screen_type.dart';
-import 'package:book_app_basic_arch/features/publisher/model/publisher_model.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
+import 'package:book_app_basic_arch/features/publisher/enums/publisher_operation_type.dart';
+import 'package:book_app_basic_arch/features/publisher/enums/publisher_screen_type.dart';
+import 'package:book_app_basic_arch/features/publisher/model/publisher_model.dart';
+import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/widgets/publisher_list_horizontal.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -78,7 +78,7 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
       body: RefreshIndicator(
         onRefresh: () => _fetchData(),
         child: StyledScreenLayoutBuilder(
-          sliverAppBar: StyledSliverAppBar(
+          sliverAppBar: const StyledSliverAppBar(
             title: StyledSearchBarPlaceholder(
               hintText: "Hinted search text",
             ),
@@ -111,15 +111,15 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
                           errorMessagePublisher,
                           publisher,
                         ),
-                        SizedBox(height: 24),
+                        const SizedBox(height: 24),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             "Similar Publishers",
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         PublisherListHorizontal(
                           isLoading: isLoadingPublishers,
                           errorMessage: errorMessagePublishers,
@@ -136,7 +136,7 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
                 ),
               ),
               SliverPadding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   top: 32,
                   bottom: 16,
                   left: 16,
@@ -159,7 +159,7 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
                       BookScreenType.publisherDetail);
 
                   return SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     sliver: InfiniteScrollBookGrid(
                       books: books,
                       isLoading: isLoading,
@@ -225,7 +225,7 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
     }
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           Row(
@@ -239,7 +239,7 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
                   width: 120,
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,19 +249,19 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
                       publisher.name,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
 
                     Text(
                       publisher.description,
                       style: Theme.of(context).textTheme.bodySmall,
                       softWrap: true,
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
 
                     Row(
                       children: [
-                        Icon(Icons.email_outlined),
-                        SizedBox(width: 8),
+                        const Icon(Icons.email_outlined),
+                        const SizedBox(width: 8),
                         Text(
                           publisher.email,
                           style: Theme.of(context).textTheme.bodySmall,
@@ -269,11 +269,11 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
-                        Icon(Icons.web_outlined),
-                        SizedBox(width: 8),
+                        const Icon(Icons.web_outlined),
+                        const SizedBox(width: 8),
                         Text(
                           publisher.website.join(", "),
                           style: Theme.of(context).textTheme.bodySmall,
@@ -287,7 +287,7 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -296,14 +296,14 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.person_outline),
+                      const Icon(Icons.person_outline),
                       Text(
                         '${publisher.followerCount}',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Followers',
                     style: Theme.of(context).textTheme.bodySmall,
@@ -312,7 +312,7 @@ class _PublisherDetailScreenState extends State<PublisherDetailScreen> {
               ),
               StyledButton(
                 onPressed: () {},
-                child: Text('Follow'),
+                child: const Text('Follow'),
               )
             ],
           ),

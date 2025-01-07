@@ -1,9 +1,9 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
+import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
 import 'package:book_app_basic_arch/features/genre/widgets/genre_card.dart';
 import 'package:book_app_basic_arch/features/genre/widgets/genre_grid_skeleton.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app_basic_arch/features/genre/model/genre_model.dart';
 
 class InfiniteScrollGenreGrid extends StatefulWidget {
   final List<GenreModel> genres;
@@ -44,7 +44,9 @@ class _InfiniteScrollGenreGridState extends State<InfiniteScrollGenreGrid> {
   }
 
   bool get _isBottom {
-    if (!widget.scrollController.hasClients) return false;
+    if (!widget.scrollController.hasClients) {
+      return false;
+    }
     final maxScroll = widget.scrollController.position.maxScrollExtent;
     final currentScroll = widget.scrollController.offset;
     return currentScroll >= (maxScroll * 0.8);
@@ -85,6 +87,7 @@ class _InfiniteScrollGenreGridState extends State<InfiniteScrollGenreGrid> {
             (context, index) {
               final genre = widget.genres[index];
               return GenreCard(
+                key: Key(genre.id),
                 genreModel: genre,
                 onTap: () => widget.onGenreSelected(genre),
               );

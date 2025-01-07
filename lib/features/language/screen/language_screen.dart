@@ -1,8 +1,8 @@
 import 'package:book_app_basic_arch/core/shared/widgets/styled_button.dart';
 import 'package:book_app_basic_arch/features/language/enums/language_operation_type.dart';
 import 'package:book_app_basic_arch/features/language/enums/language_screen_type.dart';
-import 'package:book_app_basic_arch/features/language/model/language_model.dart';
 import 'package:book_app_basic_arch/features/language/language_provider.dart';
+import 'package:book_app_basic_arch/features/language/model/language_model.dart';
 import 'package:book_app_basic_arch/features/language/screen/language_detail_screen.dart';
 import 'package:book_app_basic_arch/features/language/widgets/language_card.dart';
 import 'package:book_app_basic_arch/features/profile/screen/profile_screen.dart';
@@ -73,9 +73,9 @@ class LanguageScreen extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => ProfileScreen()));
+                              builder: (context) => const ProfileScreen()));
                     },
-                    child: Text('To profile'),
+                    child: const Text('To profile'),
                   ),
                   Expanded(
                     child: ListView.builder(

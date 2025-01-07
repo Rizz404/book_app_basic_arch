@@ -1,8 +1,8 @@
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
-import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
+import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/genre/widgets/genre_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

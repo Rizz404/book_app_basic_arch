@@ -6,8 +6,8 @@ import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart
 import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
@@ -40,14 +40,14 @@ class WishlistScreen extends StatelessWidget {
       body: RefreshIndicator(
         onRefresh: () => _handleRefresh(context),
         child: StyledScreenLayoutBuilder(
-            sliverAppBar: StyledSliverAppBar(
+            sliverAppBar: const StyledSliverAppBar(
               title: Text('Wishlist'),
               centerTitle: true,
             ),
             builder: (builder, controller) {
               return [
                 SliverPadding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   sliver: Consumer<BookProvider>(
                     builder: (context, bookProvider, _) {
                       final books = bookProvider

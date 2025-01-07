@@ -1,7 +1,7 @@
+import 'package:book_app_basic_arch/features/author/model/author_model.dart';
 import 'package:book_app_basic_arch/features/author/widgets/author_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:book_app_basic_arch/features/author/model/author_model.dart';
 
 class AuthorListSkeleton extends StatelessWidget {
   final bool isSliver;

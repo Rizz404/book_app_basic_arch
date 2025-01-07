@@ -4,8 +4,8 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dar
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/features/book/book_provider.dart';
-import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/enums/book_operation_type.dart';
+import 'package:book_app_basic_arch/features/book/enums/book_screen_type.dart';
 import 'package:book_app_basic_arch/features/book/widgets/book_detail_skeleton.dart';
 import 'package:book_app_basic_arch/features/book/widgets/infinite_scroll_book_grid.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +58,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       onRefresh: () => _fetchData(),
       child: BaseScaffold(
         body: StyledScreenLayoutBuilder(
-          sliverAppBar: StyledSliverAppBar(
+          sliverAppBar: const StyledSliverAppBar(
             title: Text('Detail'),
           ),
           builder: (builder, controller) {
@@ -73,7 +73,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         provider.getError(BookOperationType.getBookById);
 
                     if (isLoading) {
-                      return BookDetailSkeleton();
+                      return const BookDetailSkeleton();
                     }
 
                     if (errorMessage != null) {

@@ -1,5 +1,5 @@
-import 'package:book_app_basic_arch/core/config/app_themes.dart';
 import 'package:book_app_basic_arch/core/config/app_router.dart';
+import 'package:book_app_basic_arch/core/config/app_themes.dart';
 import 'package:book_app_basic_arch/core/constants/app_pallete.dart';
 import 'package:book_app_basic_arch/core/helpers/user_credential_manager.dart';
 import 'package:book_app_basic_arch/core/network/dio_client.dart';
@@ -13,8 +13,8 @@ import 'package:book_app_basic_arch/features/profile/profile_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

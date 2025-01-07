@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
-import 'package:book_app_basic_arch/features/profile/profile_services.dart';
 import 'package:book_app_basic_arch/features/profile/enums/profile_operation_type.dart';
 import 'package:book_app_basic_arch/features/profile/model/profile_model.dart';
+import 'package:book_app_basic_arch/features/profile/profile_services.dart';
 import 'package:flutter/material.dart';
 
 class ProfileProvider with ChangeNotifier {

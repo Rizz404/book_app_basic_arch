@@ -2,9 +2,9 @@ import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
-import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
-import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
 import 'package:book_app_basic_arch/features/genre/enums/genre_operation_type.dart';
+import 'package:book_app_basic_arch/features/genre/enums/genre_screen_type.dart';
+import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/genre/widgets/infinite_scroll_genre_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -27,7 +27,7 @@ class GenreScreen extends StatelessWidget {
       onRefresh: () => _fetchData(context),
       child: BaseScaffold(
         body: StyledScreenLayoutBuilder(
-          sliverAppBar: StyledSliverAppBar(
+          sliverAppBar: const StyledSliverAppBar(
             title: StyledSearchBarPlaceholder(),
           ),
           builder: (builder, controller) {

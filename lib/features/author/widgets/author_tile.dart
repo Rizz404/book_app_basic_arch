@@ -17,7 +17,7 @@ class AuthorTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap ?? () => context.push('/authors/${authorModel.id}'),
       child: Card(
-        margin: EdgeInsets.only(bottom: 8),
+        margin: const EdgeInsets.only(bottom: 8),
         child: ListTile(
           leading: CircleAvatar(
             backgroundImage: NetworkImage(

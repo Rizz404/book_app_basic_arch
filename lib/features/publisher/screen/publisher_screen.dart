@@ -5,9 +5,9 @@ import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_bui
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sliver_app_bar.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_sticky_sliver_container.dart';
-import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/enums/publisher_operation_type.dart';
 import 'package:book_app_basic_arch/features/publisher/enums/publisher_screen_type.dart';
+import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/widgets/infinite_scroll_publisher_list.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -26,13 +26,13 @@ class PublisherScreen extends StatelessWidget {
 
     return BaseScaffold(
       body: StyledScreenLayoutBuilder(
-        sliverAppBar: StyledSliverAppBar(
+        sliverAppBar: const StyledSliverAppBar(
           title: StyledSearchBarPlaceholder(),
         ),
         builder: (builder, controller) {
           return [
             SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: StyledStickySliverContainer(
                 height: 24,
                 child: Text(
@@ -45,7 +45,7 @@ class PublisherScreen extends StatelessWidget {
               ),
             ),
             SliverPadding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               sliver: Consumer<PublisherProvider>(
                   builder: (context, publisherProvider, _) {
                 final publishers =
@@ -68,8 +68,8 @@ class PublisherScreen extends StatelessWidget {
                 }
 
                 if (publishers.isEmpty) {
-                  return SliverToBoxAdapter(
-                      child: const StyledEmptyData(message: 'No books found'));
+                  return const SliverToBoxAdapter(
+                      child: StyledEmptyData(message: 'No books found'));
                 }
 
                 return InfiniteScrollPublisherList(

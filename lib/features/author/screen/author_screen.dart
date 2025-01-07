@@ -26,13 +26,13 @@ class AuthorScreen extends StatelessWidget {
 
     return BaseScaffold(
       body: StyledScreenLayoutBuilder(
-        sliverAppBar: StyledSliverAppBar(
+        sliverAppBar: const StyledSliverAppBar(
           title: StyledSearchBarPlaceholder(),
         ),
         builder: (builder, controller) {
           return [
             SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: StyledStickySliverContainer(
                 height: 24,
                 child: Text(
@@ -45,7 +45,7 @@ class AuthorScreen extends StatelessWidget {
               ),
             ),
             SliverPadding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               sliver: Consumer<AuthorProvider>(
                   builder: (context, authorProvider, _) {
                 final authors = authorProvider.getAuthorsForSpecificScreen(
@@ -67,8 +67,8 @@ class AuthorScreen extends StatelessWidget {
                 }
 
                 if (authors.isEmpty) {
-                  return SliverToBoxAdapter(
-                      child: const StyledEmptyData(message: 'No books found'));
+                  return const SliverToBoxAdapter(
+                      child: StyledEmptyData(message: 'No books found'));
                 }
 
                 return InfiniteScrollAuthorList(

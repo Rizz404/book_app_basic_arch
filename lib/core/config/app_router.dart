@@ -1,10 +1,9 @@
 import 'package:book_app_basic_arch/core/shared/screens/error_screen.dart';
+import 'package:book_app_basic_arch/core/shared/screens/menu_screen.dart';
 import 'package:book_app_basic_arch/core/shared/screens/splash_screen.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/auth_wrapper.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/scaffold_with_bottom_app_bar.dart';
-import 'package:book_app_basic_arch/features/auth/auth_provider.dart';
 import 'package:book_app_basic_arch/features/auth/screen/login_screen.dart';
-import 'package:book_app_basic_arch/core/shared/screens/menu_screen.dart';
 import 'package:book_app_basic_arch/features/auth/screen/register_screen.dart';
 import 'package:book_app_basic_arch/features/author/screen/author_detail_screen.dart';
 import 'package:book_app_basic_arch/features/author/screen/author_screen.dart';
@@ -25,7 +24,6 @@ import 'package:book_app_basic_arch/features/search/screen/search_screen.dart';
 import 'package:book_app_basic_arch/features/wishlist/screen/wishlist_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -43,13 +41,13 @@ class AppRouter {
     routes: [
       GoRoute(
         path: '/',
-        pageBuilder: (context, state) => MaterialPage(
+        pageBuilder: (context, state) => const MaterialPage(
           child: SplashScreen(),
         ),
       ),
       GoRoute(
         path: '/menu',
-        pageBuilder: (context, state) => MaterialPage(
+        pageBuilder: (context, state) => const MaterialPage(
           child: MenuScreen(),
         ),
       ),
@@ -68,7 +66,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/home',
-                pageBuilder: (context, state) => MaterialPage(
+                pageBuilder: (context, state) => const MaterialPage(
                   child: HomeScreen(),
                 ),
               ),
@@ -79,7 +77,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/wishlist',
-                pageBuilder: (context, state) => MaterialPage(
+                pageBuilder: (context, state) => const MaterialPage(
                   child: AuthWrapper(child: WishlistScreen()),
                 ),
               )
@@ -90,13 +88,13 @@ class AppRouter {
             routes: [
               GoRoute(
                   path: '/profile',
-                  pageBuilder: (context, state) => MaterialPage(
+                  pageBuilder: (context, state) => const MaterialPage(
                         child: AuthWrapper(child: ProfileScreen()),
                       ),
                   routes: [
                     GoRoute(
                       path: 'update',
-                      pageBuilder: (context, state) => MaterialPage(
+                      pageBuilder: (context, state) => const MaterialPage(
                         child: ProfileUpdateScreen(),
                       ),
                     ),
@@ -109,27 +107,27 @@ class AppRouter {
       // * Routes di luar bottom navigation
       GoRoute(
         path: '/sign-up',
-        pageBuilder: (context, state) => MaterialPage(
+        pageBuilder: (context, state) => const MaterialPage(
           child: RegisterScreen(),
         ),
       ),
       GoRoute(
         path: '/sign-in',
-        pageBuilder: (context, state) => MaterialPage(
+        pageBuilder: (context, state) => const MaterialPage(
           child: LoginScreen(),
         ),
       ),
 
       GoRoute(
         path: '/search',
-        pageBuilder: (context, state) => MaterialPage(
+        pageBuilder: (context, state) => const MaterialPage(
           child: SearchScreen(),
         ),
       ),
 
       GoRoute(
         path: '/books',
-        pageBuilder: (context, state) => MaterialPage(
+        pageBuilder: (context, state) => const MaterialPage(
           child: BookScreen(),
         ),
         routes: [
@@ -154,7 +152,7 @@ class AppRouter {
 
       GoRoute(
         path: '/genres',
-        pageBuilder: (context, state) => MaterialPage(
+        pageBuilder: (context, state) => const MaterialPage(
           child: GenreScreen(),
         ),
         routes: [
@@ -179,7 +177,7 @@ class AppRouter {
 
       GoRoute(
         path: '/authors',
-        pageBuilder: (context, state) => MaterialPage(
+        pageBuilder: (context, state) => const MaterialPage(
           child: AuthorScreen(),
         ),
         routes: [
@@ -204,7 +202,7 @@ class AppRouter {
 
       GoRoute(
         path: '/publishers',
-        pageBuilder: (context, state) => MaterialPage(
+        pageBuilder: (context, state) => const MaterialPage(
           child: PublisherScreen(),
         ),
         routes: [
@@ -252,6 +250,6 @@ class AppRouter {
     //   // * Tidak perlu redirect
     //   return null;
     // },
-    errorBuilder: (context, state) => ErrorScreen(),
+    errorBuilder: (context, state) => const ErrorScreen(),
   );
 }

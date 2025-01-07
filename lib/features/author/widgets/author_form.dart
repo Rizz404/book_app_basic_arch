@@ -1,8 +1,8 @@
 import 'package:book_app_basic_arch/features/author/author_provider.dart';
 import 'package:book_app_basic_arch/features/author/model/author_model.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class AuthorForm extends StatefulWidget {
   final UpdateAuthorModel? updateAuthorModel;

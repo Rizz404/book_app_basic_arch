@@ -14,10 +14,10 @@ class ProfileSkeleton extends StatelessWidget {
         child: Column(
           children: [
             // * Pakenya itu background image kalo circle avatar
-            CircleAvatar(
+            const CircleAvatar(
               radius: 60,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             Column(
               children: [
@@ -35,7 +35,7 @@ class ProfileSkeleton extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // * Age and Bio Section
             Container(
@@ -51,7 +51,7 @@ class ProfileSkeleton extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.cake, color: Colors.grey[700]),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         BoneMock.title,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -60,14 +60,14 @@ class ProfileSkeleton extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Bio
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(Icons.info, color: Colors.grey[700]),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           BoneMock.paragraph,
@@ -83,7 +83,7 @@ class ProfileSkeleton extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
