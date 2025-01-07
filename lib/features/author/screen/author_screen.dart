@@ -1,5 +1,4 @@
 import 'package:book_app_basic_arch/core/shared/widgets/base_scaffold.dart';
-import 'package:book_app_basic_arch/core/shared/widgets/styled_empty_data.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_error_message.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_screen_layout_builder.dart';
 import 'package:book_app_basic_arch/core/shared/widgets/styled_search_bar_placeholder.dart';
@@ -66,21 +65,19 @@ class AuthorScreen extends StatelessWidget {
                   );
                 }
 
-                if (authors.isEmpty) {
-                  return const SliverToBoxAdapter(
-                      child: StyledEmptyData(message: 'No books found'));
-                }
-
                 return InfiniteScrollAuthorList(
                   authors: authors,
                   isLoading: isLoadingAuthor,
                   errorMessage: errorMessage,
-                  onLoadMore: () =>
-                      authorProvider.loadMoreAuthors(AuthorScreenType.authors),
+                  emptyMessage: 'No authors found, add some admin!!',
+                  scrollController: controller,
                   onAuthorSelected: (author) {
                     context.push('/authors/${author.id}');
                   },
-                  scrollController: controller,
+                  isInitialLoading:
+                      authorProvider.isInitialLoad(AuthorScreenType.authors),
+                  onLoadMore: () =>
+                      authorProvider.loadMoreAuthors(AuthorScreenType.authors),
                   onRetry: () => authorProvider.getAuthors(
                     screen: AuthorScreenType.authors,
                   ),

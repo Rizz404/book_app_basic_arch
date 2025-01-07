@@ -19,6 +19,18 @@ class AuthorModel with _$AuthorModel {
     @Default(false) bool originalFollowStatus,
   }) = _AuthorModel;
 
+  factory AuthorModel.dummy() => AuthorModel(
+        id: '',
+        name: 'Dummy name',
+        biography: 'Dummy biography',
+        birthDate: 'Dummy birthDate',
+        deathDate: 'Dummy deathDate',
+        profilePicture: 'https://via.placeholder.com/150',
+        createdAt: DateTime(2025),
+        updatedAt: DateTime(2025),
+        followerCount: 0,
+      );
+
   factory AuthorModel.fromJson(Map<String, dynamic> json) =>
       _$AuthorModelFromJson(json);
 }

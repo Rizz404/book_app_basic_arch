@@ -5,48 +5,36 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 class AuthorListSkeleton extends StatelessWidget {
   final bool isSliver;
+  final int itemCount;
 
-  const AuthorListSkeleton({super.key, this.isSliver = true});
+  const AuthorListSkeleton({
+    super.key,
+    this.isSliver = false,
+    this.itemCount = 10,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final dummyAuthor = AuthorModel(
-      id: '',
-      name: BoneMock.name,
-      biography: BoneMock.paragraph,
-      birthDate: BoneMock.time,
-      deathDate: BoneMock.time,
-      profilePicture: BoneMock.name,
-      createdAt: DateTime(2025),
-      updatedAt: DateTime(2025),
-      followerCount: 0,
+    final dummyAuthor = AuthorModel.dummy();
+
+    final listView = ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) => AuthorTile(
+        authorModel: dummyAuthor,
+      ),
+      itemCount: itemCount,
+    );
+
+    final skeletonWidget = Skeletonizer(
+      enabled: true,
+      child: listView,
     );
 
     if (isSliver) {
-      return SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            return Skeletonizer(
-              enabled: true,
-              child: AuthorTile(authorModel: dummyAuthor),
-            );
-          },
-          childCount: 10, // Jumlah item dummy
-        ),
-      );
+      return SliverToBoxAdapter(child: skeletonWidget);
     }
 
-    return SizedBox(
-      height: 300, // Sesuaikan tinggi maksimal
-      child: ListView.builder(
-        itemBuilder: (context, index) {
-          return Skeletonizer(
-            enabled: true,
-            child: AuthorTile(authorModel: dummyAuthor),
-          );
-        },
-        itemCount: 10,
-      ),
-    );
+    return skeletonWidget;
   }
 }

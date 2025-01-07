@@ -8,21 +8,32 @@ import 'package:flutter/material.dart';
 class InfiniteScrollAuthorList extends StatefulWidget {
   final List<AuthorModel> authors;
   final bool isLoading;
+  final bool isInitialLoading;
   final String? errorMessage;
+  final String emptyMessage;
   final Function()? onRetry;
   final Function() onLoadMore;
   final Function(AuthorModel) onAuthorSelected;
   final ScrollController scrollController;
+  final SliverGridDelegate gridDelegate;
 
   const InfiniteScrollAuthorList({
     super.key,
     required this.authors,
     required this.isLoading,
+    required this.isInitialLoading,
     required this.errorMessage,
+    required this.emptyMessage,
     required this.onRetry,
     required this.onLoadMore,
     required this.onAuthorSelected,
     required this.scrollController,
+    this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      childAspectRatio: 0.75,
+    ),
   });
 
   @override
@@ -54,8 +65,10 @@ class _InfiniteScrollAuthorListState extends State<InfiniteScrollAuthorList> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading) {
-      return const AuthorListSkeleton();
+    if (widget.isInitialLoading) {
+      return const AuthorListSkeleton(
+        isSliver: true,
+      );
     }
 
     if (widget.errorMessage != null) {
@@ -68,20 +81,19 @@ class _InfiniteScrollAuthorListState extends State<InfiniteScrollAuthorList> {
     }
 
     if (widget.authors.isEmpty) {
-      return const SliverFillRemaining(
-        child: StyledEmptyData(message: 'No authors found'),
+      return SliverFillRemaining(
+        child: StyledEmptyData(message: widget.emptyMessage),
       );
     }
 
     return SliverMainAxisGroup(
       slivers: [
-        // Grid utama dengan data buku
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               final author = widget.authors[index];
               return AuthorTile(
-                key: Key(author.id),
+                key: ValueKey(author.id),
                 authorModel: author,
                 onTap: () => widget.onAuthorSelected(author),
               );
@@ -89,10 +101,9 @@ class _InfiniteScrollAuthorListState extends State<InfiniteScrollAuthorList> {
             childCount: widget.authors.length,
           ),
         ),
-
-        // Skeleton loader untuk pagination
         if (widget.isLoading)
           const AuthorListSkeleton(
+            itemCount: 3,
             isSliver: true,
           ),
       ],
