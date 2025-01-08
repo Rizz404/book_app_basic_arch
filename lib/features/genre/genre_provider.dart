@@ -343,31 +343,6 @@ class GenreProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _refreshAllScreens() async {
-    try {
-      // Simpan filter yang sedang aktif untuk setiap screen
-      final currentFilters =
-          Map<GenreScreenType, GenreFilterModel>.from(_filterByScreen);
-
-      // Refresh data untuk setiap screen
-      for (var screen in GenreScreenType.values) {
-        if (_genresByScreen[screen]?.isNotEmpty ?? false) {
-          // Gunakan filter yang sedang aktif untuk screen tersebut
-          final filter = currentFilters[screen]!;
-          final response = await _getDataForScreen(screen, filter);
-          _genresByScreen[screen] = response.data!;
-          _paginationByScreen[screen] = response.meta.pagination;
-        }
-      }
-
-      // Notify listeners setelah semua screen diperbarui
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error refreshing screens: $e');
-      // Bisa tambahkan error handling tambahan jika diperlukan
-    }
-  }
-
   // * Helper method to check if it's initial load
   bool isInitialLoad(GenreScreenType screen) {
     return isLoading(_getOperationTypeForScreen(screen)) &&
@@ -425,5 +400,30 @@ class GenreProvider with ChangeNotifier {
   // Tambahkan method untuk clear semua cache
   void _clearAllCache() {
     _genreCache.clear();
+  }
+
+  Future<void> _refreshAllScreens() async {
+    try {
+      // Simpan filter yang sedang aktif untuk setiap screen
+      final currentFilters =
+          Map<GenreScreenType, GenreFilterModel>.from(_filterByScreen);
+
+      // Refresh data untuk setiap screen
+      for (var screen in GenreScreenType.values) {
+        if (_genresByScreen[screen]?.isNotEmpty ?? false) {
+          // Gunakan filter yang sedang aktif untuk screen tersebut
+          final filter = currentFilters[screen]!;
+          final response = await _getDataForScreen(screen, filter);
+          _genresByScreen[screen] = response.data!;
+          _paginationByScreen[screen] = response.meta.pagination;
+        }
+      }
+
+      // Notify listeners setelah semua screen diperbarui
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error refreshing screens: $e');
+      // Bisa tambahkan error handling tambahan jika diperlukan
+    }
   }
 }

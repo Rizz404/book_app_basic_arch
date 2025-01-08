@@ -42,7 +42,7 @@ class CreateAuthorModel with _$CreateAuthorModel {
     required String biography,
     required String birthDate,
     required String deathDate,
-    required String profilePicture,
+    String? profilePicture,
   }) = _CreateAuthorModel;
 
   factory CreateAuthorModel.fromJson(Map<String, dynamic> json) =>

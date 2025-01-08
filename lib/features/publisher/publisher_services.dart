@@ -1,18 +1,40 @@
+import 'dart:io';
+
 import 'package:book_app_basic_arch/core/network/dio_client.dart';
 import 'package:book_app_basic_arch/core/network/models/api_error_response.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:book_app_basic_arch/features/publisher/model/publisher_filter_model.dart';
 import 'package:book_app_basic_arch/features/publisher/model/publisher_model.dart';
+import 'package:dio/dio.dart';
 
 class PublisherServices {
   final DioClient _dioClient = DioClient();
 
   Future<ApiSuccessResponse<PublisherModel>> createPublisher(
-      CreatePublisherModel publisher) async {
+    CreatePublisherModel publisher,
+    File? picture,
+  ) async {
     try {
+      final formData = FormData.fromMap({
+        'name': publisher.name,
+        'description': publisher.description,
+        'email': publisher.email,
+        'website': publisher.website,
+
+        // * Jika ada file baru, kirim sebagai MultipartFile
+        if (picture != null)
+          'picture': await MultipartFile.fromFile(
+            picture.path,
+            filename: picture.path.split('/').last,
+          ),
+        // * Jika tidak ada file tapi ada URL, kirim URL-nya
+        if (picture == null && publisher.picture != null)
+          'picture': publisher.picture,
+      });
+
       return await _dioClient.post(
         '/publishers',
-        data: publisher,
+        data: formData,
         fromJsonT: (json) =>
             PublisherModel.fromJson(json as Map<String, dynamic>),
       );
@@ -88,11 +110,30 @@ class PublisherServices {
   }
 
   Future<ApiSuccessResponse<PublisherModel>> updatePublisherById(
-      UpdatePublisherModel publisher) async {
+    UpdatePublisherModel publisher,
+    File? picture,
+  ) async {
     try {
+      final formData = FormData.fromMap({
+        if (publisher.name != null) 'name': publisher.name,
+        if (publisher.description != null) 'description': publisher.description,
+        if (publisher.email != null) 'email': publisher.email,
+        if (publisher.website != null) 'website': publisher.website,
+
+        // * Jika ada file baru, kirim sebagai MultipartFile
+        if (picture != null)
+          'picture': await MultipartFile.fromFile(
+            picture.path,
+            filename: picture.path.split('/').last,
+          ),
+        // * Jika tidak ada file tapi ada URL, kirim URL-nya
+        if (picture == null && publisher.picture != null)
+          'picture': publisher.picture,
+      });
+
       return await _dioClient.patch(
         '/publishers/${publisher.id}',
-        data: publisher,
+        data: formData,
         fromJsonT: (json) =>
             PublisherModel.fromJson(json as Map<String, dynamic>),
       );

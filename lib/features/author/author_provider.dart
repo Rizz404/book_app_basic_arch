@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
@@ -82,7 +83,10 @@ class AuthorProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createAuthor(CreateAuthorModel author) async {
+  Future<void> createAuthor(
+    CreateAuthorModel author,
+    File? profilePicture,
+  ) async {
     _updateOperationState(
       AuthorOperationType.createAuthor,
       isLoading: true,
@@ -90,8 +94,13 @@ class AuthorProvider with ChangeNotifier {
     );
 
     try {
-      await _authorServices.createAuthor(author);
-      await getAuthors();
+      await _authorServices.createAuthor(author, profilePicture);
+
+      // Clear all cache karena ada data baru
+      _clearAllCache();
+
+      // Refresh semua screen setelah cache dibersihkan
+      await _refreshAllScreens();
 
       _updateOperationState(
         AuthorOperationType.createAuthor,
@@ -140,10 +149,10 @@ class AuthorProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getAuthorById(String id) async {
-    // * Cek cache terlebih dahulu
-    if (_authorCache.containsKey(id)) {
-      return; // * Tidak perlu fetch jika sudah ada di cache dan refresh false
+  Future<void> getAuthorById(String id, {bool forceRefresh = false}) async {
+    // Perbarui logika caching
+    if (!forceRefresh && _authorCache.containsKey(id)) {
+      return;
     }
 
     _updateOperationState(
@@ -209,7 +218,10 @@ class AuthorProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateAuthor(UpdateAuthorModel author) async {
+  Future<void> updateAuthor(
+    UpdateAuthorModel author,
+    File? profilePicture,
+  ) async {
     _updateOperationState(
       AuthorOperationType.updateAuthorById,
       isLoading: true,
@@ -217,10 +229,15 @@ class AuthorProvider with ChangeNotifier {
     );
 
     try {
-      await _authorServices.updateAuthorById(author);
+      await _authorServices.updateAuthorById(author, profilePicture);
+      // Invalidate cache untuk author yang diupdate
+      _invalidateCache(author.id);
 
-      await getAuthorById(author.id);
-      await getAuthors();
+      // Fetch ulang data author yang diupdate
+      await getAuthorById(author.id, forceRefresh: true);
+
+      // Refresh semua screen setelah cache diperbarui
+      await _refreshAllScreens();
 
       _updateOperationState(
         AuthorOperationType.updateAuthorById,
@@ -237,7 +254,7 @@ class AuthorProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deleteAuthor(String id) async {
+  Future<void> deleteAuthorById(String id) async {
     _updateOperationState(
       AuthorOperationType.deleteAuthorById,
       isLoading: true,
@@ -603,5 +620,40 @@ class AuthorProvider with ChangeNotifier {
       timer.cancel();
     }
     super.dispose();
+  }
+
+  // Tambahkan method untuk invalidate cache
+  void _invalidateCache(String id) {
+    _authorCache.remove(id);
+  }
+
+  // Tambahkan method untuk clear semua cache
+  void _clearAllCache() {
+    _authorCache.clear();
+  }
+
+  Future<void> _refreshAllScreens() async {
+    try {
+      // Simpan filter yang sedang aktif untuk setiap screen
+      final currentFilters =
+          Map<AuthorScreenType, AuthorFilterModel>.from(_filterByScreen);
+
+      // Refresh data untuk setiap screen
+      for (var screen in AuthorScreenType.values) {
+        if (_authorsByScreen[screen]?.isNotEmpty ?? false) {
+          // Gunakan filter yang sedang aktif untuk screen tersebut
+          final filter = currentFilters[screen]!;
+          final response = await _getDataForScreen(screen, filter);
+          _authorsByScreen[screen] = response.data!;
+          _paginationByScreen[screen] = response.meta.pagination;
+        }
+      }
+
+      // Notify listeners setelah semua screen diperbarui
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error refreshing screens: $e');
+      // Bisa tambahkan error handling tambahan jika diperlukan
+    }
   }
 }

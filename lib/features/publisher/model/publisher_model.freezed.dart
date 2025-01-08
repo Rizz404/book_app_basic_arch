@@ -405,7 +405,7 @@ mixin _$CreatePublisherModel {
   String get email => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   List<String> get website => throw _privateConstructorUsedError;
-  String get picture => throw _privateConstructorUsedError;
+  String? get picture => throw _privateConstructorUsedError;
 
   /// Serializes this CreatePublisherModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -428,7 +428,7 @@ abstract class $CreatePublisherModelCopyWith<$Res> {
       String email,
       String description,
       List<String> website,
-      String picture});
+      String? picture});
 }
 
 /// @nodoc
@@ -451,7 +451,7 @@ class _$CreatePublisherModelCopyWithImpl<$Res,
     Object? email = null,
     Object? description = null,
     Object? website = null,
-    Object? picture = null,
+    Object? picture = freezed,
   }) {
     return _then(_value.copyWith(
       name: null == name
@@ -470,10 +470,10 @@ class _$CreatePublisherModelCopyWithImpl<$Res,
           ? _value.website
           : website // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      picture: null == picture
+      picture: freezed == picture
           ? _value.picture
           : picture // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ) as $Val);
   }
 }
@@ -491,7 +491,7 @@ abstract class _$$CreatePublisherModelImplCopyWith<$Res>
       String email,
       String description,
       List<String> website,
-      String picture});
+      String? picture});
 }
 
 /// @nodoc
@@ -511,7 +511,7 @@ class __$$CreatePublisherModelImplCopyWithImpl<$Res>
     Object? email = null,
     Object? description = null,
     Object? website = null,
-    Object? picture = null,
+    Object? picture = freezed,
   }) {
     return _then(_$CreatePublisherModelImpl(
       name: null == name
@@ -530,10 +530,10 @@ class __$$CreatePublisherModelImplCopyWithImpl<$Res>
           ? _value._website
           : website // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      picture: null == picture
+      picture: freezed == picture
           ? _value.picture
           : picture // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }
@@ -546,7 +546,7 @@ class _$CreatePublisherModelImpl implements _CreatePublisherModel {
       required this.email,
       required this.description,
       required final List<String> website,
-      required this.picture})
+      this.picture})
       : _website = website;
 
   factory _$CreatePublisherModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -567,7 +567,7 @@ class _$CreatePublisherModelImpl implements _CreatePublisherModel {
   }
 
   @override
-  final String picture;
+  final String? picture;
 
   @override
   String toString() {
@@ -616,7 +616,7 @@ abstract class _CreatePublisherModel implements CreatePublisherModel {
       required final String email,
       required final String description,
       required final List<String> website,
-      required final String picture}) = _$CreatePublisherModelImpl;
+      final String? picture}) = _$CreatePublisherModelImpl;
 
   factory _CreatePublisherModel.fromJson(Map<String, dynamic> json) =
       _$CreatePublisherModelImpl.fromJson;
@@ -630,7 +630,7 @@ abstract class _CreatePublisherModel implements CreatePublisherModel {
   @override
   List<String> get website;
   @override
-  String get picture;
+  String? get picture;
 
   /// Create a copy of CreatePublisherModel
   /// with the given fields replaced by the non-null parameter values.

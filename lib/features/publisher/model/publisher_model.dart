@@ -25,7 +25,7 @@ class PublisherModel with _$PublisherModel {
         email: 'Dummy email',
         description: 'Dummy description',
         website: ['Dummy website'],
-        picture: 'Dummy picture',
+        picture: 'https://via.placeholder.com/150',
         createdAt: DateTime(2025),
         updatedAt: DateTime(2025),
         followerCount: 0,
@@ -42,7 +42,7 @@ class CreatePublisherModel with _$CreatePublisherModel {
     required String email,
     required String description,
     required List<String> website,
-    required String picture,
+    String? picture,
   }) = _CreatePublisherModel;
 
   factory CreatePublisherModel.fromJson(Map<String, dynamic> json) =>

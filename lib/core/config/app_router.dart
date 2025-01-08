@@ -218,7 +218,14 @@ class AppRouter {
             },
           ),
           GoRoute(
-            path: 'upsert',
+            path: 'create',
+            pageBuilder: (context, state) => const MaterialPage(
+              child: AuthorUpsertScreen(),
+            ),
+          ),
+          // Route untuk update
+          GoRoute(
+            path: 'edit/:id',
             pageBuilder: (context, state) {
               final authorId = state.pathParameters['id'];
               return MaterialPage(
@@ -252,7 +259,14 @@ class AppRouter {
             },
           ),
           GoRoute(
-            path: 'upsert',
+            path: 'create',
+            pageBuilder: (context, state) => const MaterialPage(
+              child: PublisherUpsertScreen(),
+            ),
+          ),
+          // Route untuk update
+          GoRoute(
+            path: 'edit/:id',
             pageBuilder: (context, state) {
               final publisherId = state.pathParameters['id'];
               return MaterialPage(

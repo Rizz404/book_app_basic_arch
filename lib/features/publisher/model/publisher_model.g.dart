@@ -46,7 +46,7 @@ _$CreatePublisherModelImpl _$$CreatePublisherModelImplFromJson(
       description: json['description'] as String,
       website:
           (json['website'] as List<dynamic>).map((e) => e as String).toList(),
-      picture: json['picture'] as String,
+      picture: json['picture'] as String?,
     );
 
 Map<String, dynamic> _$$CreatePublisherModelImplToJson(

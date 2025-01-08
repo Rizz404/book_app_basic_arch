@@ -24,6 +24,10 @@ class AuthorScreen extends StatelessWidget {
     });
 
     return BaseScaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/authors/create'),
+        child: const Icon(Icons.add),
+      ),
       body: StyledScreenLayoutBuilder(
         sliverAppBar: const StyledSliverAppBar(
           title: StyledSearchBarPlaceholder(),

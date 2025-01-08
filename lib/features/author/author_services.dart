@@ -1,18 +1,39 @@
+import 'dart:io';
+
 import 'package:book_app_basic_arch/core/network/dio_client.dart';
 import 'package:book_app_basic_arch/core/network/models/api_error_response.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:book_app_basic_arch/features/author/model/author_filter_model.dart';
 import 'package:book_app_basic_arch/features/author/model/author_model.dart';
+import 'package:dio/dio.dart';
 
 class AuthorServices {
   final DioClient _dioClient = DioClient();
 
   Future<ApiSuccessResponse<AuthorModel>> createAuthor(
-      CreateAuthorModel author) async {
+    CreateAuthorModel author,
+    File? profilePicture,
+  ) async {
     try {
+      final formData = FormData.fromMap({
+        'name': author.name,
+        'biography': author.biography,
+        'birthDate': author.birthDate,
+        'deathDate': author.deathDate,
+        // * Jika ada file baru, kirim sebagai MultipartFile
+        if (profilePicture != null)
+          'profilePicture': await MultipartFile.fromFile(
+            profilePicture.path,
+            filename: profilePicture.path.split('/').last,
+          ),
+        // * Jika tidak ada file tapi ada URL, kirim URL-nya
+        if (profilePicture == null && author.profilePicture != null)
+          'profilePicture': author.profilePicture,
+      });
+
       return await _dioClient.post(
         '/authors',
-        data: author,
+        data: formData,
         fromJsonT: (json) => AuthorModel.fromJson(json as Map<String, dynamic>),
       );
     } on ApiErrorResponse catch (e) {
@@ -86,11 +107,27 @@ class AuthorServices {
   }
 
   Future<ApiSuccessResponse<AuthorModel>> updateAuthorById(
-      UpdateAuthorModel author) async {
+      UpdateAuthorModel author, File? profilePicture) async {
     try {
+      final formData = FormData.fromMap({
+        if (author.name != null) 'name': author.name,
+        if (author.biography != null) 'biography': author.biography,
+        if (author.birthDate != null) 'birthDate': author.birthDate,
+        if (author.deathDate != null) 'deathDate': author.deathDate,
+        // * Jika ada file baru, kirim sebagai MultipartFile
+        if (profilePicture != null)
+          'profilePicture': await MultipartFile.fromFile(
+            profilePicture.path,
+            filename: profilePicture.path.split('/').last,
+          ),
+        // * Jika tidak ada file tapi ada URL, kirim URL-nya
+        if (profilePicture == null && author.profilePicture != null)
+          'profilePicture': author.profilePicture,
+      });
+
       return await _dioClient.patch(
         '/authors/${author.id}',
-        data: author,
+        data: formData,
         fromJsonT: (json) => AuthorModel.fromJson(json as Map<String, dynamic>),
       );
     } on ApiErrorResponse catch (e) {

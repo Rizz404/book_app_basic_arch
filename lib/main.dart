@@ -1,3 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+
 import 'package:book_app_basic_arch/core/config/app_router.dart';
 import 'package:book_app_basic_arch/core/config/app_themes.dart';
 import 'package:book_app_basic_arch/core/constants/app_pallete.dart';
@@ -11,10 +17,6 @@ import 'package:book_app_basic_arch/features/genre/genre_provider.dart';
 import 'package:book_app_basic_arch/features/language/language_provider.dart';
 import 'package:book_app_basic_arch/features/profile/profile_provider.dart';
 import 'package:book_app_basic_arch/features/publisher/publisher_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +70,15 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp.router(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('id', 'ID'), // Bahasa Indonesia
+        Locale('en', 'US'), // Bahasa Inggris
+      ],
       debugShowCheckedModeBanner: false,
       title: 'Just chilling',
       theme: AppThemes.createThemeData(themeProvider.currentTheme),

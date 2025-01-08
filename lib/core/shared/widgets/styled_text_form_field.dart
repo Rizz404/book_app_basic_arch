@@ -14,6 +14,8 @@ class StyledTextFormField extends StatelessWidget {
   final Color? fillColor;
   final bool filled;
   final String? Function(String?)? validator;
+  final bool readOnly; // Tambah parameter readOnly
+  final VoidCallback? onTap; // Tambah parameter onTap
 
   const StyledTextFormField({
     super.key,
@@ -31,6 +33,8 @@ class StyledTextFormField extends StatelessWidget {
     this.fillColor,
     this.filled = true,
     this.validator,
+    this.readOnly = false, // Tambahkan di constructor
+    this.onTap, // Tambahkan di constructor
   });
 
   @override
@@ -40,12 +44,14 @@ class StyledTextFormField extends StatelessWidget {
       keyboardType: keyboardType,
       obscureText: isPassword,
       maxLines: maxLines,
-      validator: validator, // Menambahkan validasi
+      validator: validator,
+      readOnly: readOnly, // Tambahkan property readOnly
+      onTap: onTap, // Tambahkan property onTap
       decoration: InputDecoration(
         label: label,
         hintText: hintText,
         prefixIcon: leadingIcon,
-        suffixIcon: trailingIcon,
+        suffixIcon: trailingIcon, // Gunakan suffixIcon jika ada
         contentPadding: contentPadding,
         filled: filled,
         fillColor:

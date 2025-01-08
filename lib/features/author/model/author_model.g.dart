@@ -43,7 +43,7 @@ _$CreateAuthorModelImpl _$$CreateAuthorModelImplFromJson(
       biography: json['biography'] as String,
       birthDate: json['birthDate'] as String,
       deathDate: json['deathDate'] as String,
-      profilePicture: json['profilePicture'] as String,
+      profilePicture: json['profilePicture'] as String?,
     );
 
 Map<String, dynamic> _$$CreateAuthorModelImplToJson(

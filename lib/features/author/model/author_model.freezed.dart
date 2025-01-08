@@ -400,7 +400,7 @@ mixin _$CreateAuthorModel {
   String get biography => throw _privateConstructorUsedError;
   String get birthDate => throw _privateConstructorUsedError;
   String get deathDate => throw _privateConstructorUsedError;
-  String get profilePicture => throw _privateConstructorUsedError;
+  String? get profilePicture => throw _privateConstructorUsedError;
 
   /// Serializes this CreateAuthorModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -423,7 +423,7 @@ abstract class $CreateAuthorModelCopyWith<$Res> {
       String biography,
       String birthDate,
       String deathDate,
-      String profilePicture});
+      String? profilePicture});
 }
 
 /// @nodoc
@@ -445,7 +445,7 @@ class _$CreateAuthorModelCopyWithImpl<$Res, $Val extends CreateAuthorModel>
     Object? biography = null,
     Object? birthDate = null,
     Object? deathDate = null,
-    Object? profilePicture = null,
+    Object? profilePicture = freezed,
   }) {
     return _then(_value.copyWith(
       name: null == name
@@ -464,10 +464,10 @@ class _$CreateAuthorModelCopyWithImpl<$Res, $Val extends CreateAuthorModel>
           ? _value.deathDate
           : deathDate // ignore: cast_nullable_to_non_nullable
               as String,
-      profilePicture: null == profilePicture
+      profilePicture: freezed == profilePicture
           ? _value.profilePicture
           : profilePicture // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ) as $Val);
   }
 }
@@ -485,7 +485,7 @@ abstract class _$$CreateAuthorModelImplCopyWith<$Res>
       String biography,
       String birthDate,
       String deathDate,
-      String profilePicture});
+      String? profilePicture});
 }
 
 /// @nodoc
@@ -505,7 +505,7 @@ class __$$CreateAuthorModelImplCopyWithImpl<$Res>
     Object? biography = null,
     Object? birthDate = null,
     Object? deathDate = null,
-    Object? profilePicture = null,
+    Object? profilePicture = freezed,
   }) {
     return _then(_$CreateAuthorModelImpl(
       name: null == name
@@ -524,10 +524,10 @@ class __$$CreateAuthorModelImplCopyWithImpl<$Res>
           ? _value.deathDate
           : deathDate // ignore: cast_nullable_to_non_nullable
               as String,
-      profilePicture: null == profilePicture
+      profilePicture: freezed == profilePicture
           ? _value.profilePicture
           : profilePicture // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }
@@ -540,7 +540,7 @@ class _$CreateAuthorModelImpl implements _CreateAuthorModel {
       required this.biography,
       required this.birthDate,
       required this.deathDate,
-      required this.profilePicture});
+      this.profilePicture});
 
   factory _$CreateAuthorModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreateAuthorModelImplFromJson(json);
@@ -554,7 +554,7 @@ class _$CreateAuthorModelImpl implements _CreateAuthorModel {
   @override
   final String deathDate;
   @override
-  final String profilePicture;
+  final String? profilePicture;
 
   @override
   String toString() {
@@ -605,7 +605,7 @@ abstract class _CreateAuthorModel implements CreateAuthorModel {
       required final String biography,
       required final String birthDate,
       required final String deathDate,
-      required final String profilePicture}) = _$CreateAuthorModelImpl;
+      final String? profilePicture}) = _$CreateAuthorModelImpl;
 
   factory _CreateAuthorModel.fromJson(Map<String, dynamic> json) =
       _$CreateAuthorModelImpl.fromJson;
@@ -619,7 +619,7 @@ abstract class _CreateAuthorModel implements CreateAuthorModel {
   @override
   String get deathDate;
   @override
-  String get profilePicture;
+  String? get profilePicture;
 
   /// Create a copy of CreateAuthorModel
   /// with the given fields replaced by the non-null parameter values.

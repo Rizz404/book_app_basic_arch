@@ -21,7 +21,7 @@ class GenreModel with _$GenreModel {
         id: '',
         name: 'dummy name',
         description: 'dummy description',
-        picture: 'dummy picture',
+        picture: 'https://via.placeholder.com/150',
         createdAt: DateTime(2025),
         updatedAt: DateTime(2025),
         followerCount: 0,

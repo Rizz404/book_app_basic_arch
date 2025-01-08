@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:book_app_basic_arch/core/network/models/api_pagination.dart';
 import 'package:book_app_basic_arch/core/network/models/api_success_response.dart';
 import 'package:book_app_basic_arch/core/shared/type/operation_state.dart';
@@ -80,7 +82,10 @@ class PublisherProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createPublisher(CreatePublisherModel publisher) async {
+  Future<void> createPublisher(
+    CreatePublisherModel publisher,
+    File? picture,
+  ) async {
     _updateOperationState(
       PublisherOperationType.createPublisher,
       isLoading: true,
@@ -88,8 +93,12 @@ class PublisherProvider with ChangeNotifier {
     );
 
     try {
-      await _publisherServices.createPublisher(publisher);
-      await getPublishers();
+      await _publisherServices.createPublisher(publisher, picture);
+      // Clear all cache karena ada data baru
+      _clearAllCache();
+
+      // Refresh semua screen setelah cache dibersihkan
+      await _refreshAllScreens();
 
       _updateOperationState(
         PublisherOperationType.createPublisher,
@@ -138,10 +147,10 @@ class PublisherProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getPublisherById(String id) async {
+  Future<void> getPublisherById(String id, {bool forceRefresh = false}) async {
     // * Cek cache terlebih dahulu
-    if (_publisherCache.containsKey(id)) {
-      return; // * Tidak perlu fetch jika sudah ada di cache dan refresh false
+    if (!forceRefresh && _publisherCache.containsKey(id)) {
+      return;
     }
 
     _updateOperationState(
@@ -209,7 +218,10 @@ class PublisherProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updatePublisher(UpdatePublisherModel publisher) async {
+  Future<void> updatePublisher(
+    UpdatePublisherModel publisher,
+    File? picture,
+  ) async {
     _updateOperationState(
       PublisherOperationType.updatePublisherById,
       isLoading: true,
@@ -217,10 +229,15 @@ class PublisherProvider with ChangeNotifier {
     );
 
     try {
-      await _publisherServices.updatePublisherById(publisher);
+      await _publisherServices.updatePublisherById(publisher, picture);
+      // Invalidate cache untuk publisher yang diupdate
+      _invalidateCache(publisher.id);
 
-      await getPublisherById(publisher.id);
-      await getPublishers();
+      // Fetch ulang data publisher yang diupdate
+      await getPublisherById(publisher.id, forceRefresh: true);
+
+      // Refresh semua screen setelah cache diperbarui
+      await _refreshAllScreens();
 
       _updateOperationState(
         PublisherOperationType.updatePublisherById,
@@ -237,7 +254,7 @@ class PublisherProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deletePublisher(String id) async {
+  Future<void> deletePublisherById(String id) async {
     _updateOperationState(
       PublisherOperationType.deletePublisherById,
       isLoading: true,
@@ -365,5 +382,40 @@ class PublisherProvider with ChangeNotifier {
     _publishersByScreen[PublisherScreenType.search] = [];
     _paginationByScreen[PublisherScreenType.search] = null;
     notifyListeners();
+  }
+
+  // Tambahkan method untuk invalidate cache
+  void _invalidateCache(String id) {
+    _publisherCache.remove(id);
+  }
+
+  // Tambahkan method untuk clear semua cache
+  void _clearAllCache() {
+    _publisherCache.clear();
+  }
+
+  Future<void> _refreshAllScreens() async {
+    try {
+      // Simpan filter yang sedang aktif untuk setiap screen
+      final currentFilters =
+          Map<PublisherScreenType, PublisherFilterModel>.from(_filterByScreen);
+
+      // Refresh data untuk setiap screen
+      for (var screen in PublisherScreenType.values) {
+        if (_publishersByScreen[screen]?.isNotEmpty ?? false) {
+          // Gunakan filter yang sedang aktif untuk screen tersebut
+          final filter = currentFilters[screen]!;
+          final response = await _getDataForScreen(screen, filter);
+          _publishersByScreen[screen] = response.data!;
+          _paginationByScreen[screen] = response.meta.pagination;
+        }
+      }
+
+      // Notify listeners setelah semua screen diperbarui
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error refreshing screens: $e');
+      // Bisa tambahkan error handling tambahan jika diperlukan
+    }
   }
 }
